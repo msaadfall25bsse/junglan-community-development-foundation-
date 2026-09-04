@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar, Clock, ArrowRight, Newspaper, Bookmark, Check } from "lucide-react";
+import { Calendar, Clock, ArrowRight, Newspaper } from "lucide-react";
 import { NEWS_DATA, NewsItem } from "@/data/homepage-data";
 
 export const NewsSection: React.FC = () => {

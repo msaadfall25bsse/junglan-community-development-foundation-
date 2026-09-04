@@ -9,10 +9,9 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
-  Sparkles,
   Layers,
 } from "lucide-react";
-import { PROJECTS_DATA, ProjectItem } from "@/data/homepage-data";
+import { PROJECTS_DATA } from "@/data/homepage-data";
 
 interface ProjectsSectionProps {
   onOpenDonateModal: (projectName?: string) => void;

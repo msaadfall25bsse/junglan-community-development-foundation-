@@ -6,7 +6,6 @@ import {
   ShieldCheck,
   Hammer,
   TrendingUp,
-  ArrowRight,
   Sparkles,
   CheckCircle2,
   FileCheck2,

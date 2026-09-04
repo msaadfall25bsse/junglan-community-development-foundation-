@@ -4,11 +4,8 @@ import React from "react";
 import {
   Ambulance,
   Heart,
-  PhoneCall,
   Clock,
-  MapPin,
   ShieldCheck,
-  CheckCircle2,
   Activity,
   ArrowRight,
 } from "lucide-react";

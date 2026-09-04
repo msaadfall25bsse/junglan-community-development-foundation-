@@ -4,12 +4,8 @@ import React from "react";
 import {
   Sprout,
   Droplets,
-  SunMedium,
   TrendingUp,
-  Heart,
-  CheckCircle2,
   ArrowRight,
-  ShieldCheck,
   Leaf,
 } from "lucide-react";
 

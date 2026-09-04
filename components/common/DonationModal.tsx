@@ -19,16 +19,12 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const [selectedAmount, setSelectedAmount] = useState<number>(60);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isCustom, setIsCustom] = useState<boolean>(false);
-  const [selectedProject, setSelectedProject] = useState<string>(defaultProject);
+  const [selectedProject, setSelectedProject] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (defaultProject) {
-      setSelectedProject(defaultProject);
-    }
-  }, [defaultProject]);
+  const effectiveProject = selectedProject || defaultProject || "All Foundation Initiatives";
 
   // Handle ESC key press
   useEffect(() => {
@@ -101,12 +97,12 @@ export const DonationModal: React.FC<DonationModalProps> = ({
               <h3 className="text-2xl font-bold text-slate-900">Thank You, {name || "Generous Supporter"}!</h3>
               <p className="text-slate-600 max-w-md mx-auto text-sm leading-relaxed">
                 Your pledge of <strong className="text-slate-900">${activeAmount} ({frequency})</strong> towards{" "}
-                <strong className="text-sky-700">{selectedProject}</strong> has been registered in our community pledge book.
+                <strong className="text-sky-700">{effectiveProject}</strong> has been registered in our community pledge book.
               </p>
               <div className="p-4 bg-sky-50 rounded-xl border border-sky-100 text-left text-xs text-slate-700 space-y-1.5">
                 <div className="flex justify-between font-medium">
                   <span>Designated Cause:</span>
-                  <span className="text-slate-900">{selectedProject}</span>
+                  <span className="text-slate-900">{effectiveProject}</span>
                 </div>
                 <div className="flex justify-between font-medium">
                   <span>Pledge Frequency:</span>
@@ -230,7 +226,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   Designate Your Support
                 </label>
                 <select
-                  value={selectedProject}
+                  value={effectiveProject}
                   onChange={(e) => setSelectedProject(e.target.value)}
                   className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-800 focus:border-sky-600 outline-none"
                 >

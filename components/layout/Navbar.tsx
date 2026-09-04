@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Heart, Phone, ArrowUpRight } from "lucide-react";
+import { Menu, X, Heart, ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { NAV_LINKS, FOUNDATION_INFO } from "@/data/homepage-data";
 

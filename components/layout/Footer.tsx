@@ -7,9 +7,7 @@ import {
   Phone,
   Mail,
   MapPin,
-  ArrowUpRight,
   ShieldCheck,
-  Globe,
 } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { FOUNDATION_INFO, NAV_LINKS, PROJECTS_DATA } from "@/data/homepage-data";

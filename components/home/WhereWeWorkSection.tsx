@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin, Navigation, Compass, CheckCircle2, Users, Building, ChevronRight } from "lucide-react";
-import { LOCATIONS_DATA, LocationItem } from "@/data/homepage-data";
+import { MapPin, Navigation, Compass, CheckCircle2, ChevronRight } from "lucide-react";
+import { LOCATIONS_DATA } from "@/data/homepage-data";
 
 export const WhereWeWorkSection: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<number>(0);
