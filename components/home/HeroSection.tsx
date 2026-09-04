@@ -12,7 +12,11 @@ import {
   Users,
   CheckCircle,
   Sparkles,
+  PhoneCall,
+  Activity,
 } from "lucide-react";
+import { Button, Badge } from "@/components/ui";
+import { CONTACT_INFO } from "@/lib/constants/navigation";
 
 interface HeroSectionProps {
   onOpenDonateModal: (project?: string) => void;
@@ -20,28 +24,36 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDonateModal }) => {
   return (
-    <section id="hero" className="relative overflow-hidden bg-gradient-to-b from-sky-50/70 via-white to-white pt-8 pb-16 lg:pt-14 lg:pb-24">
+    <section
+      id="hero"
+      aria-label="Welcome and Mission Overview"
+      className="relative overflow-hidden bg-gradient-to-b from-sky-50/70 via-white to-white pt-6 pb-16 lg:pt-12 lg:pb-24"
+    >
       {/* Background Decorative Mesh & Light Blobs */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full overflow-hidden pointer-events-none -z-10">
-        <div className="absolute -top-24 right-0 w-96 h-96 bg-sky-200/40 rounded-full blur-3xl" />
+        <div className="absolute -top-24 right-0 w-96 h-96 bg-sky-200/40 rounded-full blur-3xl animate-pulse-subtle" />
         <div className="absolute top-48 -left-20 w-80 h-80 bg-sky-100/60 rounded-full blur-2xl" />
-        <div className="absolute bottom-10 right-1/4 w-72 h-72 bg-red-100/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-1/4 w-72 h-72 bg-red-100/25 rounded-full blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           
           {/* Left Column: Mission Narrative & Fundraising CTAs */}
-          <div className="lg:col-span-7 space-y-6 text-left">
+          <div className="lg:col-span-7 space-y-6 text-left animate-fade-in">
             
-            {/* Mission Category Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-100/80 border border-sky-200 text-sky-800 text-xs sm:text-sm font-semibold shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
-              <span>Community Development & Humanitarian NGO</span>
+            {/* Mission Category Badges Row */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="sky" pulseDot>
+                Community Development & Humanitarian NGO
+              </Badge>
+              <Badge variant="danger" dot>
+                24/7 Emergency Ambulance Active
+              </Badge>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.12]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-black text-slate-900 tracking-tight leading-[1.12]">
               Building Stronger Communities,{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-sky-800">
                 Creating Lasting Impact
@@ -50,76 +62,104 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDonateModal }) =
 
             {/* Supporting Subtext */}
             <p className="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed font-normal">
-              Junglan Community Development Foundation empowers underserved villages and families through practical, high-impact initiatives in{" "}
+              Junglan Community Development Foundation empowers underserved rural valleys through practical, high-impact interventions in{" "}
               <strong className="text-slate-800 font-semibold">emergency healthcare transit</strong>,{" "}
               <strong className="text-slate-800 font-semibold">sustainable olive agriculture</strong>, and{" "}
-              <strong className="text-slate-800 font-semibold">long-term community development</strong>.
+              <strong className="text-slate-800 font-semibold">community self-sufficiency</strong>.
             </p>
 
-            {/* Multi-Project Pillar Chips */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-sky-100 shadow-xs hover:border-sky-300 transition-colors">
-                <div className="p-2 bg-sky-50 text-sky-600 rounded-lg shrink-0">
-                  <Ambulance className="w-4 h-4" />
+            {/* 3 Core Pillar Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-sky-100 shadow-xs hover:border-sky-300 hover:shadow-sm transition-all group">
+                <div className="w-10 h-10 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Ambulance className="w-5 h-5" />
                 </div>
                 <div className="text-xs">
-                  <div className="font-bold text-slate-900">Healthcare</div>
-                  <div className="text-slate-500">Ambulance Service</div>
+                  <div className="font-extrabold text-slate-900">Healthcare</div>
+                  <div className="text-slate-500">24/7 Ambulance Fleet</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-sky-100 shadow-xs hover:border-sky-300 transition-colors">
-                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
-                  <Sprout className="w-4 h-4" />
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-sky-100 shadow-xs hover:border-emerald-300 hover:shadow-sm transition-all group">
+                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Sprout className="w-5 h-5" />
                 </div>
                 <div className="text-xs">
-                  <div className="font-bold text-slate-900">Agriculture</div>
+                  <div className="font-extrabold text-slate-900">Agriculture</div>
                   <div className="text-slate-500">Olive Cultivation</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-sky-100 shadow-xs hover:border-sky-300 transition-colors">
-                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg shrink-0">
-                  <Building2 className="w-4 h-4" />
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-sky-100 shadow-xs hover:border-indigo-300 hover:shadow-sm transition-all group">
+                <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <Building2 className="w-5 h-5" />
                 </div>
                 <div className="text-xs">
-                  <div className="font-bold text-slate-900">Development</div>
-                  <div className="text-slate-500">Infrastructure</div>
+                  <div className="font-extrabold text-slate-900">Development</div>
+                  <div className="text-slate-500">Rural Infrastructure</div>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons: Primary Donate + Secondary Explore */}
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
-              <button
+              <Button
+                variant="danger"
+                size="lg"
                 onClick={() => onOpenDonateModal()}
-                className="py-3.5 px-8 bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white font-extrabold text-base rounded-xl transition-all shadow-lg shadow-red-600/25 flex items-center justify-center gap-2 group cursor-pointer"
+                leftIcon={<Heart className="w-5 h-5 fill-white" />}
+                rightIcon={<ArrowRight className="w-4 h-4 ml-0.5" />}
+                className="shadow-lg shadow-red-600/25 cursor-pointer text-base"
               >
-                <Heart className="w-5 h-5 fill-white transition-transform group-hover:scale-115" />
-                <span>Donate Now</span>
-                <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
-              </button>
+                Donate to Field Missions
+              </Button>
 
-              <Link
-                href="#projects"
-                className="py-3.5 px-7 bg-white hover:bg-sky-50 text-slate-800 hover:text-sky-700 border border-slate-200 hover:border-sky-300 font-bold text-base rounded-xl transition-all text-center flex items-center justify-center gap-2"
-              >
-                <span>Explore Our Projects</span>
+              <Link href="/#projects" className="inline-flex">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="w-full sm:w-auto text-slate-800 hover:text-sky-700"
+                >
+                  Explore Our Projects
+                </Button>
               </Link>
             </div>
 
+            {/* Emergency Hotline Banner under CTAs */}
+            <div className="p-3 rounded-2xl bg-red-50/80 border border-red-200/80 flex items-center justify-between gap-3 max-w-xl">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="w-8 h-8 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <PhoneCall className="w-4 h-4 animate-pulse" />
+                </span>
+                <div className="text-xs truncate">
+                  <span className="font-bold text-red-900 block truncate">
+                    Emergency Patient Transport Hotline
+                  </span>
+                  <span className="text-red-700 font-semibold">
+                    {CONTACT_INFO.emergencyHotline} (Direct Dispatch)
+                  </span>
+                </div>
+              </div>
+              <a
+                href={`tel:${CONTACT_INFO.emergencyHotline}`}
+                className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors shrink-0 shadow-xs"
+              >
+                Call
+              </a>
+            </div>
+
             {/* Trust Assurance Markers */}
-            <div className="pt-3 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-slate-500">
+            <div className="pt-2 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-slate-500">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-sky-600" />
-                <span>100% Direct Project Allocation</span>
+                <ShieldCheck className="w-4 h-4 text-sky-600 shrink-0" />
+                <span>100% Direct Field Allocation</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-emerald-600" />
-                <span>Verified Community Programs</span>
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Verified Community Projects</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-500" />
+                <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                 <span>Transparent Annual Audits</span>
               </div>
             </div>
@@ -127,7 +167,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDonateModal }) =
           </div>
 
           {/* Right Column: High-Impact Visual Card Composition */}
-          <div className="lg:col-span-5 relative">
+          <div className="lg:col-span-5 relative animate-fade-in">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               
               {/* Main Visual Composition Card */}
@@ -140,22 +180,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDonateModal }) =
                   
                   {/* Top Badges */}
                   <div className="relative z-10 flex justify-between items-center">
-                    <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold text-sky-200 border border-white/10">
+                    <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold text-sky-200 border border-white/10 flex items-center gap-1.5">
+                      <Activity className="w-3.5 h-3.5 text-sky-300 animate-pulse" />
                       Community Mission
                     </span>
                     <span className="px-3 py-1 bg-red-600/90 backdrop-blur-md rounded-full text-xs font-bold text-white shadow-xs">
-                      Active In The Field
+                      Active In Field
                     </span>
                   </div>
 
                   {/* Central Visual Collage Vector */}
                   <div className="relative z-10 my-auto text-center space-y-2">
-                    <div className="inline-flex items-center justify-center p-3 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20">
+                    <div className="inline-flex items-center justify-center p-3.5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20 shadow-inner">
                       <Users className="w-8 h-8 text-sky-300" />
                     </div>
-                    <h3 className="text-xl font-bold text-white tracking-tight">
+                    <h2 className="text-xl font-bold text-white tracking-tight">
                       Empowering Lives Locally
-                    </h3>
+                    </h2>
                     <p className="text-xs text-sky-200 max-w-xs mx-auto leading-relaxed">
                       Transforming rural resilience from emergency relief to sustainable self-sufficiency.
                     </p>
@@ -164,7 +205,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDonateModal }) =
                   {/* Bottom Live Progress Bar */}
                   <div className="relative z-10 pt-2 border-t border-white/10 flex items-center justify-between text-xs">
                     <span className="text-sky-200">2026 Community Reach</span>
-                    <span className="text-white font-bold">35,000+ People</span>
+                    <span className="text-white font-extrabold tracking-wide">35,000+ People</span>
                   </div>
                 </div>
 
@@ -179,8 +220,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDonateModal }) =
                       </div>
                       <span className="text-xs font-bold text-slate-900">Healthcare</span>
                     </div>
-                    <div className="text-lg font-extrabold text-sky-700">1,850+</div>
-                    <p className="text-[11px] text-slate-500">Emergency transits operated</p>
+                    <div className="text-lg font-black text-sky-700">1,850+</div>
+                    <p className="text-[11px] text-slate-500">Emergency transits</p>
                   </div>
 
                   {/* Floating Micro-Card 2: Agriculture */}
@@ -191,8 +232,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDonateModal }) =
                       </div>
                       <span className="text-xs font-bold text-slate-900">Agriculture</span>
                     </div>
-                    <div className="text-lg font-extrabold text-emerald-700">15,000+</div>
-                    <p className="text-[11px] text-slate-500">Olive saplings planted</p>
+                    <div className="text-lg font-black text-emerald-700">15,000+</div>
+                    <p className="text-[11px] text-slate-500">Olive trees planted</p>
                   </div>
 
                 </div>
@@ -207,12 +248,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenDonateModal }) =
                       $25 fuels 2 emergency medical trips
                     </div>
                   </div>
-                  <button
-                    onClick={() => onOpenDonateModal()}
-                    className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold transition-transform active:scale-95 shadow-sm"
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => onOpenDonateModal("Emergency Healthcare & Ambulance")}
+                    className="shrink-0 font-bold"
                   >
                     Support
-                  </button>
+                  </Button>
                 </div>
 
               </div>
