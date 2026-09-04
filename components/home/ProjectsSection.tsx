@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   Ambulance,
@@ -10,38 +10,130 @@ import {
   CheckCircle2,
   Clock,
   Layers,
+  Heart,
+  TrendingUp,
+  SlidersHorizontal,
 } from "lucide-react";
 import { PROJECTS_DATA } from "@/data/homepage-data";
+import { Button, SectionHeader } from "@/components/ui";
 
 interface ProjectsSectionProps {
   onOpenDonateModal: (projectName?: string) => void;
 }
 
+type CategoryFilter = "ALL" | "Healthcare" | "Agriculture" | "Community Development";
+
 export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenDonateModal }) => {
+  const [activeFilter, setActiveFilter] = useState<CategoryFilter>("ALL");
+
+  const categories: { label: string; value: CategoryFilter; count: number }[] = [
+    { label: "All Initiatives", value: "ALL", count: PROJECTS_DATA.length },
+    {
+      label: "Healthcare & Emergency",
+      value: "Healthcare",
+      count: PROJECTS_DATA.filter((p) => p.category === "Healthcare").length,
+    },
+    {
+      label: "Olive Agriculture",
+      value: "Agriculture",
+      count: PROJECTS_DATA.filter((p) => p.category === "Agriculture").length,
+    },
+    {
+      label: "Community Development",
+      value: "Community Development",
+      count: PROJECTS_DATA.filter((p) => p.category === "Community Development").length,
+    },
+  ];
+
+  const filteredProjects =
+    activeFilter === "ALL"
+      ? PROJECTS_DATA
+      : PROJECTS_DATA.filter((p) => p.category === activeFilter);
+
+  // Field progress stats for visual progress meter
+  const progressMap: Record<
+    string,
+    { label: string; current: string; target: string; percent: number }
+  > = {
+    "healthcare-ambulance": {
+      label: "Emergency Dispatch Operability",
+      current: "1,850+ Runs",
+      target: "24/7 Continuous",
+      percent: 100,
+    },
+    "agriculture-olive": {
+      label: "Olive Saplings Planted",
+      current: "15,000",
+      target: "50,000 Target",
+      percent: 30,
+    },
+    "community-construction": {
+      label: "Site Assessment & Planning",
+      current: "Phase 1 Planning",
+      target: "Groundbreaking 2026",
+      percent: 65,
+    },
+  };
+
   return (
-    <section id="projects" className="py-16 sm:py-24 bg-slate-50/70 border-y border-slate-200/60">
+    <section
+      id="projects"
+      aria-label="Core Initiatives and Field Projects"
+      className="py-16 sm:py-24 bg-slate-50/70 border-y border-slate-200/60"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-bold uppercase tracking-wider mb-3">
-            <Layers className="w-3.5 h-3.5 text-sky-600" />
-            <span>Targeted Interventions</span>
+        <SectionHeader
+          tag="Field Projects & Initiatives"
+          tagIcon={<Layers className="w-3.5 h-3.5" />}
+          title="Practical Programs with Verified Impact"
+          subtitle="Our field missions are strictly prioritized around fundamental human needs: emergency medical transit to save lives, commercial olive farming to eradicate poverty, and community infrastructure to secure dignity."
+          align="center"
+        />
+
+        {/* Category Filter Tabs */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+          <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white border border-slate-200 shadow-xs flex-wrap justify-center">
+            <span className="hidden sm:flex items-center gap-1 text-xs font-bold text-slate-400 px-3">
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              Filter:
+            </span>
+            {categories.map((cat) => (
+              <button
+                key={cat.value}
+                type="button"
+                onClick={() => setActiveFilter(cat.value)}
+                className={[
+                  "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer",
+                  activeFilter === cat.value
+                    ? "bg-sky-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-sky-700 hover:bg-slate-100",
+                ].join(" ")}
+              >
+                <span>{cat.label}</span>
+                <span
+                  className={[
+                    "text-[10px] px-1.5 py-0.2 rounded-full",
+                    activeFilter === cat.value
+                      ? "bg-sky-700 text-white"
+                      : "bg-slate-200 text-slate-600",
+                  ].join(" ")}
+                >
+                  {cat.count}
+                </span>
+              </button>
+            ))}
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Our Projects
-          </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 leading-relaxed">
-            Our work focuses on practical initiatives that improve lives and strengthen local communities across essential dimensions of human well-being.
-          </p>
         </div>
 
-        {/* 3 Project Cards Grid */}
+        {/* Projects Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {PROJECTS_DATA.map((project) => {
+          {filteredProjects.map((project) => {
             const isHealthcare = project.id === "healthcare-ambulance";
             const isAgriculture = project.id === "agriculture-olive";
             const isComingSoon = project.status === "Coming Soon";
+            const progress = progressMap[project.id];
 
             return (
               <div
@@ -54,7 +146,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenDonateMo
                     : "border-slate-200 hover:border-indigo-300"
                 }`}
               >
-                {/* Card Top Banner / Visual Area */}
+                {/* Card Top Visual Banner */}
                 <div
                   className={`p-6 text-white relative overflow-hidden ${
                     isHealthcare
@@ -81,13 +173,13 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenDonateMo
                       {project.category}
                     </span>
 
-                    <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-black/20 text-slate-200 border border-white/10 flex items-center gap-1">
+                    <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-black/25 text-slate-100 border border-white/10 flex items-center gap-1.5">
                       {isComingSoon ? (
                         <Clock className="w-3 h-3 text-amber-400" />
                       ) : (
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       )}
-                      {project.status}
+                      <span>{project.status}</span>
                     </span>
                   </div>
 
@@ -120,6 +212,35 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenDonateMo
                       {project.shortDescription}
                     </p>
 
+                    {/* Milestone Progress Bar */}
+                    {progress && (
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5">
+                        <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                          <span className="flex items-center gap-1">
+                            <TrendingUp className="w-3 h-3 text-sky-600" />
+                            {progress.label}
+                          </span>
+                          <span className="text-slate-900 font-bold">{progress.current}</span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              isHealthcare
+                                ? "bg-sky-600"
+                                : isAgriculture
+                                ? "bg-emerald-600"
+                                : "bg-indigo-600"
+                            }`}
+                            style={{ width: `${progress.percent}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-slate-400">
+                          <span>Progress</span>
+                          <span>{progress.target}</span>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Key Interventions Checklist */}
                     <div className="space-y-2 pt-2 border-t border-slate-100">
                       <div className="text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -142,7 +263,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenDonateMo
                     </div>
                   </div>
 
-                  {/* Card Bottom CTA Actions */}
+                  {/* Bottom Action Row */}
                   <div className="pt-4 border-t border-slate-100 flex items-center gap-2.5">
                     {isComingSoon ? (
                       <div className="w-full py-2.5 px-4 bg-slate-100 text-slate-500 font-semibold text-xs rounded-xl text-center flex items-center justify-center gap-2">
@@ -153,19 +274,28 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenDonateMo
                       <>
                         <Link
                           href={project.ctaLink}
-                          className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-sky-50 text-slate-800 hover:text-sky-700 font-bold text-xs rounded-xl transition-colors text-center flex items-center justify-center gap-1.5"
+                          className="flex-1"
                         >
-                          <span>{project.ctaText}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            fullWidth
+                            rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                          >
+                            {project.ctaText}
+                          </Button>
                         </Link>
 
-                        <button
+                        <Button
+                          variant="danger"
+                          size="sm"
                           onClick={() => onOpenDonateModal(project.title)}
-                          className="py-2.5 px-3.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition-all shadow-xs flex items-center justify-center gap-1 shrink-0"
+                          leftIcon={<Heart className="w-3.5 h-3.5 fill-white" />}
+                          className="shrink-0"
                           title={`Support ${project.category}`}
                         >
-                          <span>Support</span>
-                        </button>
+                          Support
+                        </Button>
                       </>
                     )}
                   </div>
