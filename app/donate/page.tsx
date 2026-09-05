@@ -5,6 +5,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Button } from "@/components/ui/Button";
+import { Toast } from "@/components/ui/Toast";
 import { OFFICIAL_BANK_DETAILS, FOUNDATION_INFO } from "@/data/content";
 import {
   HeartHandshake,
@@ -23,6 +24,11 @@ export default function DonatePage() {
   const [selectedAmount, setSelectedAmount] = useState<number | "CUSTOM">(5000);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [toastConfig, setToastConfig] = useState<{ isOpen: boolean; title: string; message: string }>({
+    isOpen: false,
+    title: "",
+    message: "",
+  });
 
   const [donorForm, setDonorForm] = useState({
     name: "",
@@ -38,6 +44,11 @@ export default function DonatePage() {
   const handleCopy = (text: string, fieldName: string) => {
     navigator.clipboard.writeText(text);
     setCopiedField(fieldName);
+    setToastConfig({
+      isOpen: true,
+      title: "Copied to Clipboard",
+      message: `${fieldName === "iban" ? "IBAN" : "Account Number"} copied for online bank transfer.`,
+    });
     setTimeout(() => setCopiedField(null), 2000);
   };
 
@@ -46,7 +57,12 @@ export default function DonatePage() {
     setSubmitStatus("LOADING");
     setTimeout(() => {
       setSubmitStatus("SUCCESS");
-    }, 800);
+      setToastConfig({
+        isOpen: true,
+        title: "Transfer Logged Successfully!",
+        message: "Your donation receipt reference has been recorded for the audit ledger.",
+      });
+    }, 700);
   };
 
   const finalAmount =
@@ -404,6 +420,14 @@ export default function DonatePage() {
           </div>
         </Container>
       </section>
+
+      <Toast
+        isOpen={toastConfig.isOpen}
+        onClose={() => setToastConfig({ ...toastConfig, isOpen: false })}
+        title={toastConfig.title}
+        message={toastConfig.message}
+        type="success"
+      />
     </PublicLayout>
   );
 }

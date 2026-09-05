@@ -5,6 +5,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Button } from "@/components/ui/Button";
+import { Toast } from "@/components/ui/Toast";
 import { FOUNDATION_INFO } from "@/data/content";
 import {
   MapPin,
@@ -28,6 +29,7 @@ export default function ContactPage() {
 
   const [status, setStatus] = useState<"IDLE" | "LOADING" | "SUCCESS" | "ERROR">("IDLE");
   const [errorMessage, setErrorMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,11 +41,18 @@ export default function ContactPage() {
       return;
     }
 
+    if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      setStatus("ERROR");
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
     setStatus("LOADING");
 
     // Simulated clean submission delay
     setTimeout(() => {
       setStatus("SUCCESS");
+      setShowToast(true);
       setFormData({
         fullName: "",
         email: "",
@@ -51,7 +60,7 @@ export default function ContactPage() {
         subject: "GENERAL_INQUIRY",
         message: "",
       });
-    }, 800);
+    }, 700);
   };
 
   return (
@@ -272,6 +281,14 @@ export default function ContactPage() {
           </div>
         </Container>
       </section>
+
+      <Toast
+        isOpen={showToast}
+        onClose={() => setShowToast(false)}
+        title="Inquiry Sent Successfully!"
+        message="Thank you for reaching out. A foundation representative will contact you shortly."
+        type="success"
+      />
     </PublicLayout>
   );
 }

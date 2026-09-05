@@ -47,6 +47,11 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+import {
+  OrganizationStructuredData,
+  WebsiteStructuredData,
+} from "@/components/common/StructuredData";
+
 export default function RootLayout({
   children,
 }: {
@@ -57,6 +62,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jakarta.variable} scroll-smooth`}
     >
+      <head>
+        <OrganizationStructuredData />
+        <WebsiteStructuredData />
+      </head>
       <body className="min-h-screen flex flex-col font-sans antialiased bg-white text-slate-900">
         {children}
       </body>
