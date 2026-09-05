@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
+/* ==============================================================================
+   DESIGN SYSTEM BASELINE — JUNGLAN COMMUNITY DEVELOPMENT FOUNDATION
+   ==============================================================================
+   Visual Direction (Per Section 17 of Project Specification):
+   - Primary: Sky Blue (#0284c7 / #0ea5e9)
+   - Secondary / Base: White (#ffffff)
+   - Contrast / Hierarchy: Dark Navy & Dark Charcoal (#0f172a / #1e293b)
+   - Supporting / Surfaces: Very Light Blue (#f0f9ff / #e0f2fe)
+   - Controlled Emergency Accent: Red (#ef4444) strictly for urgency badges
+   - Rule: Do NOT turn the entire design into a red ambulance-dominated site.
+============================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --color-primary: #0284c7;
+  --color-primary-hover: #0369a1;
+  --color-primary-light: #f0f9ff;
+  --color-primary-border: #bae6fd;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-navy: #0f172a;
+  --color-charcoal: #1e293b;
+  --color-muted: #64748b;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-surface-bg: #ffffff;
+  --color-surface-subtle: #f8fafc;
+  --color-surface-card: #ffffff;
+
+  --color-accent-emergency: #ef4444;
+  --color-accent-emergency-bg: #fef2f2;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-surface-bg);
+  color: var(--color-charcoal);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for modern dashboard/portal layouts */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

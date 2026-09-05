@@ -1,0 +1,351 @@
+// ==============================================================================
+// PRISMA DATABASE SCHEMA — JUNGLAN COMMUNITY DEVELOPMENT FOUNDATION
+// ==============================================================================
+// Primary Source of Truth: PostgreSQL
+// Architectural rules:
+// 1. All financial and operational records belong to a specific YearPeriod (2026+).
+// 2. Soft-review and duplicate-handling principles are observed (no destructive cascade on audit records).
+// 3. IDs follow human-readable patterns where appropriate (e.g., PAT-2026-000001).
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ------------------------------------------------------------------------------
+// 1. AUTHENTICATION & ACCESS CONTROL
+// ------------------------------------------------------------------------------
+enum UserRole {
+  ADMIN
+  DATA_ENTRY
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         UserRole  @default(DATA_ENTRY)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  loggedExpenses  Expense[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+}
+
+// ------------------------------------------------------------------------------
+// 2. FISCAL YEAR & HISTORICAL RECORDS MANAGEMENT
+// ------------------------------------------------------------------------------
+model YearPeriod {
+  id              String   @id // e.g. "2026"
+  label           String   // e.g. "Fiscal Year 2026"
+  startDate       DateTime
+  endDate         DateTime
+  isCurrentActive Boolean  @default(false)
+  isArchived      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  trips           Trip[]
+  donations       Donation[]
+  expenses        Expense[]
+  fuelLogs        FuelLog[]
+  maintenanceLogs MaintenanceLog[]
+
+  @@map("year_periods")
+}
+
+// ------------------------------------------------------------------------------
+// 3. PATIENT RECORDS & DUPLICATE DETECTION SUPPORT
+// ------------------------------------------------------------------------------
+model Patient {
+  id                      String   @id // e.g. "PAT-2026-000001"
+  fullName                String
+  cnicOrBForm             String?
+  gender                  String
+  age                     Int
+  contactNumber           String
+  emergencyContactName    String?
+  emergencyContactPhone   String?
+  residenceArea           String
+  medicalConditionSummary String
+  firstEncounterDate      DateTime @default(now())
+  totalTripsCount         Int      @default(0)
+  isFlaggedForReview      Boolean  @default(false)
+  flagReason              String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  trips                   Trip[]
+
+  @@index([cnicOrBForm])
+  @@index([contactNumber])
+  @@map("patients")
+}
+
+// ------------------------------------------------------------------------------
+// 4. AMBULANCE FLEET & DISPATCH TRACKING
+// ------------------------------------------------------------------------------
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  MAINTENANCE
+  OUT_OF_SERVICE
+}
+
+model AmbulanceVehicle {
+  id                 String        @id // e.g. "AMB-01"
+  registrationNumber String        @unique // e.g. "ICT-LE-482"
+  model              String
+  year               Int
+  status             VehicleStatus @default(AVAILABLE)
+  currentOdometerKm  Float         @default(0)
+  assignedDriverId   String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  trips              Trip[]
+  fuelLogs           FuelLog[]
+  maintenanceLogs    MaintenanceLog[]
+
+  @@map("ambulance_vehicles")
+}
+
+enum TripStatus {
+  SCHEDULED
+  DISPATCHED
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+enum UrgencyLevel {
+  ROUTINE
+  URGENT
+  CRITICAL
+}
+
+model Trip {
+  id              String       @id // e.g. "TRP-2026-000001"
+  ambulanceId     String
+  driverName      String
+  paramedicName   String?
+  patientId       String?
+  patientName     String
+  patientPhone    String?
+  pickupLocation  String
+  dropoffHospital String
+  distanceKm      Float        @default(0)
+  startOdometerKm Float
+  endOdometerKm   Float?
+  dispatchTime    DateTime
+  completedTime   DateTime?
+  tripStatus      TripStatus   @default(DISPATCHED)
+  urgencyLevel    UrgencyLevel @default(URGENT)
+  notes           String?
+  yearPeriodId    String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  ambulance       AmbulanceVehicle @relation(fields: [ambulanceId], references: [id])
+  patient         Patient?         @relation(fields: [patientId], references: [id])
+  yearPeriod      YearPeriod       @relation(fields: [yearPeriodId], references: [id])
+
+  @@index([yearPeriodId])
+  @@index([tripStatus])
+  @@map("trips")
+}
+
+// ------------------------------------------------------------------------------
+// 5. FUEL & FLEET MAINTENANCE LOGS
+// ------------------------------------------------------------------------------
+model FuelLog {
+  id                String   @id // e.g. "FUEL-2026-000001"
+  ambulanceId       String
+  liters            Float
+  pricePerLiterPKR  Float
+  totalCostPKR      Float
+  odometerReadingKm Float
+  fuelStationName   String
+  receiptNumber     String?
+  loggedByUserId    String
+  yearPeriodId      String
+  createdAt         DateTime @default(now())
+
+  ambulance         AmbulanceVehicle @relation(fields: [ambulanceId], references: [id])
+  yearPeriod        YearPeriod       @relation(fields: [yearPeriodId], references: [id])
+
+  @@map("fuel_logs")
+}
+
+model MaintenanceLog {
+  id                String   @id // e.g. "MNT-2026-000001"
+  ambulanceId       String
+  serviceType       String   // OIL_CHANGE, TIRE_REPLACEMENT, etc.
+  description       String
+  costPKR           Float
+  workshopName      String
+  odometerReadingKm Float
+  invoiceNumber     String?
+  performedDate     DateTime
+  yearPeriodId      String
+  createdAt         DateTime @default(now())
+
+  ambulance         AmbulanceVehicle @relation(fields: [ambulanceId], references: [id])
+  yearPeriod        YearPeriod       @relation(fields: [yearPeriodId], references: [id])
+
+  @@map("maintenance_logs")
+}
+
+// ------------------------------------------------------------------------------
+// 6. DONATIONS & FINANCIAL ACCOUNTING
+// ------------------------------------------------------------------------------
+enum DonationCategory {
+  HEALTHCARE
+  AGRICULTURE
+  GENERAL
+  EDUCATION
+  EMERGENCY_RELIEF
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CASH
+  ONLINE_PORTAL
+  CHEQUE
+  OTHER
+}
+
+enum DonationStatus {
+  PENDING_VERIFICATION
+  CONFIRMED
+  CANCELLED
+}
+
+model Donation {
+  id              String           @id // e.g. "DON-2026-000001"
+  donorName       String
+  donorEmail      String?
+  donorPhone      String
+  amount          Float
+  currency        String           @default("PKR")
+  category        DonationCategory @default(GENERAL)
+  paymentMethod   PaymentMethod    @default(BANK_TRANSFER)
+  referenceNumber String?
+  status          DonationStatus   @default(PENDING_VERIFICATION)
+  isAnonymous     Boolean          @default(false)
+  notes           String?
+  yearPeriodId    String
+  createdAt       DateTime         @default(now())
+  verifiedAt      DateTime?
+
+  yearPeriod      YearPeriod       @relation(fields: [yearPeriodId], references: [id])
+
+  @@index([yearPeriodId])
+  @@index([status])
+  @@map("donations")
+}
+
+enum ExpenseStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+model Expense {
+  id                   String        @id // e.g. "EXP-2026-000001"
+  voucherNumber        String        @unique
+  title                String
+  category             String        // AMBULANCE_FUEL, MAINTENANCE, SUPPLIES, etc.
+  amountPKR            Float
+  paidTo               String
+  description          String
+  receiptAttachmentUrl String?
+  status               ExpenseStatus @default(PENDING_APPROVAL)
+  approvedByUserId     String?
+  loggedByUserId       String
+  yearPeriodId         String
+  createdAt            DateTime      @default(now())
+
+  loggedByUser         User          @relation(fields: [loggedByUserId], references: [id])
+  yearPeriod           YearPeriod    @relation(fields: [yearPeriodId], references: [id])
+
+  @@map("expenses")
+}
+
+// ------------------------------------------------------------------------------
+// 7. PUBLIC CMS: PROJECTS, NEWS & LOCATIONS
+// ------------------------------------------------------------------------------
+model Project {
+  id                         String   @id @default(cuid())
+  slug                       String   @unique
+  title                      String
+  category                   String   // HEALTHCARE, AGRICULTURE, COMMUNITY_DEVELOPMENT
+  shortSummary               String
+  fullDescription            String
+  coverImageUrl              String
+  targetFundingPKR           Float?
+  currentFundingPKR          Float?   @default(0)
+  beneficiariesImpactedCount Int      @default(0)
+  status                     String   @default("ACTIVE")
+  isFeatured                 Boolean  @default(false)
+  orderIndex                 Int      @default(0)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@map("projects")
+}
+
+model News {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  category      String
+  summary       String
+  content       String
+  coverImageUrl String
+  publishedAt   DateTime @default(now())
+  authorName    String
+  isPublished   Boolean  @default(true)
+
+  @@map("news")
+}
+
+model OperationalLocation {
+  id                      String   @id @default(cuid())
+  name                    String
+  district                String
+  provinceState           String
+  description             String
+  ambulanceStationedCount Int      @default(0)
+  createdAt               DateTime @default(now())
+
+  @@map("operational_locations")
+}
+
+// ------------------------------------------------------------------------------
+// 8. AUDIT LOGGING & SYSTEM TRACEABILITY
+// ------------------------------------------------------------------------------
+model AuditLog {
+  id               String   @id @default(cuid())
+  action           String   // CREATE, UPDATE, DELETE, VIEW, EXPORT
+  entityType       String   // PATIENT, TRIP, EXPENSE, DONATION, USER
+  entityId         String
+  performedByUserId String
+  metadataJson     String?
+  timestamp        DateTime @default(now())
+
+  performedByUser  User     @relation(fields: [performedByUserId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
