@@ -25,38 +25,33 @@ export function AboutSection() {
           subtitle="Junglan Community Development Foundation was founded to bring tangible, transparent assistance to remote rural populations in Khyber Pakhtunkhwa where basic services are out of reach."
         />
 
-        {/* Narrative & Vision Overview */}
-        <div className="max-w-4xl mx-auto mb-16 p-8 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
-          <div className="prose prose-slate max-w-none text-slate-600 text-base sm:text-lg leading-relaxed space-y-4">
+        {/* Narrative Teaser */}
+        <div className="max-w-4xl mx-auto mb-12 p-8 sm:p-10 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+          <div className="text-slate-600 text-base leading-relaxed space-y-4">
             <p>
               In many rural mountainous pockets of District Mansehra, access to immediate healthcare is hindered by steep terrain and absence of public transport. A medical emergency often turns tragic purely due to travel delays.
             </p>
             <p>
-              At the same time, traditional rain-fed subsistence farming leaves local families financially vulnerable. Junglan Foundation bridges both urgent life-safety needs and long-term economic stability:
+              At the same time, traditional rain-fed subsistence farming leaves local families financially vulnerable. Junglan Community Development Foundation bridges both urgent life-safety needs and long-term economic stability through dedicated emergency ambulances and commercial olive cultivation.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-sm font-medium text-slate-800">
-              <div className="p-3 rounded-xl bg-sky-50/80 border border-sky-100 flex items-start gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-sky-600 mt-1.5 shrink-0" />
-                <span>Immediate Relief: Dedicated emergency ambulance transfers operated free for vulnerable patients.</span>
-              </div>
-              <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-start gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 mt-1.5 shrink-0" />
-                <span>Generational Prosperity: Commercial olive cultivation transforming low-yield land into sustainable income.</span>
-              </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-xs text-slate-500">
+              Founded on Islamic humanitarian service and civic integrity.
             </div>
+            <Button
+              href="/about"
+              variant="primary"
+              size="sm"
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+            >
+              Read Our Full Story & Governance
+            </Button>
           </div>
         </div>
 
-        {/* 4 Pillars of Integrity */}
-        <div className="text-center mb-8">
-          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            Our 4 Core Pillars of Stewardship
-          </h3>
-          <p className="text-slate-500 text-sm mt-1">
-            Principles that guide every vehicle dispatch, olive seedling, and donor contribution.
-          </p>
-        </div>
-
+        {/* 4 Pillars of Integrity Summary Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {ABOUT_PILLARS.map((pillar) => (
             <Card key={pillar.title} hoverEffect className="bg-white">
@@ -73,18 +68,6 @@ export function AboutSection() {
               </CardHeader>
             </Card>
           ))}
-        </div>
-
-        {/* Call to action bar */}
-        <div className="mt-12 text-center">
-          <Button
-            href="/reports"
-            variant="outline"
-            size="md"
-            rightIcon={<ArrowRight className="w-4 h-4" />}
-          >
-            Read Our Transparency & Governance Pledge
-          </Button>
         </div>
       </Container>
     </section>

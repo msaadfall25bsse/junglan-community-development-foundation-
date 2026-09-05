@@ -69,8 +69,17 @@ export function WhereWeWorkSection() {
               </p>
             </div>
           </div>
-          <div className="text-xs font-semibold text-slate-500 shrink-0 bg-white px-4 py-2 rounded-xl border border-slate-200">
-            Field Office: Junglan Valley
+          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+            <a
+              href="/where-we-work"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-xs transition-colors"
+            >
+              <span>Explore Full Transit Corridors</span>
+              <span>→</span>
+            </a>
+            <div className="text-xs font-semibold text-slate-500 bg-white px-3.5 py-2 rounded-xl border border-slate-200">
+              Base: Junglan Valley
+            </div>
           </div>
         </div>
       </Container>

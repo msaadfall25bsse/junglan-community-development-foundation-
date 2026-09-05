@@ -52,15 +52,19 @@ export function ImpactStats() {
           ))}
         </div>
 
-        {/* Bottom Note */}
-        <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        {/* Bottom Note & CTA */}
+        <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Field data updated on monthly accounting cycle • Managed via strict RBAC ledgers</span>
+            <span>Field data updated on monthly accounting cycle • 100% verified against bank receipts</span>
           </div>
-          <div className="text-sky-700 font-medium">
-            PostgreSQL Schema Ready
-          </div>
+          <a
+            href="/impact"
+            className="inline-flex items-center gap-1 font-bold text-sky-700 hover:text-sky-900 transition-colors"
+          >
+            <span>Explore Complete Verified Impact</span>
+            <span>→</span>
+          </a>
         </div>
       </Container>
     </section>

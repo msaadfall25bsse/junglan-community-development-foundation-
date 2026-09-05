@@ -7,6 +7,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Public Core Routes
   const routes = [
     "",
+    "/about",
+    "/impact",
+    "/where-we-work",
     "/projects",
     "/projects/healthcare-ambulance",
     "/projects/olive-agriculture",
