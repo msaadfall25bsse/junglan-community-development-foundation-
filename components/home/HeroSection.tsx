@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   HeartHandshake,
@@ -9,6 +11,8 @@ import {
   Users,
   PhoneCall,
   Sparkles,
+  Play,
+  Pause,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -16,15 +20,86 @@ import { Badge } from "@/components/ui/Badge";
 import { FOUNDATION_INFO } from "@/data/content";
 
 export function HeroSection() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+
+  useEffect(() => {
+    // Respect prefers-reduced-motion
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mediaQuery.matches && videoRef.current) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-sky-50/80 via-white to-slate-50/50 pt-12 pb-20 sm:pt-20 sm:pb-28 border-b border-slate-100">
-      {/* Subtle Background Geometric Accents */}
+    <section className="relative overflow-hidden bg-slate-50/60 pt-12 pb-20 sm:pt-20 sm:pb-28 border-b border-slate-200/80">
+      {/* Background Video with Directional Dimming Overlay */}
       <div
-        className="absolute inset-0 pointer-events-none -z-10 overflow-hidden opacity-40"
+        className="absolute inset-0 -z-10 overflow-hidden pointer-events-none select-none"
         aria-hidden="true"
       >
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-sky-200/50 blur-3xl" />
-        <div className="absolute top-1/2 -left-40 w-96 h-96 rounded-full bg-emerald-100/50 blur-3xl" />
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          poster="/images/hero-community-poster.jpg"
+          className="w-full h-full object-cover object-[75%_center] lg:object-center filter brightness-[0.98] contrast-[1.03] transition-opacity duration-1000"
+        >
+          <source src="/videos/hero-community-meeting.mp4" type="video/mp4" />
+        </video>
+
+        {/* User Required Gradient: Right side full show, left side smoothly dims for high typography contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-45% md:via-white/85 lg:via-white/60 to-transparent" />
+
+        {/* Vertical Ambient Blends (Top Nav & Bottom Section seamlessly integrated) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-transparent to-white/95" />
+
+        {/* Soft Blue Hue Tint to harmonize with Brand Sky Blue */}
+        <div className="absolute inset-0 bg-sky-900/[0.04] mix-blend-multiply" />
+      </div>
+
+      {/* Ambience Control Badge (Bottom Right) */}
+      <div className="absolute bottom-3 right-4 sm:bottom-5 sm:right-6 z-20 pointer-events-auto">
+        <button
+          type="button"
+          onClick={togglePlay}
+          aria-label={isPlaying ? "Pause background video" : "Play background video"}
+          className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-slate-700 hover:text-sky-700 border border-slate-200/80 shadow-md backdrop-blur-md text-xs font-semibold transition-all hover:scale-105 active:scale-95"
+        >
+          {isPlaying ? (
+            <Pause className="w-3.5 h-3.5 text-sky-600 group-hover:scale-110 transition-transform" />
+          ) : (
+            <Play className="w-3.5 h-3.5 text-emerald-600 group-hover:scale-110 transition-transform" />
+          )}
+          <span className="hidden sm:inline">
+            {isPlaying ? "Community Meeting Ambience" : "Play Ambience Video"}
+          </span>
+          <span className="flex h-2 w-2 relative">
+            {isPlaying && (
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
+            )}
+            <span
+              className={`relative inline-flex rounded-full h-2 w-2 ${
+                isPlaying ? "bg-sky-500" : "bg-slate-400"
+              }`}
+            />
+          </span>
+        </button>
       </div>
 
       <Container>
@@ -94,16 +169,16 @@ export function HeroSection() {
           <div className="lg:col-span-5">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               {/* Main Feature Composite Card */}
-              <div className="rounded-2xl bg-white border border-slate-200 shadow-xl p-6 sm:p-8 relative z-10">
+              <div className="rounded-2xl bg-white/90 backdrop-blur-md border border-white/80 shadow-2xl p-6 sm:p-8 relative z-10 hover:shadow-sky-900/10 transition-shadow">
                 {/* Visual Header */}
                 <div className="flex items-center justify-between pb-5 border-b border-slate-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold shadow-xs">
-                      JCD
+                    <div className="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-xs tracking-wider shadow-xs shrink-0">
+                      JCDF
                     </div>
                     <div>
-                      <div className="font-bold text-slate-900 text-sm">
-                        Junglan Foundation
+                      <div className="font-bold text-slate-900 text-sm leading-snug">
+                        Junglan Community Development Foundation
                       </div>
                       <div className="text-[11px] text-slate-500">
                         Operational Overview

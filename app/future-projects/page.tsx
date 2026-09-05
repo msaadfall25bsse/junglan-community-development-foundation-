@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Future Projects & Expansion | Junglan Foundation",
+  title: "Future Projects & Expansion | Junglan Community Development Foundation",
   description:
     "Explore upcoming civic development initiatives planned for Junglan Valley: Clean water filtration, vocational workshops, and community infrastructure.",
   openGraph: {

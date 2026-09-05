@@ -117,7 +117,7 @@ export function AgricultureSection() {
             </h2>
 
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed mb-8 font-normal">
-              Pakistan possesses ideal soil and climate conditions for high-quality commercial olive cultivation. Junglan Foundation equips smallholder farmers with certified saplings, modern irrigation techniques, and ongoing agronomic mentorship.
+              Pakistan possesses ideal soil and climate conditions for high-quality commercial olive cultivation. Junglan Community Development Foundation equips smallholder farmers with certified saplings, modern irrigation techniques, and ongoing agronomic mentorship.
             </p>
 
             {/* 4 Feature Items */}

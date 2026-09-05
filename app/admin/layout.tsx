@@ -2,7 +2,7 @@ import React from "react";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin Governance & Operations | Junglan Foundation",
+  title: "Admin Governance & Operations | Junglan Community Development Foundation",
   description: "Executive administrative dashboard for foundation management and oversight.",
   robots: {
     index: false,

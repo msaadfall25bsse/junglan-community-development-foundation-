@@ -94,7 +94,7 @@ export default function ReportsPage() {
               </span>
             </div>
             <div className="font-semibold text-slate-700">
-              Audit Office: Junglan Foundation
+              Audit Office: Junglan Community Development Foundation
             </div>
           </div>
         </Container>

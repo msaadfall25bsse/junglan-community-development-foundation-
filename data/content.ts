@@ -22,7 +22,7 @@ export const MAIN_NAV_LINKS: NavLink[] = [
 
 export const FOUNDATION_INFO = {
   name: "Junglan Community Development Foundation",
-  shortName: "Junglan Foundation",
+  shortName: "Junglan Community Development Foundation",
   tagline: "Building Stronger Communities, Creating Lasting Impact",
   description:
     "A dedicated community-driven nonprofit organization empowering rural and underserved populations through accessible emergency healthcare, sustainable olive agriculture, and long-term socio-economic development.",
@@ -335,7 +335,7 @@ export const LATEST_NEWS_ITEMS: NewsArticle[] = [
     summary:
       "Agronomists and community volunteers are preparing demonstration plots to equip 50 local smallholder farmers with certified high-yield olive saplings.",
     content: [
-      "The agricultural extension team at Junglan Foundation has completed initial soil testing across three community clusters in Pakhal and Junglan. The pH and mineral profiles indicate outstanding compatibility for commercial olive cultivars.",
+      "The agricultural extension team at Junglan Community Development Foundation has completed initial soil testing across three community clusters in Pakhal and Junglan. The pH and mineral profiles indicate outstanding compatibility for commercial olive cultivars.",
       "Fifty local smallholder farmers have been selected to receive specialized training in slope-terrace management, organic fertilizer application, and seasonal pruning.",
       "By replacing low-yield rainfed crops with durable olive groves, we are helping families establish an asset that will yield recurring economic returns for up to four decades.",
     ],
@@ -419,7 +419,7 @@ export const ABOUT_PAGE_DATA = {
     badge: "Who We Are",
     title: "Dedicated to Uplifting Remote Mountain Communities",
     subtitle:
-      "Founded on the principles of Islamic humanitarian service and civic responsibility, Junglan Foundation operates at the intersection of life-saving emergency medical transit and sustainable rural agriculture.",
+      "Founded on the principles of Islamic humanitarian service and civic responsibility, Junglan Community Development Foundation operates at the intersection of life-saving emergency medical transit and sustainable rural agriculture.",
   },
   originStory: {
     heading: "Born From Need in the Valleys of Hazara",

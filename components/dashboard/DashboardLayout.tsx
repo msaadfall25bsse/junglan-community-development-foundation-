@@ -111,7 +111,7 @@ export function DashboardLayout({
               </div>
               <div className="hidden sm:block">
                 <div className="font-extrabold text-slate-900 text-sm tracking-tight leading-tight">
-                  Junglan Foundation
+                  Junglan Community Development Foundation
                 </div>
                 <div className="text-[10px] text-slate-500 font-medium">
                   {role === "ADMIN" ? "Governance & Operations" : "Field Operations Portal"}
@@ -262,7 +262,7 @@ export function DashboardLayout({
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
                   <div>
                     <div className="font-bold text-slate-900 text-sm">
-                      Junglan Foundation
+                      Junglan Community Development Foundation
                     </div>
                     <div className="text-xs text-slate-500">
                       {roleMeta[role].badge}

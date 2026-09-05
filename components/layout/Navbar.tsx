@@ -140,17 +140,41 @@ export function Navbar() {
 
       {/* Mobile Drawer Overlay & Menu */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 top-[89px] z-50 lg:hidden">
+        <div className="fixed inset-0 top-[76px] sm:top-[85px] z-50 lg:hidden">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileMenuOpen(false)}
             aria-hidden="true"
           />
 
           {/* Drawer Panel */}
-          <div className="relative bg-white border-b border-slate-200 shadow-xl px-6 py-6 max-h-[calc(100vh-89px)] overflow-y-auto">
-            <div className="flex flex-col gap-1.5">
+          <div className="relative bg-white border-b border-slate-200 shadow-2xl px-4 sm:px-6 py-4 sm:py-5 max-h-[calc(100dvh-76px)] sm:max-h-[calc(100dvh-85px)] overflow-y-auto overscroll-contain">
+            {/* Top Quick Emergency Hotline Banner (Immediately visible without scrolling on iPhone) */}
+            <div className="mb-4 p-3 sm:p-3.5 rounded-xl bg-gradient-to-r from-red-500/10 via-red-50 to-sky-50 border border-red-200/90 flex items-center justify-between gap-2 shadow-2xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <PhoneCall className="w-4 h-4 animate-pulse" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-red-700">
+                    24/7 Free Ambulance Hotline
+                  </div>
+                  <div className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight truncate">
+                    {FOUNDATION_INFO.hotline}
+                  </div>
+                </div>
+              </div>
+              <a
+                href={`tel:${FOUNDATION_INFO.hotline}`}
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all shrink-0"
+              >
+                Call Now
+              </a>
+            </div>
+
+            {/* Mobile Navigation Links */}
+            <div className="flex flex-col gap-1">
               {MAIN_NAV_LINKS.map((link) => {
                 const isActive =
                   link.href === "/"
@@ -163,38 +187,37 @@ export function Navbar() {
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      "px-4 py-3 rounded-xl text-base font-medium transition-colors flex items-center justify-between",
+                      "px-3.5 py-2 sm:py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-between",
                       isActive
                         ? "bg-sky-50 text-sky-700 font-semibold"
-                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100"
                     )}
                   >
                     <span>{link.label}</span>
-                    <ArrowRight className="w-4 h-4 text-slate-400" />
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
                   </Link>
                 );
               })}
             </div>
 
-            {/* Mobile Actions */}
-            <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col gap-3">
+            {/* Mobile Actions Bottom Section with Safe-Area padding */}
+            <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2.5 pb-6 sm:pb-4">
               <Button
                 href="/donate"
                 variant="primary"
-                size="lg"
-                className="w-full justify-center"
-                leftIcon={<HeartHandshake className="w-5 h-5" />}
+                size="md"
+                className="w-full justify-center shadow-sm"
+                leftIcon={<HeartHandshake className="w-4 h-4" />}
+                onClick={() => setMobileMenuOpen(false)}
               >
                 Donate to Foundation
               </Button>
 
-              <a
-                href={`tel:${FOUNDATION_INFO.hotline}`}
-                className="inline-flex items-center justify-center gap-2 p-3 rounded-lg bg-red-50 text-red-700 border border-red-200 text-sm font-semibold"
-              >
-                <PhoneCall className="w-4 h-4 text-red-600" />
-                <span>Call Emergency Ambulance: {FOUNDATION_INFO.hotline}</span>
-              </a>
+              <div className="text-center">
+                <span className="text-[11px] text-slate-500 font-medium">
+                  Junglan Community Development Foundation • Mansehra, KP
+                </span>
+              </div>
             </div>
           </div>
         </div>

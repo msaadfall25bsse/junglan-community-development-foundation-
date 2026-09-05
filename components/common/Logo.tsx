@@ -47,15 +47,15 @@ export function Logo({ className, variant = "full" }: LogoProps) {
               variant === "light" ? "text-white" : "text-slate-900"
             )}
           >
-            Junglan Foundation
+            Junglan Community
           </span>
           <span
             className={cn(
-              "text-[10px] sm:text-[11px] font-medium tracking-wide uppercase",
+              "text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase",
               variant === "light" ? "text-slate-300" : "text-sky-700"
             )}
           >
-            Community Development
+            Development Foundation
           </span>
         </div>
       )}

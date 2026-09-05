@@ -71,7 +71,7 @@ export default function ContactPage() {
           <SectionHeader
             badge="Get in Touch"
             badgeVariant="sky"
-            title="Connect with Junglan Foundation"
+            title="Connect with Junglan Community Development Foundation"
             subtitle="Whether you need emergency ambulance assistance, wish to partner on olive agriculture, or have general questions, our team is here to assist you."
           />
         </Container>

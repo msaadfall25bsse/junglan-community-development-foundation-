@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Olive & Zaitoon Sustainable Agriculture | Junglan Foundation",
+  title: "Olive & Zaitoon Sustainable Agriculture | Junglan Community Development Foundation",
   description:
     "Empowering rural mountain farmers through commercial olive cultivation in Hazara. Distributing certified saplings, water-saving drip irrigation, and generational economic self-reliance.",
   openGraph: {

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Emergency Healthcare & Ambulance Project | Junglan Foundation",
+  title: "Emergency Healthcare & Ambulance Project | Junglan Community Development Foundation",
   description:
     "Free 24/7 emergency ambulance transport for rural mountain communities in District Mansehra. Rapid response, continuous oxygen support, and hospital transfers.",
   openGraph: {
@@ -135,7 +135,7 @@ export default function HealthcarePage() {
                   Public transit does not run during night hours, and private commercial hires can cost an entire month&apos;s household income. Families are often forced to carry injured individuals on wooden cots across footpaths.
                 </p>
                 <p className="font-semibold text-slate-800">
-                  Junglan Foundation changes this reality by stationing heavy-duty 4x4 rescue vehicles inside the valley, providing dignity, continuous oxygen, and prompt hospital delivery free of charge.
+                  Junglan Community Development Foundation changes this reality by stationing heavy-duty 4x4 rescue vehicles inside the valley, providing dignity, continuous oxygen, and prompt hospital delivery free of charge.
                 </p>
               </div>
 
