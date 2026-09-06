@@ -54,7 +54,6 @@ export async function createAmbulance(data: CreateAmbulanceInput) {
       });
     },
     async () => {
-      const store = readStore();
       const newAmb = {
         id: `amb-${Date.now()}`,
         ambulanceIdentifier: data.vehicleNumber,

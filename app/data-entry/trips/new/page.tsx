@@ -111,8 +111,8 @@ export default function NewTripPage() {
   const handleReset = () => {
     setFormData({
       ambulanceId: ambulances[0]?.id || "",
-      patientCode: `P-${Math.floor(1000 + Math.random() * 9000)}`,
-      patientName: `Emergency Patient P-${Math.floor(1000 + Math.random() * 9000)}`,
+      patientCode: `P-${Date.now().toString().slice(-4)}`,
+      patientName: `Emergency Patient P-${Date.now().toString().slice(-4)}`,
       emergencyType: "Maternity Care",
       pickupLocation: "",
       destinationHospital: "DHQ Hospital Mansehra",

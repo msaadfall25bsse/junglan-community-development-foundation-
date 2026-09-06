@@ -26,7 +26,6 @@ import {
   FileText,
   Settings,
   ArrowUpRight,
-  ShieldCheck,
   RefreshCw,
 } from "lucide-react";
 

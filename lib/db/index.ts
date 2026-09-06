@@ -23,7 +23,7 @@ export function checkDatabaseHealth(): DatabaseHealthStatus {
     return {
       isConfigured: true,
       driver: hasUrl ? "PostgreSQL" : "Persistent Local Engine",
-      status: "READY",
+      status: hasData ? "READY" : "DEGRADED",
       engine: hasUrl ? "Prisma PostgreSQL Client" : "Atomic Persistent Local Store",
       databaseUrlMasked: hasUrl
         ? "postgresql://*****:*****@.../junglan_foundation"

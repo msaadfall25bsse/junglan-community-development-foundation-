@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormField";
-import { Plus, Trash2, Download, CheckCircle, RefreshCw, FileText } from "lucide-react";
+import { Plus, Trash2, CheckCircle, RefreshCw, FileText } from "lucide-react";
 
 interface ReportItem {
   id: string;
