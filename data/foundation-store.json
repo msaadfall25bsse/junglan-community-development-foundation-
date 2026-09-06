@@ -272,43 +272,17 @@
   ],
   "reports": [
     {
-      "id": "rep-1",
-      "title": "Annual Financial & Operational Audit Report 2025",
-      "year": 2025,
-      "period": "Full Year 2025",
-      "category": "ANNUAL",
-      "fileSize": "2.8 MB",
-      "downloadUrl": "#",
-      "summary": "Comprehensive third-party financial audit detailing all incoming donations, operational expenditures, and ambulance fleet logs for 2025.",
-      "publishedDate": "15 Jan 2026",
-      "createdAt": "2026-01-15T00:00:00.000Z",
-      "updatedAt": "2026-01-15T00:00:00.000Z"
-    },
-    {
-      "id": "rep-2",
-      "title": "Ambulance Mission & Patient Transit Review (Q4 2025)",
-      "year": 2025,
-      "period": "October – December 2025",
+      "id": "rep-1788696380962",
+      "title": "ambulance 2026",
+      "year": 2026,
+      "period": "Q1 2026",
       "category": "OPERATIONAL",
-      "fileSize": "1.4 MB",
+      "fileSize": "1.5 MB",
       "downloadUrl": "#",
-      "summary": "Detailed operational log of 124 emergency medical transfers, oxygen usage logs, mileage audits, and destination hospital triage statistics.",
-      "publishedDate": "05 Jan 2026",
-      "createdAt": "2026-01-05T00:00:00.000Z",
-      "updatedAt": "2026-01-05T00:00:00.000Z"
-    },
-    {
-      "id": "rep-3",
-      "title": "Olive Agriculture Pilot Project Impact Assessment",
-      "year": 2025,
-      "period": "Spring & Autumn Seasons 2025",
-      "category": "IMPACT",
-      "fileSize": "3.2 MB",
-      "downloadUrl": "#",
-      "summary": "Survival rates, soil moisture readings, and economic yield forecasts for the initial 3,500 olive saplings distributed to valley farmers.",
-      "publishedDate": "10 Dec 2025",
-      "createdAt": "2025-12-10T00:00:00.000Z",
-      "updatedAt": "2025-12-10T00:00:00.000Z"
+      "summary": "hi hello ",
+      "publishedDate": "6 Sept 2026",
+      "createdAt": "2026-09-06T12:06:21.020Z",
+      "updatedAt": "2026-09-06T12:06:21.020Z"
     }
   ],
   "auditLogs": [
@@ -319,6 +293,35 @@
       "recordId": "init-01",
       "timestamp": "2026-01-01T00:00:00.000Z",
       "metadataJson": "{\"message\":\"Initial system bootstrap and baseline registry\"}"
+    },
+    {
+      "id": "aud-1788696352041",
+      "action": "DELETE",
+      "module": "REPORTS",
+      "recordId": "rep-1",
+      "timestamp": "2026-09-06T12:05:52.041Z"
+    },
+    {
+      "id": "aud-1788696356404",
+      "action": "DELETE",
+      "module": "REPORTS",
+      "recordId": "rep-2",
+      "timestamp": "2026-09-06T12:05:56.405Z"
+    },
+    {
+      "id": "aud-1788696360001",
+      "action": "DELETE",
+      "module": "REPORTS",
+      "recordId": "rep-3",
+      "timestamp": "2026-09-06T12:06:00.001Z"
+    },
+    {
+      "id": "aud-1788696381021",
+      "action": "CREATE",
+      "module": "REPORTS",
+      "recordId": "rep-1788696380962",
+      "timestamp": "2026-09-06T12:06:21.021Z",
+      "metadataJson": "{\"title\":\"ambulance 2026\",\"period\":\"Q1 2026\"}"
     }
   ],
   "settings": {
