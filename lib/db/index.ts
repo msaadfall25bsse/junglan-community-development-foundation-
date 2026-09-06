@@ -1,11 +1,6 @@
-// ==============================================================================
-// DATABASE CLIENT & ARCHITECTURE BOUNDARY
-// ==============================================================================
-// Primary Source of Truth: PostgreSQL
-// Relational Blueprint: prisma/schema.prisma
-// Per Section 10 of Project Specification:
-// "Do not fully build the production database in Part 1 unless the current S2
-// implementation already requires database corrections. Establish the database design direction."
+import { prisma } from "@/lib/prisma";
+
+export { prisma };
 
 export interface DatabaseHealthStatus {
   isConfigured: boolean;
