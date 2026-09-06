@@ -10,6 +10,7 @@ import {
   ABOUT_PAGE_DATA,
   ABOUT_PILLARS,
 } from "@/data/content";
+import { getSiteSettings } from "@/lib/services";
 import {
   ShieldCheck,
   HeartHandshake,
@@ -19,6 +20,8 @@ import {
   CheckCircle2,
   Heart,
   Landmark,
+  Compass,
+  Target,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -32,7 +35,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const settings = await getSiteSettings();
+
+  const originStoryParagraphs =
+    settings.aboutOriginStory && settings.aboutOriginStory.length > 0
+      ? settings.aboutOriginStory
+      : ABOUT_PAGE_DATA.originStory.paragraphs;
+
+  const originHeading = settings.aboutHeading || ABOUT_PAGE_DATA.originStory.heading;
+
   const pillarIcons = {
     ShieldCheck: <ShieldCheck className="w-6 h-6 text-sky-600" />,
     HeartHandshake: <HeartHandshake className="w-6 h-6 text-indigo-600" />,
@@ -54,7 +66,7 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* Origin Story Section */}
+      {/* Origin Story Section (Dynamic CMS Managed) */}
       <section className="py-16 sm:py-20 bg-white border-b border-slate-100">
         <Container>
           <div className="max-w-4xl mx-auto">
@@ -63,16 +75,39 @@ export default function AboutPage() {
                 Our Foundation Story
               </Badge>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                {ABOUT_PAGE_DATA.originStory.heading}
+                {originHeading}
               </h2>
             </div>
 
             <div className="prose prose-slate max-w-none space-y-6 text-slate-600 text-base sm:text-lg leading-relaxed bg-slate-50/60 p-8 sm:p-12 rounded-3xl border border-slate-200/80 shadow-2xs">
-              {ABOUT_PAGE_DATA.originStory.paragraphs.map((para, idx) => (
+              {originStoryParagraphs.map((para, idx) => (
                 <p key={idx}>{para}</p>
               ))}
 
-              <div className="pt-6 border-t border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-semibold text-slate-800">
+              {/* Dynamic Mission & Vision Highlight Box */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-slate-200/80">
+                <div className="p-4 rounded-xl bg-white border border-sky-100 shadow-2xs">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Target className="w-4 h-4 text-sky-700" />
+                    <span className="text-xs font-bold uppercase text-sky-800 tracking-wider">Constitutional Mission</span>
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {settings.missionStatement || "Delivering round-the-clock emergency medical transit and agrarian prosperity across remote mountain villages."}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-emerald-100 shadow-2xs">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Compass className="w-4 h-4 text-emerald-700" />
+                    <span className="text-xs font-bold uppercase text-emerald-800 tracking-wider">Long-Term Vision</span>
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {settings.visionStatement || "A self-sustaining rural valley where no life is lost to transit delays and households thrive through climate-resilient olive orchards."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-semibold text-slate-800">
                 <div className="p-4 rounded-xl bg-white border border-sky-100 flex items-start gap-3 shadow-2xs">
                   <div className="p-2 rounded-lg bg-sky-50 text-sky-700 shrink-0">
                     <Heart className="w-4 h-4" />
@@ -177,7 +212,7 @@ export default function AboutPage() {
             ))}
           </div>
 
-          {/* Legal & Registration Specifications */}
+          {/* Legal & Registration Specifications (Dynamic Bank and Headquarters) */}
           <div className="max-w-4xl mx-auto p-6 sm:p-8 rounded-2xl bg-slate-900 text-white shadow-xl">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-800 mb-6">
               <Landmark className="w-6 h-6 text-sky-400" />
@@ -206,7 +241,7 @@ export default function AboutPage() {
                   Official Headquarters
                 </span>
                 <span className="text-slate-200 leading-snug block">
-                  {ABOUT_PAGE_DATA.legal.headquarters}
+                  {settings.officeAddress || ABOUT_PAGE_DATA.legal.headquarters}
                 </span>
               </div>
 
@@ -224,7 +259,7 @@ export default function AboutPage() {
                   Designated Shariah Banking
                 </span>
                 <span className="text-slate-200 leading-snug block">
-                  {ABOUT_PAGE_DATA.legal.bankAccount}
+                  {settings.bankName} — A/C {settings.accountNumber} ({settings.accountTitle})
                 </span>
               </div>
             </div>

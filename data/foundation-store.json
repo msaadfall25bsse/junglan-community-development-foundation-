@@ -322,11 +322,66 @@
       "recordId": "rep-1788696380962",
       "timestamp": "2026-09-06T12:06:21.021Z",
       "metadataJson": "{\"title\":\"ambulance 2026\",\"period\":\"Q1 2026\"}"
+    },
+    {
+      "id": "aud-1788700811804",
+      "action": "CREATE",
+      "module": "REPORTS",
+      "recordId": "rep-1788700811786",
+      "timestamp": "2026-09-06T13:20:11.805Z",
+      "metadataJson": "{\"title\":\"Vercel Persistence Test Audit 2026\",\"period\":\"March 2026\"}"
+    },
+    {
+      "id": "aud-1788700812391",
+      "action": "UPDATE",
+      "module": "REPORTS",
+      "recordId": "rep-1788700811786",
+      "timestamp": "2026-09-06T13:20:12.391Z",
+      "metadataJson": "{\"title\":\"Updated Vercel Persistence Test Audit 2026\"}"
+    },
+    {
+      "id": "aud-1788700812620",
+      "action": "DELETE",
+      "module": "REPORTS",
+      "recordId": "rep-1788700811786",
+      "timestamp": "2026-09-06T13:20:12.620Z"
+    },
+    {
+      "id": "aud-1788700813705",
+      "action": "CREATE",
+      "module": "PROJECTS",
+      "recordId": "proj-1788700813705",
+      "timestamp": "2026-09-06T13:20:13.705Z",
+      "metadataJson": "{\"slug\":\"solar-water-test-1788700812636\",\"title\":\"High-Altitude Solar Water Desalination\"}"
+    },
+    {
+      "id": "aud-1788700822332",
+      "action": "UPDATE",
+      "module": "PROJECTS",
+      "recordId": "proj-1788700813705",
+      "timestamp": "2026-09-06T13:20:22.332Z",
+      "metadataJson": "{\"title\":\"High-Altitude Solar Water Desalination\"}"
+    },
+    {
+      "id": "aud-1788700822813",
+      "action": "DELETE",
+      "module": "PROJECTS",
+      "recordId": "proj-1788700813705",
+      "timestamp": "2026-09-06T13:20:22.813Z"
+    },
+    {
+      "id": "aud-1788700823050",
+      "action": "UPDATE",
+      "module": "SITE_SETTINGS",
+      "recordId": "global-settings",
+      "timestamp": "2026-09-06T13:20:23.050Z",
+      "metadataJson": "{\"ambulanceHotline\":\"+92 300 0000000\",\"whatsappNumber\":\"+92 300 1234567\",\"aboutHeading\":\"Pioneering Rapid Emergency Healthcare & Regenerative Olive Horticulture in Hazara\"}"
     }
   ],
   "settings": {
     "appName": "Junglan Community Development Foundation",
     "ambulanceHotline": "+92 300 0000000",
+    "whatsappNumber": "+92 300 1234567",
     "supportEmail": "info@junglanfoundation.org",
     "officeAddress": "Main Bazaar, Junglan Valley, Tehsil Oghi, District Mansehra, KP, Pakistan",
     "bankName": "Meezan Bank Limited",
@@ -334,6 +389,16 @@
     "accountNumber": "0102-0109283746",
     "iban": "PK36MEZN0001020109283746",
     "branchCode": "0102 (Oghi Branch)",
+    "raastId": "03000000000",
+    "aboutHeading": "Pioneering Rapid Emergency Healthcare & Regenerative Olive Horticulture in Hazara",
+    "aboutOriginStory": [
+      "The Junglan Community Development Foundation was established with a singular humanitarian imperative: to bridge the life-threatening geographical divide that separates remote mountain populations from emergency medical care, while simultaneously cultivating sustainable economic resilience through commercial olive agriculture.",
+      "In the rugged terrain of Tehsil Oghi and District Mansehra, access to tertiary medical facilities was historically obstructed by severe road topography and lack of specialized transport. Critical obstetric patients, trauma victims, and cardiac cases faced catastrophic delays.",
+      "Founded by local community leaders, doctors, and philanthropists, the Foundation operates a zero-cost 24/7 mountain ambulance service equipped with medical oxygen, trauma stretchers, and trained responders, alongside grassroots agrarian empowerment programs."
+    ],
+    "missionStatement": "To deliver uninterrupted, free emergency medical transit to vulnerable mountain communities and foster generational prosperity through climate-resilient olive cultivation.",
+    "visionStatement": "A self-sustaining rural society where no life is lost due to transit delays and every smallholder farmer thrives on sustainable mountain agriculture.",
+    "donationNotes": "100% of all public contributions are audited and directly allocated to fuel, medical oxygen, vehicle maintenance, and subsidized olive saplings.",
     "patientsServed": 420,
     "familiesAssisted": 780,
     "treesPlanted": 5000,

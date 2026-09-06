@@ -25,19 +25,41 @@ export default function ProjectsPage() {
     fetch("/api/projects")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          const formatted = data.data.map((p: any) => ({
-            slug: p.slug || p.id,
-            title: p.title,
-            category: (p.category as "HEALTHCARE" | "AGRICULTURE" | "COMMUNITY") || "COMMUNITY",
-            status: p.status === "ACTIVE" ? "ACTIVE" : "COMING_SOON",
-            tagline: p.tagline || (p.beneficiaries ? `${p.beneficiaries} Beneficiaries Targeted` : "Grassroots Welfare Program"),
-            summary: p.summary || p.description || "",
-            impactMetrics: Array.isArray(p.impactMetrics) && p.impactMetrics.length > 0
-              ? p.impactMetrics
-              : ["Community approved roadmap", `Direct Field Allocation`],
-            ctaText: p.ctaText || (p.status === "ACTIVE" ? "Support Project" : "View Roadmap"),
-          }));
+        const raw = Array.isArray(data.data) ? data.data : data.data?.projects;
+        if (data.success && Array.isArray(raw)) {
+          const formatted = raw.map((p: any) => {
+            const cat: "HEALTHCARE" | "AGRICULTURE" | "COMMUNITY" =
+              p.category === "HEALTHCARE"
+                ? "HEALTHCARE"
+                : p.category === "AGRICULTURE"
+                ? "AGRICULTURE"
+                : "COMMUNITY";
+            return {
+              slug: p.slug || p.id,
+              title: p.title,
+              category: cat,
+              status: p.status === "ACTIVE" ? ("ACTIVE" as const) : ("COMING_SOON" as const),
+              tagline: p.shortDescription || (p.beneficiariesImpactedCount ? `${p.beneficiariesImpactedCount} Beneficiaries Targeted` : "Grassroots Welfare Program"),
+              summary: p.fullDescription || p.shortDescription || "",
+              mission: p.fullDescription || "Dedicated community welfare and life preservation.",
+              objectives: [
+                "Direct field intervention and transparent funding allocation",
+                "Continuous community-level monitoring and reporting",
+              ],
+              activities: [
+                "Community mobilization and stakeholder consensus",
+                "Equipment and resources deployment",
+              ],
+              impactMetrics: Array.isArray(p.impactMetrics) && p.impactMetrics.length > 0
+                ? p.impactMetrics
+                : [
+                    `PKR ${Number(p.currentFundingPKR || 0).toLocaleString()} raised`,
+                    `Goal: PKR ${Number(p.targetFundingPKR || 1000000).toLocaleString()}`,
+                  ],
+              location: "Junglan Valley, District Mansehra",
+              ctaText: p.status === "ACTIVE" ? "Support Project" : "View Roadmap",
+            };
+          });
           setProjectsList(formatted);
         }
       })

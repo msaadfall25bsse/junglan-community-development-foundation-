@@ -20,13 +20,16 @@ export function checkDatabaseHealth(): DatabaseHealthStatus {
   try {
     const store = readStore();
     const hasData = Boolean(store && store.yearPeriods && store.yearPeriods.length > 0);
+    const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
     return {
       isConfigured: true,
-      driver: hasUrl ? "PostgreSQL" : "Persistent Local Engine",
+      driver: hasUrl ? "PostgreSQL" : isServerless ? "Persistent Local Engine" : "Persistent Local Engine",
       status: hasData ? "READY" : "DEGRADED",
-      engine: hasUrl ? "Prisma PostgreSQL Client" : "Atomic Persistent Local Store",
+      engine: hasUrl ? "Prisma PostgreSQL Client" : isServerless ? "Serverless /tmp Atomic Store" : "Atomic Persistent Local Store",
       databaseUrlMasked: hasUrl
         ? "postgresql://*****:*****@.../junglan_foundation"
+        : isServerless
+        ? "Vercel Serverless Storage Engine (Active)"
         : "data/foundation-store.json (Local File Store)",
     };
   } catch {

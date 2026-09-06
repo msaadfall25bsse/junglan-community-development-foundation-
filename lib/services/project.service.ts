@@ -1,6 +1,7 @@
 import { readStore, updateStore } from "@/lib/db";
 import { NotFoundError, ConflictError } from "@/lib/api/errors";
 import type { CreateProjectInput, UpdateProjectInput, ProjectQueryInput } from "@/lib/validation";
+import { revalidatePath } from "next/cache";
 
 // ==============================================================================
 // COMMUNITY PROJECT DOMAIN SERVICE
@@ -97,6 +98,12 @@ export async function createProject(data: CreateProjectInput) {
     });
   });
 
+  try {
+    revalidatePath("/projects");
+    revalidatePath("/admin/projects");
+    revalidatePath("/");
+  } catch {}
+
   return newProject;
 }
 
@@ -111,11 +118,12 @@ export async function updateProject(id: string, data: UpdateProjectInput) {
 
   updateStore((s) => {
     const existing = s.projects[index];
+    const categoryVal = data.sector === "COMMUNITY" ? "COMMUNITY_DEVELOPMENT" : data.sector;
     updated = {
       ...existing,
       ...(data.title ? { title: data.title } : {}),
       ...(data.description ? { fullDescription: data.description, shortDescription: data.description.slice(0, 180) } : {}),
-      ...(data.sector ? { category: data.sector as any } : {}),
+      ...(categoryVal ? { category: categoryVal as any } : {}),
       ...(data.targetFundingPKR !== undefined ? { targetFundingPKR: Number(data.targetFundingPKR) } : {}),
       ...(data.currentFundingPKR !== undefined ? { currentFundingPKR: Number(data.currentFundingPKR) } : {}),
       ...(data.beneficiariesEstimate !== undefined ? { beneficiariesImpactedCount: Number(data.beneficiariesEstimate) } : {}),
@@ -133,6 +141,13 @@ export async function updateProject(id: string, data: UpdateProjectInput) {
       metadataJson: JSON.stringify({ title: updated.title }),
     });
   });
+
+  try {
+    revalidatePath("/projects");
+    revalidatePath(`/projects/${id}`);
+    revalidatePath("/admin/projects");
+    revalidatePath("/");
+  } catch {}
 
   return updated!;
 }
@@ -154,6 +169,12 @@ export async function deleteProject(id: string) {
       timestamp: new Date().toISOString(),
     });
   });
+
+  try {
+    revalidatePath("/projects");
+    revalidatePath("/admin/projects");
+    revalidatePath("/");
+  } catch {}
 
   return { success: true, message: `Project ${id} removed successfully.` };
 }

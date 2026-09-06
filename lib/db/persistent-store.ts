@@ -168,6 +168,7 @@ export interface FoundationStoreData {
   settings: {
     appName: string;
     ambulanceHotline: string;
+    whatsappNumber?: string;
     supportEmail: string;
     officeAddress: string;
     bankName: string;
@@ -175,6 +176,12 @@ export interface FoundationStoreData {
     accountNumber: string;
     iban: string;
     branchCode: string;
+    raastId?: string;
+    aboutHeading?: string;
+    aboutOriginStory?: string[];
+    missionStatement?: string;
+    visionStatement?: string;
+    donationNotes?: string;
     patientsServed: number;
     familiesAssisted: number;
     treesPlanted: number;
@@ -523,6 +530,7 @@ const DEFAULT_STORE: FoundationStoreData = {
   settings: {
     appName: "Junglan Community Development Foundation",
     ambulanceHotline: "+92 300 0000000",
+    whatsappNumber: "+92 300 0000000",
     supportEmail: "info@junglanfoundation.org",
     officeAddress: "Main Bazaar, Junglan Valley, Tehsil Oghi, District Mansehra, KP, Pakistan",
     bankName: "Meezan Bank Limited",
@@ -530,6 +538,16 @@ const DEFAULT_STORE: FoundationStoreData = {
     accountNumber: "0102-0109283746",
     iban: "PK36MEZN0001020109283746",
     branchCode: "0102 (Oghi Branch)",
+    raastId: "03000000000",
+    aboutHeading: "Pioneering Rapid Emergency Healthcare & Regenerative Olive Horticulture in Hazara",
+    aboutOriginStory: [
+      "The Junglan Community Development Foundation was established with a singular humanitarian imperative: to bridge the life-threatening geographical divide that separates remote mountain populations from emergency medical care, while simultaneously cultivating sustainable economic resilience through commercial olive agriculture.",
+      "In the rugged terrain of Tehsil Oghi and District Mansehra, access to tertiary medical facilities was historically obstructed by severe road topography and lack of specialized transport. Critical obstetric patients, trauma victims, and cardiac cases faced catastrophic delays.",
+      "Founded by local community leaders, doctors, and philanthropists, the Foundation operates a zero-cost 24/7 mountain ambulance service equipped with medical oxygen, trauma stretchers, and trained responders, alongside grassroots agrarian empowerment programs."
+    ],
+    missionStatement: "To deliver uninterrupted, free emergency medical transit to vulnerable mountain communities and foster generational prosperity through climate-resilient olive cultivation.",
+    visionStatement: "A self-sustaining rural society where no life is lost due to transit delays and every smallholder farmer thrives on sustainable mountain agriculture.",
+    donationNotes: "100% of all public contributions are audited and directly allocated to fuel, medical oxygen, vehicle maintenance, and subsidized olive saplings.",
     patientsServed: 420,
     familiesAssisted: 780,
     treesPlanted: 5000,
@@ -537,48 +555,92 @@ const DEFAULT_STORE: FoundationStoreData = {
   },
 };
 
-function ensureStoreInitialized(): FoundationStoreData {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+const IS_SERVERLESS = !!(
+  process.env.VERCEL ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.NEXT_RUNTIME === "edge"
+);
+
+const TMP_STORE_PATH = path.join("/tmp", "foundation-store.json");
+
+function getStoreFilePath(): string {
+  if (IS_SERVERLESS) {
+    try {
+      if (!fs.existsSync(TMP_STORE_PATH)) {
+        if (fs.existsSync(STORE_PATH)) {
+          const initial = fs.readFileSync(STORE_PATH, "utf-8");
+          fs.writeFileSync(TMP_STORE_PATH, initial, "utf-8");
+        } else {
+          fs.writeFileSync(TMP_STORE_PATH, JSON.stringify(DEFAULT_STORE, null, 2), "utf-8");
+        }
+      }
+      return TMP_STORE_PATH;
+    } catch {
+      return STORE_PATH;
     }
-    if (!fs.existsSync(STORE_PATH)) {
-      fs.writeFileSync(STORE_PATH, JSON.stringify(DEFAULT_STORE, null, 2), "utf-8");
-      return DEFAULT_STORE;
-    }
-    const raw = fs.readFileSync(STORE_PATH, "utf-8");
-    const data = JSON.parse(raw);
-    return { ...DEFAULT_STORE, ...data };
-  } catch (err) {
-    console.error("[STORE_INIT_ERROR]:", err);
-    return DEFAULT_STORE;
   }
+  return STORE_PATH;
 }
 
 let cachedStore: FoundationStoreData | null = null;
 
 export function readStore(): FoundationStoreData {
-  if (!cachedStore) {
-    cachedStore = ensureStoreInitialized();
+  if (cachedStore) {
+    return cachedStore;
   }
+  const filePath = getStoreFilePath();
   try {
-    const raw = fs.readFileSync(STORE_PATH, "utf-8");
-    cachedStore = JSON.parse(raw);
-    return cachedStore!;
-  } catch {
-    return cachedStore || DEFAULT_STORE;
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const parsed = JSON.parse(raw);
+      cachedStore = {
+        ...DEFAULT_STORE,
+        ...parsed,
+        settings: {
+          ...DEFAULT_STORE.settings,
+          ...(parsed.settings || {}),
+        },
+      };
+      return cachedStore!;
+    }
+    if (fs.existsSync(STORE_PATH)) {
+      const raw = fs.readFileSync(STORE_PATH, "utf-8");
+      const parsed = JSON.parse(raw);
+      cachedStore = {
+        ...DEFAULT_STORE,
+        ...parsed,
+        settings: {
+          ...DEFAULT_STORE.settings,
+          ...(parsed.settings || {}),
+        },
+      };
+      return cachedStore!;
+    }
+  } catch (err) {
+    console.warn("[STORE_READ_WARNING]: Failed to read file, using defaults:", err);
   }
+  cachedStore = { ...DEFAULT_STORE };
+  return cachedStore;
 }
 
 export function writeStore(data: FoundationStoreData): void {
+  cachedStore = data;
+  const primaryPath = getStoreFilePath();
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    const dir = path.dirname(primaryPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-    fs.writeFileSync(STORE_PATH, JSON.stringify(data, null, 2), "utf-8");
-    cachedStore = data;
-  } catch (err) {
-    console.error("[STORE_WRITE_ERROR]:", err);
+    fs.writeFileSync(primaryPath, JSON.stringify(data, null, 2), "utf-8");
+  } catch (err: unknown) {
+    const errorObj = err as { code?: string; message?: string };
+    console.warn(`[STORE_WRITE_WARNING]: Write failed on ${primaryPath} (${errorObj?.code || errorObj?.message}). Attempting /tmp fallback...`);
+    try {
+      fs.writeFileSync(TMP_STORE_PATH, JSON.stringify(data, null, 2), "utf-8");
+      console.log("[STORE_WRITE_SUCCESS]: Fallback persisted cleanly to /tmp/foundation-store.json");
+    } catch (fallbackErr) {
+      console.error("[STORE_FATAL_WRITE_ERROR]: Could not persist to /tmp:", fallbackErr);
+    }
   }
 }
 
@@ -587,4 +649,28 @@ export function updateStore(mutator: (data: FoundationStoreData) => void): Found
   mutator(current);
   writeStore(current);
   return current;
+}
+
+export function exportStoreData(): FoundationStoreData {
+  return readStore();
+}
+
+export function importStoreData(newData: Partial<FoundationStoreData>): boolean {
+  try {
+    if (!newData || typeof newData !== "object") return false;
+    const current = readStore();
+    const merged: FoundationStoreData = {
+      ...current,
+      ...newData,
+      settings: {
+        ...current.settings,
+        ...(newData.settings || {}),
+      },
+    };
+    writeStore(merged);
+    return true;
+  } catch (err) {
+    console.error("[STORE_IMPORT_ERROR]:", err);
+    return false;
+  }
 }

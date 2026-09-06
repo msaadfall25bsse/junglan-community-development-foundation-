@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormField";
-import { Plus, Edit2, Trash2, ExternalLink, CheckCircle, RefreshCw } from "lucide-react";
+import { Plus, Edit2, Trash2, ExternalLink, CheckCircle, RefreshCw, AlertCircle } from "lucide-react";
 
 interface ProjectItem {
   id: string;
@@ -24,6 +24,7 @@ interface ProjectItem {
   category: "HEALTHCARE" | "AGRICULTURE" | "COMMUNITY_DEVELOPMENT";
   shortDescription: string;
   fullDescription: string;
+  coverImageUrl?: string;
   targetFundingPKR: number;
   currentFundingPKR: number;
   beneficiariesImpactedCount: number;
@@ -37,6 +38,7 @@ export default function AdminProjectsPage() {
   const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -48,6 +50,7 @@ export default function AdminProjectsPage() {
     beneficiariesEstimate: 100,
     description: "",
     status: "ACTIVE",
+    coverImageUrl: "/images/hero-ambulance.png",
   });
 
   const fetchProjects = async () => {
@@ -55,8 +58,9 @@ export default function AdminProjectsPage() {
     try {
       const res = await fetch("/api/projects");
       const json = await res.json();
-      if (json.success && json.data) {
-        setProjects(json.data);
+      const raw = Array.isArray(json.data) ? json.data : json.data?.projects;
+      if (json.success && Array.isArray(raw)) {
+        setProjects(raw);
       }
     } catch (err) {
       console.error("Failed to fetch projects:", err);
@@ -71,6 +75,7 @@ export default function AdminProjectsPage() {
 
   const handleOpenCreate = () => {
     setEditingProject(null);
+    setErrorMessage(null);
     setFormData({
       title: "",
       slug: "",
@@ -80,12 +85,14 @@ export default function AdminProjectsPage() {
       beneficiariesEstimate: 100,
       description: "",
       status: "ACTIVE",
+      coverImageUrl: "/images/hero-ambulance.png",
     });
     setModalOpen(true);
   };
 
   const handleOpenEdit = (proj: ProjectItem) => {
     setEditingProject(proj);
+    setErrorMessage(null);
     setFormData({
       title: proj.title,
       slug: proj.slug,
@@ -93,8 +100,9 @@ export default function AdminProjectsPage() {
       targetFundingPKR: proj.targetFundingPKR,
       currentFundingPKR: proj.currentFundingPKR,
       beneficiariesEstimate: proj.beneficiariesImpactedCount,
-      description: proj.fullDescription,
+      description: proj.fullDescription || proj.shortDescription || "",
       status: proj.status,
+      coverImageUrl: proj.coverImageUrl || "/images/hero-ambulance.png",
     });
     setModalOpen(true);
   };
@@ -102,6 +110,7 @@ export default function AdminProjectsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setErrorMessage(null);
     try {
       if (editingProject) {
         // PATCH
@@ -113,8 +122,10 @@ export default function AdminProjectsPage() {
         const json = await res.json();
         if (json.success) {
           setFeedback("Project updated successfully!");
-          fetchProjects();
+          await fetchProjects();
           setModalOpen(false);
+        } else {
+          setErrorMessage(json.error?.message || "Failed to update project.");
         }
       } else {
         // POST
@@ -126,12 +137,15 @@ export default function AdminProjectsPage() {
         const json = await res.json();
         if (json.success) {
           setFeedback("New project launched successfully!");
-          fetchProjects();
+          await fetchProjects();
           setModalOpen(false);
+        } else {
+          setErrorMessage(json.error?.message || "Failed to create project.");
         }
       }
     } catch (err) {
       console.error("Save error:", err);
+      setErrorMessage("Network error while saving project.");
     } finally {
       setSaving(false);
       setTimeout(() => setFeedback(null), 4000);
@@ -139,16 +153,22 @@ export default function AdminProjectsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this project?")) return;
+    if (!confirm("Are you sure you want to permanently delete this project? It will be removed immediately from the public website.")) return;
+    // Optimistic UI update
+    setProjects((prev) => prev.filter((p) => p.id !== id && p.slug !== id));
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
       const json = await res.json();
       if (json.success) {
-        setFeedback("Project removed.");
-        fetchProjects();
+        setFeedback("Project removed from live website.");
+        await fetchProjects();
+      } else {
+        alert(`Error: ${json.error?.message || "Failed to delete project"}`);
+        await fetchProjects();
       }
     } catch (err) {
       console.error("Delete error:", err);
+      await fetchProjects();
     }
   };
 
@@ -172,8 +192,8 @@ export default function AdminProjectsPage() {
       }
     >
       {feedback && (
-        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 text-emerald-600" />
+        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2 animate-in fade-in duration-200">
+          <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
           <span className="text-sm font-medium">{feedback}</span>
         </div>
       )}
@@ -216,7 +236,7 @@ export default function AdminProjectsPage() {
                       <div className="text-xs text-slate-500 flex items-center gap-1">
                         <code>/{p.slug}</code>
                         <a
-                          href={`/projects/${p.slug}`}
+                          href={`/projects`}
                           target="_blank"
                           rel="noreferrer"
                           className="text-sky-600 hover:text-sky-700 inline-flex items-center"
@@ -299,6 +319,13 @@ export default function AdminProjectsPage() {
         size="lg"
       >
         <form onSubmit={handleSave} className="space-y-4">
+          {errorMessage && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
           <FormField label="Project Title" required>
             <input
               type="text"
@@ -384,11 +411,39 @@ export default function AdminProjectsPage() {
             </FormField>
           </div>
 
-          <FormField label="Full Description" required>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Status">
+              <select
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              >
+                <option value="ACTIVE">Active (Live in Field)</option>
+                <option value="PLANNED">Planned (Future Roadmap)</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="ON_HOLD">On Hold</option>
+              </select>
+            </FormField>
+
+            <FormField label="Cover Image Preset / URL">
+              <select
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={formData.coverImageUrl}
+                onChange={(e) => setFormData({ ...formData, coverImageUrl: e.target.value })}
+              >
+                <option value="/images/hero-ambulance.png">Mountain Ambulance (Healthcare)</option>
+                <option value="/images/olive-agriculture.png">Olive Orchards (Agriculture)</option>
+                <option value="/images/community-depot.png">Community Depot (Infrastructure)</option>
+              </select>
+            </FormField>
+          </div>
+
+          <FormField label="Full Description & Impact Roadmap" required>
             <textarea
               required
               rows={4}
               className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+              placeholder="Describe the project scope, equipment, community need, and execution plan..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />

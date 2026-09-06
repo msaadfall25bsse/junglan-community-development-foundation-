@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { FormField } from "@/components/ui/FormField";
-import { Plus, Trash2, CheckCircle, RefreshCw, FileText } from "lucide-react";
+import { Plus, Edit2, Trash2, CheckCircle, RefreshCw, FileText } from "lucide-react";
 
 interface ReportItem {
   id: string;
@@ -33,6 +33,7 @@ export default function AdminReportsPage() {
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingReport, setEditingReport] = useState<ReportItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -40,7 +41,7 @@ export default function AdminReportsPage() {
     title: "",
     year: 2026,
     period: "Q1 2026",
-    category: "OPERATIONAL",
+    category: "OPERATIONAL" as "FINANCIAL" | "OPERATIONAL" | "ANNUAL" | "IMPACT",
     fileSize: "1.5 MB",
     downloadUrl: "#",
     summary: "",
@@ -51,8 +52,9 @@ export default function AdminReportsPage() {
     try {
       const res = await fetch("/api/reports");
       const json = await res.json();
-      if (json.success && json.data && json.data.reports) {
-        setReports(json.data.reports);
+      const raw = Array.isArray(json.data) ? json.data : json.data?.reports;
+      if (json.success && Array.isArray(raw)) {
+        setReports(raw);
       }
     } catch (err) {
       console.error("Failed to fetch reports:", err);
@@ -66,6 +68,7 @@ export default function AdminReportsPage() {
   }, []);
 
   const handleOpenCreate = () => {
+    setEditingReport(null);
     setFormData({
       title: "",
       year: new Date().getFullYear(),
@@ -78,23 +81,58 @@ export default function AdminReportsPage() {
     setModalOpen(true);
   };
 
+  const handleOpenEdit = (rep: ReportItem) => {
+    setEditingReport(rep);
+    setFormData({
+      title: rep.title,
+      year: rep.year,
+      period: rep.period,
+      category: rep.category,
+      fileSize: rep.fileSize,
+      downloadUrl: rep.downloadUrl,
+      summary: rep.summary,
+    });
+    setModalOpen(true);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/reports", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const json = await res.json();
-      if (json.success) {
-        setFeedback("Transparency report uploaded successfully!");
-        fetchReports();
-        setModalOpen(false);
+      if (editingReport) {
+        // PATCH existing report
+        const res = await fetch(`/api/reports/${editingReport.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const json = await res.json();
+        if (json.success) {
+          setFeedback("Report updated successfully!");
+          await fetchReports();
+          setModalOpen(false);
+        } else {
+          alert(`Error: ${json.error?.message || "Failed to update report"}`);
+        }
+      } else {
+        // POST new report
+        const res = await fetch("/api/reports", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const json = await res.json();
+        if (json.success) {
+          setFeedback("Transparency report uploaded successfully!");
+          await fetchReports();
+          setModalOpen(false);
+        } else {
+          alert(`Error: ${json.error?.message || "Failed to add report"}`);
+        }
       }
     } catch (err) {
       console.error("Save error:", err);
+      alert("Network error while saving report.");
     } finally {
       setSaving(false);
       setTimeout(() => setFeedback(null), 4000);
@@ -102,16 +140,22 @@ export default function AdminReportsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this report?")) return;
+    if (!confirm("Are you sure you want to permanently remove this report from the website?")) return;
+    // Optimistic UI removal
+    setReports((prev) => prev.filter((r) => r.id !== id));
     try {
       const res = await fetch(`/api/reports/${id}`, { method: "DELETE" });
       const json = await res.json();
       if (json.success) {
-        setFeedback("Report deleted.");
-        fetchReports();
+        setFeedback("Report deleted successfully.");
+        await fetchReports();
+      } else {
+        alert(`Error: ${json.error?.message || "Failed to delete"}`);
+        await fetchReports();
       }
     } catch (err) {
       console.error("Delete error:", err);
+      await fetchReports();
     }
   };
 
@@ -119,7 +163,7 @@ export default function AdminReportsPage() {
     <DashboardLayout
       role="ADMIN"
       pageTitle="Transparency & Audit Reports Management"
-      pageSubtitle="Manage financial audits, ambulance operational logs, and impact assessments publicly accessible in the transparency section."
+      pageSubtitle="Full administrative control to publish, edit, or delete audited financial disclosures and operational field logs."
       breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Reports" }]}
       actions={
         <div className="flex gap-2">
@@ -135,8 +179,8 @@ export default function AdminReportsPage() {
       }
     >
       {feedback && (
-        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2">
-          <CheckCircle className="w-5 h-5 text-emerald-600" />
+        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2 animate-in fade-in duration-200">
+          <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
           <span className="text-sm font-medium">{feedback}</span>
         </div>
       )}
@@ -163,7 +207,7 @@ export default function AdminReportsPage() {
             ) : reports.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                  No reports published yet. Click &quot;Add Report&quot; to publish one.
+                  No reports in database. Click &quot;Add Report&quot; to publish one.
                 </TableCell>
               </TableRow>
             ) : (
@@ -193,6 +237,14 @@ export default function AdminReportsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleOpenEdit(r)}
+                        title="Edit Report"
+                      >
+                        <Edit2 className="w-4 h-4 text-slate-600" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleDelete(r.id)}
                         title="Delete Report"
                       >
@@ -207,11 +259,11 @@ export default function AdminReportsPage() {
         </Table>
       </TableContainer>
 
-      {/* Add Report Modal */}
+      {/* Add / Edit Report Modal */}
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Add Transparency or Audit Report"
+        title={editingReport ? `Edit Report: ${editingReport.title}` : "Add Transparency or Audit Report"}
         size="lg"
       >
         <form onSubmit={handleSave} className="space-y-4">
@@ -299,7 +351,7 @@ export default function AdminReportsPage() {
               Cancel
             </Button>
             <Button variant="primary" type="submit" disabled={saving}>
-              {saving ? "Adding..." : "Add Report"}
+              {saving ? "Saving..." : editingReport ? "Update Report" : "Publish Report"}
             </Button>
           </div>
         </form>

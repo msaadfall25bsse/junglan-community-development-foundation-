@@ -18,20 +18,21 @@ export const createProjectSchema = z.object({
     .min(3, "Title must be at least 3 characters")
     .max(150),
   slug: slugParamSchema.shape.slug,
-  sector: z.enum(["HEALTHCARE", "AGRICULTURE", "COMMUNITY_DEVELOPMENT"]),
+  sector: z.enum(["HEALTHCARE", "AGRICULTURE", "COMMUNITY_DEVELOPMENT", "COMMUNITY"]).default("COMMUNITY_DEVELOPMENT"),
   description: z
     .string()
     .trim()
     .min(10, "Description must be at least 10 characters")
-    .max(3000),
+    .max(5000),
   objectives: z
-    .array(z.string().trim().min(3))
-    .min(1, "At least one project objective is required"),
+    .array(z.string().trim())
+    .optional()
+    .default(["Continuous community welfare & direct field impact"]),
   targetFundingPKR: positiveDecimalSchema,
   currentFundingPKR: nonNegativeDecimalSchema.default(0),
-  startDate: z.string().min(1, "Start date is required"),
+  startDate: z.string().optional().default(() => new Date().toISOString().split("T")[0]),
   expectedEndDate: z.string().optional().or(z.literal("")),
-  location: z.string().trim().min(2, "Location is required").max(150),
+  location: z.string().trim().optional().default("Junglan Valley, District Mansehra"),
   beneficiariesEstimate: z
     .coerce
     .number()
@@ -39,10 +40,10 @@ export const createProjectSchema = z.object({
     .nonnegative()
     .default(0),
   status: z
-    .enum(["PLANNED", "ACTIVE", "COMPLETED", "SUSPENDED"])
-    .default("PLANNED"),
-  coverImageUrl: z.string().optional().or(z.literal("")),
-  yearPeriodId: z.string().min(1, "Year period selection is required"),
+    .enum(["PLANNED", "ACTIVE", "COMPLETED", "SUSPENDED", "ON_HOLD"])
+    .default("ACTIVE"),
+  coverImageUrl: z.string().optional().default("/images/hero-ambulance.png"),
+  yearPeriodId: z.string().optional().default("2026"),
 });
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
