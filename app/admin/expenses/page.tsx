@@ -48,7 +48,7 @@ export default function AdminExpensesPage() {
   const [search, setSearch] = useState("");
 
   const [formData, setFormData] = useState({
-    voucherNumber: `EXP-2026-000${Math.floor(Math.random() * 900) + 100}`,
+    voucherNumber: "EXP-2026-000101",
     title: "",
     category: "FUEL" as const,
     amountPKR: 15000,
