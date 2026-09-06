@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -15,10 +17,31 @@ import { LATEST_NEWS_ITEMS } from "@/data/content";
 import { Calendar, Clock, ArrowRight, Newspaper } from "lucide-react";
 
 export function NewsSection() {
-  const categoryBadgeVariant = {
-    HEALTHCARE: "danger" as const,
-    AGRICULTURE: "success" as const,
-    ANNOUNCEMENT: "sky" as const,
+  const [news, setNews] = useState(LATEST_NEWS_ITEMS);
+
+  useEffect(() => {
+    fetch("/api/news")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          const formatted = data.data.slice(0, 3).map((item: any) => ({
+            slug: item.slug || item.id,
+            title: item.title,
+            category: (item.category as "HEALTHCARE" | "AGRICULTURE" | "ANNOUNCEMENT") || "ANNOUNCEMENT",
+            date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Recent",
+            readTime: item.readTime || "3 min read",
+            summary: item.excerpt || item.summary || item.content?.slice(0, 150) + "...",
+          }));
+          setNews(formatted);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const categoryBadgeVariant: Record<string, "danger" | "success" | "sky"> = {
+    HEALTHCARE: "danger",
+    AGRICULTURE: "success",
+    ANNOUNCEMENT: "sky",
   };
 
   return (
@@ -33,7 +56,7 @@ export function NewsSection() {
 
         {/* 3 Editorial News Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {LATEST_NEWS_ITEMS.map((item) => (
+          {news.map((item) => (
             <Card key={item.slug} hoverEffect className="flex flex-col justify-between bg-white">
               <CardHeader>
                 {/* Meta Header */}

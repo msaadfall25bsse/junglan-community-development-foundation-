@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { DashboardStatCard } from "@/components/dashboard/DashboardStatCard";
@@ -12,191 +12,234 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  TablePagination,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Modal } from "@/components/ui/Modal";
 import {
   Truck,
   Route,
   Receipt,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
+  Users,
+  Plus,
+  FolderGit2,
+  Newspaper,
+  FileText,
+  Settings,
   ArrowUpRight,
   ShieldCheck,
-  Fuel,
+  RefreshCw,
 } from "lucide-react";
 
-// Initial mock data strictly structured as CMS/PostgreSQL-ready schemas
-interface DispatchRecord {
-  id: string;
-  dispatchId: string;
-  patientName: string;
-  emergencyType: "Maternity / Trauma" | "Accident / Critical" | "Elderly Transfer" | "Pediatric";
-  pickup: string;
-  destination: string;
-  ambulanceId: string;
-  driver: string;
-  status: "COMPLETED" | "IN_TRANSIT" | "STANDBY";
-  time: string;
+interface OverviewStats {
+  totalTrips: number;
+  activeFleet: number;
+  totalExpensesPKR: number;
+  patientsServed: number;
+  recentTrips: Array<{
+    id: string;
+    tripIdentifier: string;
+    date: string;
+    patientName: string;
+    pickupLocation: string;
+    dropoffHospital: string;
+    ambulanceId: string;
+    driverName: string;
+    urgencyLevel: string;
+    status: string;
+  }>;
 }
 
-const RECENT_DISPATCHES: DispatchRecord[] = [
-  {
-    id: "1",
-    dispatchId: "DSP-2026-089",
-    patientName: "Emergency Patient (Protected)",
-    emergencyType: "Maternity / Trauma",
-    pickup: "Upper Junglan Hamlet",
-    destination: "DHQ Hospital Mansehra",
-    ambulanceId: "AMB-01 (Toyota Hilux 4x4)",
-    driver: "M. Tariq Khan",
-    status: "COMPLETED",
-    time: "2 hours ago",
-  },
-  {
-    id: "2",
-    dispatchId: "DSP-2026-088",
-    patientName: "Elderly Patient (Protected)",
-    emergencyType: "Elderly Transfer",
-    pickup: "Bala Kot Outpost",
-    destination: "King Abdullah Teaching Hospital",
-    ambulanceId: "AMB-02 (Toyota Hiace)",
-    driver: "Sajid Mehmood",
-    status: "IN_TRANSIT",
-    time: "45 mins ago",
-  },
-  {
-    id: "3",
-    dispatchId: "DSP-2026-087",
-    patientName: "Farm Worker (Protected)",
-    emergencyType: "Accident / Critical",
-    pickup: "Olive Nursery Sector 3",
-    destination: "RHC Oghi",
-    ambulanceId: "AMB-01 (Toyota Hilux 4x4)",
-    driver: "M. Tariq Khan",
-    status: "COMPLETED",
-    time: "Yesterday",
-  },
-  {
-    id: "4",
-    dispatchId: "DSP-2026-086",
-    patientName: "Pediatric Referral (Protected)",
-    emergencyType: "Pediatric",
-    pickup: "Lower Village Junglan",
-    destination: "Ayub Medical Complex Abbottabad",
-    ambulanceId: "AMB-02 (Toyota Hiace)",
-    driver: "Sajid Mehmood",
-    status: "COMPLETED",
-    time: "2 days ago",
-  },
-];
-
 export default function AdminOverviewPage() {
-  const [selectedRecord, setSelectedRecord] = useState<DispatchRecord | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [stats, setStats] = useState<OverviewStats>({
+    totalTrips: 2,
+    activeFleet: 2,
+    totalExpensesPKR: 42500,
+    patientsServed: 420,
+    recentTrips: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-  const statusBadge = {
-    COMPLETED: { label: "Completed", variant: "success" as const, icon: CheckCircle2 },
-    IN_TRANSIT: { label: "In-Transit", variant: "sky" as const, icon: Clock },
-    STANDBY: { label: "Standby", variant: "neutral" as const, icon: AlertTriangle },
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      const [tripsRes, expensesRes, ambRes, settingsRes] = await Promise.all([
+        fetch("/api/trips"),
+        fetch("/api/expenses"),
+        fetch("/api/ambulances"),
+        fetch("/api/settings"),
+      ]);
+
+      const [tripsJson, expJson, ambJson, setJson] = await Promise.all([
+        tripsRes.json(),
+        expensesRes.json(),
+        ambRes.json(),
+        settingsRes.json(),
+      ]);
+
+      const trips = tripsJson.success && tripsJson.data ? tripsJson.data : [];
+      const expenses = expJson.success && expJson.data ? expJson.data : [];
+      const ambulances = ambJson.success && ambJson.data ? ambJson.data : [];
+      const settings = setJson.success && setJson.data ? setJson.data : null;
+
+      const totalExp = expenses.reduce((s: number, e: any) => s + Number(e.amountPKR || 0), 0);
+
+      setStats({
+        totalTrips: trips.length,
+        activeFleet: ambulances.filter((a: any) => a.status === "AVAILABLE" || a.status === "ON_TRIP").length,
+        totalExpensesPKR: totalExp,
+        patientsServed: settings ? settings.patientsServed : 420,
+        recentTrips: trips.slice(0, 5),
+      });
+    } catch (err) {
+      console.error("Dashboard fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   return (
     <DashboardLayout
       role="ADMIN"
-      pageTitle="Executive Operations & Governance"
-      pageSubtitle="Al-Khidmat & Institutional foundation standards: Real-time oversight of ambulances, field dispatches, and financial ledger."
-      breadcrumbs={[{ label: "Overview" }]}
+      pageTitle="Executive Governance Dashboard"
+      pageSubtitle="Comprehensive administrative control over community projects, 24/7 mountain ambulance dispatches, financial vouchers, news CMS, and transparency audits."
+      breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Overview" }]}
       actions={
-        <div className="flex items-center gap-2">
-          <Button
-            href="/admin/trips"
-            variant="outline"
-            size="sm"
-            leftIcon={<Route className="w-4 h-4" />}
-          >
-            All Trips
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchDashboardData}>
+            <RefreshCw className="w-4 h-4 mr-1.5" />
+            Refresh
           </Button>
-          <Button
-            href="/admin/ambulances"
-            variant="primary"
-            size="sm"
-            leftIcon={<Truck className="w-4 h-4" />}
-          >
-            Manage Fleet
-          </Button>
+          <Link href="/admin/trips">
+            <Button variant="primary" size="sm">
+              <Plus className="w-4 h-4 mr-1.5" />
+              Dispatch Ambulance
+            </Button>
+          </Link>
         </div>
       }
     >
-      {/* Top Notice: Institutional Transparency Guarantee */}
-      <div className="p-4 rounded-xl bg-sky-50 border border-sky-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-sky-900">
-        <div className="flex items-center gap-2.5">
-          <ShieldCheck className="w-5 h-5 text-sky-700 shrink-0" />
-          <span>
-            <strong>Part 2 UI Shell Notice:</strong> Data values are structured as CMS-ready schema models. Medical privacy ethics strictly protect patient identities per Al-Khidmat / UNICEF standards.
-          </span>
-        </div>
-        <Badge variant="sky" size="sm">
-          Strict Audit Protocol
-        </Badge>
-      </div>
-
-      {/* Primary KPI Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <DashboardStatCard
+          title="Emergency Missions Run"
+          value={stats.totalTrips.toString()}
+          subtitle="100% free service"
+          icon={<Route className="w-5 h-5" />}
+          variant="emerald"
+        />
         <DashboardStatCard
           title="Active Ambulance Fleet"
-          value="2 Units"
-          subtitle="100% operational readiness"
-          variant="sky"
+          value={`${stats.activeFleet} Units`}
+          subtitle="4x4 oxygen equipped"
           icon={<Truck className="w-5 h-5" />}
-          trend={{ value: "24/7 Ready", isPositive: true }}
+          variant="sky"
         />
         <DashboardStatCard
-          title="Monthly Dispatches"
-          value="48"
-          subtitle="Emergency patient transfers"
-          variant="emerald"
-          icon={<Route className="w-5 h-5" />}
-          trend={{ value: "+12%", isPositive: true, label: "vs last month" }}
-        />
-        <DashboardStatCard
-          title="Monthly Fuel Disbursed"
-          value="840 L"
-          subtitle="Direct vehicle voucher logging"
-          variant="amber"
-          icon={<Fuel className="w-5 h-5" />}
-          trend={{ value: "Verified", isPositive: true }}
-        />
-        <DashboardStatCard
-          title="Public Audited Ledger"
-          value="PKR 1.25M"
-          subtitle="Zero administrative diversion"
-          variant="default"
+          title="Verified Operational Expenses"
+          value={`PKR ${stats.totalExpensesPKR.toLocaleString()}`}
+          subtitle="100% voucher audited"
           icon={<Receipt className="w-5 h-5" />}
-          trend={{ value: "100%", isPositive: true, label: "reconciled" }}
+          variant="amber"
+        />
+        <DashboardStatCard
+          title="Patients Transported"
+          value={`${stats.patientsServed}+`}
+          subtitle="Across mountain valley"
+          icon={<Users className="w-5 h-5" />}
+          variant="emerald"
         />
       </div>
 
-      {/* Recent Dispatches Section */}
+      {/* Website Control Hub Grid */}
+      <div className="mb-8">
+        <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+          <span>Website Management & Content Desks</span>
+          <span className="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+            Direct Public Control
+          </span>
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link
+            href="/admin/projects"
+            className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all group block"
+          >
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <FolderGit2 className="w-5 h-5" />
+            </div>
+            <div className="font-bold text-slate-900 flex items-center justify-between">
+              <span>Manage Projects</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Add initiatives, edit descriptions, adjust funding targets & status.
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/news"
+            className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-sky-300 hover:shadow-md transition-all group block"
+          >
+            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Newspaper className="w-5 h-5" />
+            </div>
+            <div className="font-bold text-slate-900 flex items-center justify-between">
+              <span>News & Stories</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600 transition-colors" />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Publish community milestones, field dispatches, and official releases.
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/reports"
+            className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-purple-300 hover:shadow-md transition-all group block"
+          >
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div className="font-bold text-slate-900 flex items-center justify-between">
+              <span>Transparency Reports</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors" />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Upload financial audits, fleet mileage reviews, and impact evaluations.
+            </p>
+          </Link>
+
+          <Link
+            href="/admin/settings"
+            className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-amber-300 hover:shadow-md transition-all group block"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Settings className="w-5 h-5" />
+            </div>
+            <div className="font-bold text-slate-900 flex items-center justify-between">
+              <span>Foundation Settings</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition-colors" />
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Update 24/7 emergency hotline, official donation bank accounts & stats.
+            </p>
+          </Link>
+        </div>
+      </div>
+
+      {/* Recent Dispatches Table */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
-              Recent Field Dispatches & Patient Transfers
-            </h2>
-            <p className="text-xs text-slate-500">
-              Latest emergency calls dispatched by Junglan rescue control.
-            </p>
+            <h3 className="text-base font-bold text-slate-900">Recent Ambulance Dispatches</h3>
+            <p className="text-xs text-slate-500">Live operational mountain transfers</p>
           </div>
-          <Link
-            href="/admin/trips"
-            className="text-xs font-bold text-sky-700 hover:text-sky-800 inline-flex items-center gap-1"
-          >
-            <span>View Full Ledger</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+          <Link href="/admin/trips">
+            <Button variant="outline" size="sm">
+              View All Dispatches
+            </Button>
           </Link>
         </div>
 
@@ -204,150 +247,75 @@ export default function AdminOverviewPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Dispatch ID</TableHead>
-                <TableHead>Emergency Type</TableHead>
-                <TableHead>Route (Pickup → Hospital)</TableHead>
-                <TableHead>Vehicle & Driver</TableHead>
+                <TableHead>Mission Code</TableHead>
+                <TableHead>Patient</TableHead>
+                <TableHead>Transit Route</TableHead>
+                <TableHead>Driver & Unit</TableHead>
+                <TableHead>Urgency</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Time</TableHead>
-                <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {RECENT_DISPATCHES.map((row) => {
-                const badge = statusBadge[row.status];
-                const Icon = badge.icon;
-                return (
-                  <TableRow
-                    key={row.id}
-                    isClickable
-                    onClick={() => setSelectedRecord(row)}
-                  >
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                    Loading dispatches...
+                  </TableCell>
+                </TableRow>
+              ) : stats.recentTrips.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                    No recent dispatches logged.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                stats.recentTrips.map((t) => (
+                  <TableRow key={t.id}>
                     <TableCell>
-                      <span className="font-mono font-bold text-slate-900 text-xs">
-                        {row.dispatchId}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-semibold text-slate-800 text-xs">
-                        {row.emergencyType}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs">
-                        <span className="text-slate-900 font-medium">{row.pickup}</span>
-                        <span className="text-slate-400 mx-1.5">→</span>
-                        <span className="text-slate-600 font-medium">{row.destination}</span>
+                      <div className="font-semibold text-slate-900">{t.tripIdentifier}</div>
+                      <div className="text-xs text-slate-500">
+                        {new Intl.DateTimeFormat("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }).format(new Date(t.date))}
                       </div>
                     </TableCell>
+                    <TableCell className="font-medium text-slate-800">{t.patientName}</TableCell>
                     <TableCell>
-                      <div className="text-xs">
-                        <div className="font-medium text-slate-800">{row.ambulanceId}</div>
-                        <div className="text-slate-400 text-[11px]">{row.driver}</div>
-                      </div>
+                      <div className="text-sm font-medium text-slate-900">{t.pickupLocation}</div>
+                      <div className="text-xs text-slate-500">→ {t.dropoffHospital}</div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={badge.variant} size="sm">
-                        <Icon className="w-3 h-3 mr-1" />
-                        {badge.label}
+                      <div className="text-sm font-medium text-slate-800">{t.driverName}</div>
+                      <div className="text-xs text-slate-500">{t.ambulanceId}</div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          t.urgencyLevel === "CRITICAL"
+                            ? "danger"
+                            : t.urgencyLevel === "URGENT"
+                            ? "warning"
+                            : "neutral"
+                        }
+                      >
+                        {t.urgencyLevel}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="text-xs text-slate-500">{row.time}</span>
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedRecord(row);
-                        }}
-                        className="text-xs font-bold text-sky-700 hover:text-sky-900 hover:underline cursor-pointer"
-                      >
-                        Inspect
-                      </button>
+                      <Badge variant={t.status === "COMPLETED" ? "success" : "warning"}>
+                        {t.status}
+                      </Badge>
                     </TableCell>
                   </TableRow>
-                );
-              })}
+                ))
+              )}
             </TableBody>
           </Table>
-          <TablePagination
-            currentPage={currentPage}
-            totalPages={1}
-            totalItems={RECENT_DISPATCHES.length}
-            itemsPerPage={10}
-            onPageChange={setCurrentPage}
-          />
         </TableContainer>
       </div>
-
-      {/* Inspection Modal */}
-      {selectedRecord && (
-        <Modal
-          isOpen={!!selectedRecord}
-          onClose={() => setSelectedRecord(null)}
-          title={`Dispatch Record: ${selectedRecord.dispatchId}`}
-          description="Verified field dispatch entry logged in the Junglan emergency system."
-          footer={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedRecord(null)}
-            >
-              Close
-            </Button>
-          }
-        >
-          <div className="space-y-4 text-xs">
-            <div className="grid grid-cols-2 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div>
-                <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold block">
-                  Status
-                </span>
-                <span className="font-bold text-slate-800 text-sm mt-0.5 inline-block">
-                  {selectedRecord.status}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold block">
-                  Timestamp
-                </span>
-                <span className="font-bold text-slate-800 text-sm mt-0.5 inline-block">
-                  {selectedRecord.time}
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2.5">
-              <div>
-                <strong className="text-slate-700">Nature of Emergency:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedRecord.emergencyType}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Assigned Vehicle:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedRecord.ambulanceId}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Driver on Shift:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedRecord.driver}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Route Origin:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedRecord.pickup}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Receiving Medical Center:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedRecord.destination}</span>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] leading-relaxed">
-              Medical details and patient clinical condition are strictly protected under patient confidentiality protocols.
-            </div>
-          </div>
-        </Modal>
-      )}
     </DashboardLayout>
   );
 }

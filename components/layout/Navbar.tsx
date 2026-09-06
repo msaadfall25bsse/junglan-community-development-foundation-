@@ -12,7 +12,19 @@ import { cn } from "@/lib/utils";
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hotline, setHotline] = useState(FOUNDATION_INFO.hotline);
   const pathname = usePathname();
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.emergencyHotline) {
+          setHotline(data.data.emergencyHotline);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,11 +62,11 @@ export function Navbar() {
           </div>
           <div className="flex items-center gap-4 text-[11px]">
             <a
-              href={`tel:${FOUNDATION_INFO.hotline}`}
+              href={`tel:${hotline}`}
               className="inline-flex items-center gap-1.5 font-semibold text-sky-300 hover:text-white transition-colors"
             >
               <PhoneCall className="w-3 h-3 text-red-400" />
-              <span>Helpline: {FOUNDATION_INFO.hotline}</span>
+              <span>Helpline: {hotline}</span>
             </a>
           </div>
         </div>
@@ -161,12 +173,12 @@ export function Navbar() {
                     24/7 Free Ambulance Hotline
                   </div>
                   <div className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight truncate">
-                    {FOUNDATION_INFO.hotline}
+                    {hotline}
                   </div>
                 </div>
               </div>
               <a
-                href={`tel:${FOUNDATION_INFO.hotline}`}
+                href={`tel:${hotline}`}
                 className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all shrink-0"
               >
                 Call Now

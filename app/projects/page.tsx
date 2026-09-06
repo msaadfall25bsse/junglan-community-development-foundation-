@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -19,23 +19,47 @@ import { Truck, Sprout, Users, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default function ProjectsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [projectsList, setProjectsList] = useState(HOMEPAGE_PROJECTS);
 
-  const categoryIcons = {
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          const formatted = data.data.map((p: any) => ({
+            slug: p.slug || p.id,
+            title: p.title,
+            category: (p.category as "HEALTHCARE" | "AGRICULTURE" | "COMMUNITY") || "COMMUNITY",
+            status: p.status === "ACTIVE" ? "ACTIVE" : "COMING_SOON",
+            tagline: p.tagline || (p.beneficiaries ? `${p.beneficiaries} Beneficiaries Targeted` : "Grassroots Welfare Program"),
+            summary: p.summary || p.description || "",
+            impactMetrics: Array.isArray(p.impactMetrics) && p.impactMetrics.length > 0
+              ? p.impactMetrics
+              : ["Community approved roadmap", `Direct Field Allocation`],
+            ctaText: p.ctaText || (p.status === "ACTIVE" ? "Support Project" : "View Roadmap"),
+          }));
+          setProjectsList(formatted);
+        }
+      })
+      .catch((err) => console.error("Error loading projects:", err));
+  }, []);
+
+  const categoryIcons: Record<string, React.ReactNode> = {
     HEALTHCARE: <Truck className="w-5 h-5 text-red-600" />,
     AGRICULTURE: <Sprout className="w-5 h-5 text-emerald-600" />,
     COMMUNITY: <Users className="w-5 h-5 text-amber-600" />,
   };
 
-  const categoryBadgeVariant = {
-    HEALTHCARE: "danger" as const,
-    AGRICULTURE: "success" as const,
-    COMMUNITY: "warning" as const,
+  const categoryBadgeVariant: Record<string, "danger" | "success" | "warning"> = {
+    HEALTHCARE: "danger",
+    AGRICULTURE: "success",
+    COMMUNITY: "warning",
   };
 
   const filteredProjects =
     selectedCategory === "ALL"
-      ? HOMEPAGE_PROJECTS
-      : HOMEPAGE_PROJECTS.filter((p) => p.category === selectedCategory);
+      ? projectsList
+      : projectsList.filter((p) => p.category === selectedCategory);
 
   return (
     <PublicLayout>

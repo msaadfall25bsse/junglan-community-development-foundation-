@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { DashboardStatCard } from "@/components/dashboard/DashboardStatCard";
 import {
@@ -11,271 +11,298 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  TablePagination,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { FormField } from "@/components/ui/FormField";
 import {
   Truck,
-  CheckCircle2,
-  AlertTriangle,
-  Wrench,
-  ShieldCheck,
+  CheckCircle,
   Plus,
+  RefreshCw,
+  Phone,
 } from "lucide-react";
 
-interface AmbulanceRecord {
+interface AmbulanceItem {
   id: string;
+  ambulanceIdentifier: string;
   registrationNumber: string;
   model: string;
-  terrainType: "Mountain 4x4 Hilux" | "Standard Hiace Van";
-  assignedDriver: string;
-  driverPhone: string;
-  currentStatus: "ACTIVE_READY" | "ON_MISSION" | "MAINTENANCE_DUE";
-  lastOdometer: string;
-  lastServiceDate: string;
-  fuelEfficiency: string;
+  manufacturingYear: number;
+  status: "AVAILABLE" | "ON_TRIP" | "MAINTENANCE" | "OUT_OF_SERVICE";
+  currentOdometerKm: number;
+  assignedDriverName: string;
 }
 
-const FLEET_RECORDS: AmbulanceRecord[] = [
-  {
-    id: "amb-1",
-    registrationNumber: "PK-KP-2024-AMB1",
-    model: "Toyota Hilux 4x4 High-Clearance Emergency Unit",
-    terrainType: "Mountain 4x4 Hilux",
-    assignedDriver: "M. Tariq Khan",
-    driverPhone: "+92 300 1234567",
-    currentStatus: "ACTIVE_READY",
-    lastOdometer: "42,850 km",
-    lastServiceDate: "15 Aug 2026",
-    fuelEfficiency: "9.2 km/L (Rough Terrain)",
-  },
-  {
-    id: "amb-2",
-    registrationNumber: "PK-KP-2025-AMB2",
-    model: "Toyota Hiace High-Roof Patient Transport Unit",
-    terrainType: "Standard Hiace Van",
-    assignedDriver: "Sajid Mehmood",
-    driverPhone: "+92 301 7654321",
-    currentStatus: "ACTIVE_READY",
-    lastOdometer: "28,120 km",
-    lastServiceDate: "28 Jul 2026",
-    fuelEfficiency: "11.5 km/L (Highway & Main Roads)",
-  },
-];
-
 export default function AdminAmbulancesPage() {
-  const [selectedAmbulance, setSelectedAmbulance] = useState<AmbulanceRecord | null>(null);
+  const [ambulances, setAmbulances] = useState<AmbulanceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
-  const statusMap = {
-    ACTIVE_READY: { label: "Active & 24/7 Ready", variant: "success" as const, icon: CheckCircle2 },
-    ON_MISSION: { label: "On Emergency Dispatch", variant: "sky" as const, icon: Truck },
-    MAINTENANCE_DUE: { label: "Routine Service Due", variant: "warning" as const, icon: AlertTriangle },
+  const [formData, setFormData] = useState({
+    vehicleNumber: "AMB-03",
+    make: "Toyota",
+    model: "Hilux 4x4 Mountain Unit",
+    yearOfManufacture: 2025,
+    status: "AVAILABLE" as const,
+    baseLocation: "Junglan Central Depot",
+    currentOdometerKm: 1200,
+  });
+
+  const fetchAmbulances = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ambulances");
+      const json = await res.json();
+      if (json.success && json.data) {
+        setAmbulances(json.data);
+      }
+    } catch (err) {
+      console.error("Failed to load ambulances:", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchAmbulances();
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await fetch("/api/ambulances", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setFeedback(`Ambulance ${formData.vehicleNumber} registered into fleet!`);
+        fetchAmbulances();
+        setModalOpen(false);
+      } else {
+        alert(json.error?.message || "Failed to register ambulance");
+      }
+    } catch (err) {
+      console.error("Register error:", err);
+    } finally {
+      setSaving(false);
+      setTimeout(() => setFeedback(null), 4000);
+    }
+  };
+
+  const availableCount = ambulances.filter((a) => a.status === "AVAILABLE").length;
+  const onMissionCount = ambulances.filter((a) => a.status === "ON_TRIP").length;
 
   return (
     <DashboardLayout
       role="ADMIN"
-      pageTitle="Ambulance Fleet Management"
-      pageSubtitle="Supervise vehicle deployment, driver rosters, terrain capabilities, and scheduled maintenance."
-      breadcrumbs={[
-        { label: "Overview", href: "/admin" },
-        { label: "Ambulance Fleet" },
-      ]}
+      pageTitle="Emergency Ambulance Fleet Registry"
+      pageSubtitle="Vehicle availability, live GPS dispatch readiness, odometer tracking, and mountain terrain maintenance schedules."
+      breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Ambulance Fleet" }]}
       actions={
-        <Button
-          variant="primary"
-          size="sm"
-          leftIcon={<Plus className="w-4 h-4" />}
-          onClick={() => alert("Fleet Registry addition is configured for Part 3 database migration.")}
-        >
-          Register Vehicle
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchAmbulances}>
+            <RefreshCw className="w-4 h-4 mr-1.5" />
+            Refresh
+          </Button>
+          <Button variant="primary" size="sm" onClick={() => setModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-1.5" />
+            Register Vehicle
+          </Button>
+        </div>
       }
     >
-      {/* Fleet KPI overview */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-        <DashboardStatCard
-          title="Total Fleet Size"
-          value="2 Vehicles"
-          subtitle="1 Mountain 4x4 + 1 High-Roof"
-          variant="sky"
-          icon={<Truck className="w-5 h-5" />}
-        />
-        <DashboardStatCard
-          title="Fleet Readiness"
-          value="100%"
-          subtitle="Both units fully operational"
-          variant="emerald"
-          icon={<CheckCircle2 className="w-5 h-5" />}
-        />
-        <DashboardStatCard
-          title="Next Scheduled Service"
-          value="Sep 15"
-          subtitle="AMB-01 Filter & Brake Check"
-          variant="amber"
-          icon={<Wrench className="w-5 h-5" />}
-        />
-      </div>
-
-      {/* Fleet Table */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-900">
-            Registered Emergency Ambulances
-          </h2>
-          <span className="text-xs text-slate-500 font-medium">
-            2 Vehicles Registered
-          </span>
+      {feedback && (
+        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2">
+          <CheckCircle className="w-5 h-5 text-emerald-600" />
+          <span className="text-sm font-medium">{feedback}</span>
         </div>
+      )}
 
-        <TableContainer>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Registration / Plate</TableHead>
-                <TableHead>Vehicle Specifications</TableHead>
-                <TableHead>Assigned Driver</TableHead>
-                <TableHead>Odometer</TableHead>
-                <TableHead>Readiness Status</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {FLEET_RECORDS.map((vehicle) => {
-                const badge = statusMap[vehicle.currentStatus];
-                const Icon = badge.icon;
-                return (
-                  <TableRow
-                    key={vehicle.id}
-                    isClickable
-                    onClick={() => setSelectedAmbulance(vehicle)}
-                  >
-                    <TableCell>
-                      <div>
-                        <div className="font-mono font-bold text-slate-900 text-xs">
-                          {vehicle.registrationNumber}
-                        </div>
-                        <div className="text-[11px] text-sky-700 font-medium">
-                          {vehicle.terrainType}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs font-medium text-slate-800 max-w-xs">
-                        {vehicle.model}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs">
-                        <div className="font-bold text-slate-900">{vehicle.assignedDriver}</div>
-                        <div className="text-slate-400 text-[11px]">{vehicle.driverPhone}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs font-mono font-medium text-slate-700">
-                        {vehicle.lastOdometer}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={badge.variant} size="sm">
-                        <Icon className="w-3 h-3 mr-1" />
-                        {badge.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedAmbulance(vehicle);
-                        }}
-                        className="text-xs font-bold text-sky-700 hover:text-sky-900 hover:underline cursor-pointer"
-                      >
-                        Details
-                      </button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-          <TablePagination
-            currentPage={1}
-            totalPages={1}
-            totalItems={FLEET_RECORDS.length}
-            itemsPerPage={10}
-            onPageChange={() => {}}
-          />
-        </TableContainer>
+      {/* KPI Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+        <DashboardStatCard
+          title="Total Registered Fleet"
+          value={`${ambulances.length} Units`}
+          subtitle="100% emergency equipped"
+          icon={<Truck className="w-5 h-5" />}
+          variant="emerald"
+        />
+        <DashboardStatCard
+          title="Active & Ready for Dispatch"
+          value={`${availableCount} Ready`}
+          subtitle="Oxygen equipped"
+          icon={<CheckCircle className="w-5 h-5" />}
+          variant="sky"
+        />
+        <DashboardStatCard
+          title="Currently on Mission"
+          value={`${onMissionCount} Dispatched`}
+          subtitle="Patient in transit"
+          icon={<Phone className="w-5 h-5" />}
+          variant="amber"
+        />
       </div>
 
-      {/* Ambulance Detail Modal */}
-      {selectedAmbulance && (
-        <Modal
-          isOpen={!!selectedAmbulance}
-          onClose={() => setSelectedAmbulance(null)}
-          title={selectedAmbulance.model}
-          description={`Plate Registration: ${selectedAmbulance.registrationNumber}`}
-          footer={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedAmbulance(null)}
-            >
-              Done
-            </Button>
-          }
-        >
-          <div className="space-y-4 text-xs">
-            <div className="grid grid-cols-2 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div>
-                <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold block">
-                  Status
-                </span>
-                <span className="font-bold text-emerald-700 text-sm mt-0.5 inline-block">
-                  {selectedAmbulance.currentStatus.replace("_", " ")}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold block">
-                  Last Full Service
-                </span>
-                <span className="font-bold text-slate-800 text-sm mt-0.5 inline-block">
-                  {selectedAmbulance.lastServiceDate}
-                </span>
-              </div>
-            </div>
+      <TableContainer>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Fleet ID & Plate</TableHead>
+              <TableHead>Model / Type</TableHead>
+              <TableHead>Year</TableHead>
+              <TableHead>Odometer</TableHead>
+              <TableHead>Assigned Driver</TableHead>
+              <TableHead>Operational Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                  Loading fleet data...
+                </TableCell>
+              </TableRow>
+            ) : ambulances.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                  No vehicles registered. Click &quot;Register Vehicle&quot; to add one.
+                </TableCell>
+              </TableRow>
+            ) : (
+              ambulances.map((a) => (
+                <TableRow key={a.id}>
+                  <TableCell>
+                    <div className="font-bold text-slate-900">{a.ambulanceIdentifier}</div>
+                    <div className="text-xs text-slate-500 font-mono">{a.registrationNumber}</div>
+                  </TableCell>
+                  <TableCell className="text-slate-800 font-medium">{a.model}</TableCell>
+                  <TableCell className="text-slate-600">{a.manufacturingYear}</TableCell>
+                  <TableCell className="font-semibold text-slate-900">
+                    {Number(a.currentOdometerKm).toLocaleString()} km
+                  </TableCell>
+                  <TableCell className="text-slate-700">{a.assignedDriverName}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        a.status === "AVAILABLE"
+                          ? "success"
+                          : a.status === "ON_TRIP"
+                          ? "sky"
+                          : "warning"
+                      }
+                    >
+                      {a.status.replace("_", " ")}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-            <div className="space-y-2.5">
-              <div>
-                <strong className="text-slate-700">Terrain Configuration:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedAmbulance.terrainType}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Primary Duty Driver:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedAmbulance.assignedDriver} ({selectedAmbulance.driverPhone})</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Current Odometer:</strong>{" "}
-                <span className="text-slate-900 font-mono font-medium">{selectedAmbulance.lastOdometer}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Operational Fuel Efficiency:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedAmbulance.fuelEfficiency}</span>
-              </div>
-            </div>
+      {/* Register Ambulance Modal */}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Register New Ambulance Vehicle"
+        size="lg"
+      >
+        <form onSubmit={handleSave} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Fleet Code (e.g. AMB-03)" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                value={formData.vehicleNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, vehicleNumber: e.target.value })
+                }
+              />
+            </FormField>
 
-            <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-100 flex items-start gap-2.5 text-sky-900">
-              <ShieldCheck className="w-4 h-4 text-sky-700 shrink-0 mt-0.5" />
-              <div className="text-[11px] leading-relaxed">
-                Emergency equipment including stretcher, oxygen cylinder, suction unit, and first-response trauma kit are verified before each shift.
-              </div>
-            </div>
+            <FormField label="Manufacturer / Make" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={formData.make}
+                onChange={(e) => setFormData({ ...formData, make: e.target.value })}
+              />
+            </FormField>
           </div>
-        </Modal>
-      )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Model & Specs" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={formData.model}
+                onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+              />
+            </FormField>
+
+            <FormField label="Manufacturing Year" required>
+              <input
+                type="number"
+                required
+                min={2000}
+                max={2030}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={formData.yearOfManufacture}
+                onChange={(e) =>
+                  setFormData({ ...formData, yearOfManufacture: Number(e.target.value) })
+                }
+              />
+            </FormField>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Current Odometer Reading (km)" required>
+              <input
+                type="number"
+                required
+                min={0}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={formData.currentOdometerKm}
+                onChange={(e) =>
+                  setFormData({ ...formData, currentOdometerKm: Number(e.target.value) })
+                }
+              />
+            </FormField>
+
+            <FormField label="Station / Base Location" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={formData.baseLocation}
+                onChange={(e) =>
+                  setFormData({ ...formData, baseLocation: e.target.value })
+                }
+              />
+            </FormField>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+            <Button variant="outline" type="button" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" disabled={saving}>
+              {saving ? "Registering..." : "Register Ambulance"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </DashboardLayout>
   );
 }

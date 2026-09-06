@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -24,11 +24,30 @@ export default function DonatePage() {
   const [selectedAmount, setSelectedAmount] = useState<number | "CUSTOM">(5000);
   const [customAmount, setCustomAmount] = useState<string>("");
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [bankDetails, setBankDetails] = useState(OFFICIAL_BANK_DETAILS);
   const [toastConfig, setToastConfig] = useState<{ isOpen: boolean; title: string; message: string }>({
     isOpen: false,
     title: "",
     message: "",
   });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data?.bankAccount) {
+          setBankDetails((prev) => ({
+            ...prev,
+            bankName: data.data.bankAccount.bankName || prev.bankName,
+            accountTitle: data.data.bankAccount.accountTitle || prev.accountTitle,
+            accountNumber: data.data.bankAccount.accountNumber || prev.accountNumber,
+            iban: data.data.bankAccount.iban || prev.iban,
+            branch: data.data.bankAccount.branch || prev.branch,
+          }));
+        }
+      })
+      .catch((err) => console.error("Error loading bank settings:", err));
+  }, []);
 
   const [donorForm, setDonorForm] = useState({
     name: "",
@@ -343,7 +362,7 @@ export default function DonatePage() {
                         Bank Name
                       </div>
                       <div className="font-bold text-white text-sm">
-                        {OFFICIAL_BANK_DETAILS.bankName}
+                        {bankDetails.bankName}
                       </div>
                     </div>
 
@@ -352,7 +371,7 @@ export default function DonatePage() {
                         Account Title
                       </div>
                       <div className="font-bold text-white text-sm">
-                        {OFFICIAL_BANK_DETAILS.accountTitle}
+                        {bankDetails.accountTitle}
                       </div>
                     </div>
 
@@ -363,7 +382,7 @@ export default function DonatePage() {
                         </span>
                         <button
                           type="button"
-                          onClick={() => handleCopy(OFFICIAL_BANK_DETAILS.accountNumber, "acc")}
+                          onClick={() => handleCopy(bankDetails.accountNumber, "acc")}
                           className="text-sky-400 hover:text-sky-300 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
                         >
                           {copiedField === "acc" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -371,7 +390,7 @@ export default function DonatePage() {
                         </button>
                       </div>
                       <div className="font-mono font-bold text-white text-sm tracking-wide">
-                        {OFFICIAL_BANK_DETAILS.accountNumber}
+                        {bankDetails.accountNumber}
                       </div>
                     </div>
 
@@ -382,7 +401,7 @@ export default function DonatePage() {
                         </span>
                         <button
                           type="button"
-                          onClick={() => handleCopy(OFFICIAL_BANK_DETAILS.iban, "iban")}
+                          onClick={() => handleCopy(bankDetails.iban, "iban")}
                           className="text-sky-400 hover:text-sky-300 font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
                         >
                           {copiedField === "iban" ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
@@ -390,20 +409,20 @@ export default function DonatePage() {
                         </button>
                       </div>
                       <div className="font-mono font-bold text-sky-300 text-xs sm:text-sm tracking-wider break-all">
-                        {OFFICIAL_BANK_DETAILS.iban}
+                        {bankDetails.iban}
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-slate-400">
                       <span>SWIFT / BIC Code:</span>
                       <span className="font-mono font-bold text-white">
-                        {OFFICIAL_BANK_DETAILS.swiftCode}
+                        {bankDetails.swiftCode}
                       </span>
                     </div>
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-slate-800/80 text-[11px] text-slate-400 leading-relaxed">
-                    {OFFICIAL_BANK_DETAILS.instructions}
+                    {bankDetails.instructions}
                   </div>
                 </div>
 

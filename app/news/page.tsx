@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Container } from "@/components/ui/Container";
@@ -18,17 +18,38 @@ import { Calendar, Clock, ArrowRight, User } from "lucide-react";
 
 export default function NewsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [newsList, setNewsList] = useState(LATEST_NEWS_ITEMS);
 
-  const categoryBadgeVariant = {
-    HEALTHCARE: "danger" as const,
-    AGRICULTURE: "success" as const,
-    ANNOUNCEMENT: "sky" as const,
+  useEffect(() => {
+    fetch("/api/news")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          const formatted = data.data.map((item: any) => ({
+            slug: item.slug || item.id,
+            title: item.title,
+            category: (item.category as "HEALTHCARE" | "AGRICULTURE" | "ANNOUNCEMENT") || "ANNOUNCEMENT",
+            date: item.publishedAt ? new Date(item.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Recent",
+            readTime: item.readTime || "3 min read",
+            author: item.author || "Field Editorial Desk",
+            excerpt: item.excerpt || item.summary || item.content?.slice(0, 150) + "...",
+          }));
+          setNewsList(formatted);
+        }
+      })
+      .catch((err) => console.error("Error loading news:", err));
+  }, []);
+
+  const categoryBadgeVariant: Record<string, "danger" | "success" | "sky"> = {
+    HEALTHCARE: "danger",
+    AGRICULTURE: "success",
+    ANNOUNCEMENT: "sky",
   };
 
   const filteredNews =
     selectedCategory === "ALL"
-      ? LATEST_NEWS_ITEMS
-      : LATEST_NEWS_ITEMS.filter((item) => item.category === selectedCategory);
+      ? newsList
+      : newsList.filter((item) => item.category === selectedCategory);
 
   return (
     <PublicLayout>

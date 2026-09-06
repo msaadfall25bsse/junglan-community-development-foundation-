@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 export default function ContactPage() {
+  const [contactInfo, setContactInfo] = useState(FOUNDATION_INFO);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -30,6 +31,21 @@ export default function ContactPage() {
   const [status, setStatus] = useState<"IDLE" | "LOADING" | "SUCCESS" | "ERROR">("IDLE");
   const [errorMessage, setErrorMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setContactInfo((prev) => ({
+            ...prev,
+            hotline: data.data.emergencyHotline || prev.hotline,
+            email: data.data.officialEmail || prev.email,
+          }));
+        }
+      })
+      .catch((err) => console.error("Error loading contact settings:", err));
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,13 +106,13 @@ export default function ContactPage() {
                   <span>24/7 Emergency Ambulance Helpline</span>
                 </div>
                 <div className="text-2xl font-black text-slate-900 mb-2">
-                  {FOUNDATION_INFO.hotline}
+                  {contactInfo.hotline}
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed mb-4">
                   For urgent patient medical transfers, maternal care, or road trauma in Junglan and District Mansehra.
                 </p>
                 <a
-                  href={`tel:${FOUNDATION_INFO.hotline}`}
+                  href={`tel:${contactInfo.hotline}`}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors"
                 >
                   <PhoneCall className="w-3.5 h-3.5" />
@@ -113,7 +129,7 @@ export default function ContactPage() {
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm">Main Office</h4>
                     <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
-                      {FOUNDATION_INFO.location}
+                      {contactInfo.location}
                     </p>
                   </div>
                 </div>
@@ -125,10 +141,10 @@ export default function ContactPage() {
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm">Official Email</h4>
                     <a
-                      href={`mailto:${FOUNDATION_INFO.email}`}
+                      href={`mailto:${contactInfo.email}`}
                       className="text-xs text-sky-700 hover:underline mt-0.5 block"
                     >
-                      {FOUNDATION_INFO.email}
+                      {contactInfo.email}
                     </a>
                   </div>
                 </div>

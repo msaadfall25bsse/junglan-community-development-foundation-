@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import {
   TableContainer,
@@ -10,311 +10,502 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  TablePagination,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { FormField } from "@/components/ui/FormField";
 import {
   Search,
   Filter,
   CheckCircle2,
-  Download,
+  Plus,
+  RefreshCw,
+  CheckCircle,
+  Truck,
 } from "lucide-react";
 
-interface TripRecord {
+interface TripItem {
   id: string;
-  tripCode: string;
+  tripIdentifier: string;
   date: string;
-  patientType: "Maternity Care" | "Accident & Trauma" | "Elderly / Cardiac" | "Pediatric Referral";
-  origin: string;
-  destination: string;
+  patientName: string;
+  pickupLocation: string;
+  dropoffHospital: string;
+  tripType: string;
   distanceKm: number;
-  ambulance: string;
-  driver: string;
-  status: "COMPLETED" | "IN_TRANSIT" | "STANDBY";
+  startOdometerKm: number;
+  endOdometerKm?: number | null;
+  status: "DISPATCHED" | "IN_TRANSIT" | "COMPLETED" | "CANCELLED";
+  urgencyLevel: "ROUTINE" | "URGENT" | "CRITICAL";
+  driverName: string;
+  ambulanceId: string;
+  patientPhone?: string | null;
+  notes?: string | null;
 }
 
-const ALL_TRIPS: TripRecord[] = [
-  {
-    id: "1",
-    tripCode: "TRIP-2026-0042",
-    date: "04 Sep 2026",
-    patientType: "Maternity Care",
-    origin: "Upper Junglan Valley",
-    destination: "DHQ Hospital Mansehra",
-    distanceKm: 34,
-    ambulance: "AMB-01 (4x4)",
-    driver: "M. Tariq Khan",
-    status: "COMPLETED",
-  },
-  {
-    id: "2",
-    tripCode: "TRIP-2026-0041",
-    date: "04 Sep 2026",
-    patientType: "Accident & Trauma",
-    origin: "Olive Nursery Bypass",
-    destination: "RHC Oghi",
-    distanceKm: 18,
-    ambulance: "AMB-02 (Hiace)",
-    driver: "Sajid Mehmood",
-    status: "COMPLETED",
-  },
-  {
-    id: "3",
-    tripCode: "TRIP-2026-0040",
-    date: "03 Sep 2026",
-    patientType: "Elderly / Cardiac",
-    origin: "Kotli Hamlets",
-    destination: "Ayub Medical Complex Abbottabad",
-    distanceKm: 62,
-    ambulance: "AMB-01 (4x4)",
-    driver: "M. Tariq Khan",
-    status: "COMPLETED",
-  },
-  {
-    id: "4",
-    tripCode: "TRIP-2026-0039",
-    date: "02 Sep 2026",
-    patientType: "Pediatric Referral",
-    origin: "Lower Junglan",
-    destination: "King Abdullah Hospital",
-    distanceKm: 28,
-    ambulance: "AMB-02 (Hiace)",
-    driver: "Sajid Mehmood",
-    status: "COMPLETED",
-  },
-  {
-    id: "5",
-    tripCode: "TRIP-2026-0038",
-    date: "01 Sep 2026",
-    patientType: "Maternity Care",
-    origin: "Gali Badral Outpost",
-    destination: "DHQ Hospital Mansehra",
-    distanceKm: 41,
-    ambulance: "AMB-01 (4x4)",
-    driver: "M. Tariq Khan",
-    status: "COMPLETED",
-  },
-];
-
 export default function AdminTripsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("ALL");
-  const [selectedTrip, setSelectedTrip] = useState<TripRecord | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [trips, setTrips] = useState<TripItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [dispatchModalOpen, setDispatchModalOpen] = useState(false);
+  const [completeModalTrip, setCompleteModalTrip] = useState<TripItem | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [endOdometer, setEndOdometer] = useState<number>(0);
+
+  // Dispatch Form
+  const [dispatchForm, setDispatchForm] = useState({
+    ambulanceId: "amb-1",
+    patientName: "",
+    patientPhone: "03001234567",
+    pickupLocation: "",
+    dropoffHospital: "DHQ Hospital Mansehra",
+    startOdometerKm: 14850,
+    driverName: "M. Tariq Khan",
+    urgencyLevel: "CRITICAL" as const,
+    notes: "Emergency transit with life support oxygen",
+    yearPeriodId: "2026",
+    dispatchTime: new Date().toISOString(),
+  });
+
+  const fetchTrips = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/trips");
+      const json = await res.json();
+      if (json.success && json.data) {
+        setTrips(json.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch trips:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTrips();
+  }, []);
+
+  const handleDispatch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await fetch("/api/trips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...dispatchForm,
+          dispatchTime: new Date().toISOString(),
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setFeedback(`Emergency Mission ${json.data.tripIdentifier} dispatched!`);
+        fetchTrips();
+        setDispatchModalOpen(false);
+      } else {
+        alert(json.error?.message || "Failed to dispatch");
+      }
+    } catch (err) {
+      console.error("Dispatch error:", err);
+    } finally {
+      setSaving(false);
+      setTimeout(() => setFeedback(null), 4000);
+    }
+  };
+
+  const handleCompleteTrip = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!completeModalTrip) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/trips/${completeModalTrip.id}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endOdometerKm: endOdometer,
+          returnTime: new Date().toISOString(),
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setFeedback(`Mission ${completeModalTrip.tripIdentifier} marked as completed.`);
+        fetchTrips();
+        setCompleteModalTrip(null);
+      } else {
+        alert(json.error?.message || "Error completing trip");
+      }
+    } catch (err) {
+      console.error("Complete error:", err);
+    } finally {
+      setSaving(false);
+      setTimeout(() => setFeedback(null), 4000);
+    }
+  };
 
   const filteredTrips = useMemo(() => {
-    return ALL_TRIPS.filter((t) => {
+    return trips.filter((t) => {
       const matchesSearch =
-        t.tripCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.origin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.destination.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.patientType.toLowerCase().includes(searchQuery.toLowerCase());
+        t.tripIdentifier.toLowerCase().includes(search.toLowerCase()) ||
+        t.patientName.toLowerCase().includes(search.toLowerCase()) ||
+        t.pickupLocation.toLowerCase().includes(search.toLowerCase()) ||
+        t.dropoffHospital.toLowerCase().includes(search.toLowerCase());
 
-      const matchesStatus = filterStatus === "ALL" || t.status === filterStatus;
+      const matchesStatus = statusFilter === "ALL" || t.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [searchQuery, filterStatus]);
+  }, [trips, search, statusFilter]);
 
   return (
     <DashboardLayout
       role="ADMIN"
-      pageTitle="Emergency Dispatches & Trip Registry"
-      pageSubtitle="Complete historical and real-time records of patient transports across mountain and valley sectors."
-      breadcrumbs={[
-        { label: "Overview", href: "/admin" },
-        { label: "Trip Dispatches" },
-      ]}
+      pageTitle="Ambulance Trip Dispatches"
+      pageSubtitle="Live operational log of mountain patient transfers, hospital triage, odometer audits, and vehicle availability."
+      breadcrumbs={[{ label: "Admin", href: "/admin" }, { label: "Trips" }]}
       actions={
-        <Button
-          variant="outline"
-          size="sm"
-          leftIcon={<Download className="w-4 h-4" />}
-          onClick={() => alert("Audit log export formatted for CSV/PDF in Part 3.")}
-        >
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchTrips}>
+            <RefreshCw className="w-4 h-4 mr-1.5" />
+            Refresh
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setDispatchModalOpen(true)}
+          >
+            <Plus className="w-4 h-4 mr-1.5" />
+            Dispatch Ambulance
+          </Button>
+        </div>
       }
     >
-      {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+      {feedback && (
+        <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2">
+          <CheckCircle className="w-5 h-5 text-emerald-600" />
+          <span className="text-sm font-medium">{feedback}</span>
+        </div>
+      )}
+
+      {/* Filter Row */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1">
           <input
             type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by trip code, village, hospital..."
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500"
+            placeholder="Search by mission ID, patient, pickup location, or hospital..."
+            className="w-full pl-9 pr-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
         </div>
 
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-slate-400 shrink-0" />
-          <div className="flex gap-1">
-            {["ALL", "COMPLETED", "IN_TRANSIT"].map((status) => (
-              <button
-                key={status}
-                type="button"
-                onClick={() => setFilterStatus(status)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                  filterStatus === status
-                    ? "bg-sky-600 text-white shadow-2xs"
-                    : "bg-slate-50 text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {status.replace("_", " ")}
-              </button>
-            ))}
-          </div>
+          <Filter className="w-4 h-4 text-slate-400" />
+          <select
+            className="px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="ALL">All Mission Statuses</option>
+            <option value="DISPATCHED">Dispatched / En Route</option>
+            <option value="IN_TRANSIT">In Transit</option>
+            <option value="COMPLETED">Completed</option>
+          </select>
         </div>
       </div>
 
-      {/* Trips Table */}
       <TableContainer>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Trip Code</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Emergency Case</TableHead>
-              <TableHead>Route (Origin → Destination)</TableHead>
+              <TableHead>Mission Code & Date</TableHead>
+              <TableHead>Patient & Phone</TableHead>
+              <TableHead>Route (Pickup → Destination)</TableHead>
               <TableHead>Distance</TableHead>
-              <TableHead>Vehicle & Driver</TableHead>
+              <TableHead>Driver & Vehicle</TableHead>
+              <TableHead>Urgency</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredTrips.map((row) => (
-              <TableRow
-                key={row.id}
-                isClickable
-                onClick={() => setSelectedTrip(row)}
-              >
-                <TableCell>
-                  <span className="font-mono font-bold text-slate-900 text-xs">
-                    {row.tripCode}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="text-xs text-slate-600">{row.date}</span>
-                </TableCell>
-                <TableCell>
-                  <span className="text-xs font-semibold text-slate-800">
-                    {row.patientType}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="text-xs">
-                    <span className="text-slate-900 font-medium">{row.origin}</span>
-                    <span className="text-slate-400 mx-1.5">→</span>
-                    <span className="text-slate-600 font-medium">{row.destination}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className="text-xs font-mono text-slate-700">
-                    {row.distanceKm} km
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="text-xs">
-                    <div className="font-medium text-slate-800">{row.ambulance}</div>
-                    <div className="text-[11px] text-slate-400">{row.driver}</div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="success" size="sm">
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                    Completed
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedTrip(row);
-                    }}
-                    className="text-xs font-bold text-sky-700 hover:text-sky-900 hover:underline cursor-pointer"
-                  >
-                    Details
-                  </button>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                  Loading mission logs...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : filteredTrips.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                  No trips match the current filter.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredTrips.map((t) => (
+                <TableRow key={t.id}>
+                  <TableCell>
+                    <div className="font-semibold text-slate-900">{t.tripIdentifier}</div>
+                    <div className="text-xs text-slate-500">
+                      {new Intl.DateTimeFormat("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }).format(new Date(t.date))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium text-slate-800">{t.patientName}</div>
+                    <div className="text-xs text-slate-500">{t.patientPhone || "No contact"}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm font-medium text-slate-900">{t.pickupLocation}</div>
+                    <div className="text-xs text-slate-500">→ {t.dropoffHospital}</div>
+                  </TableCell>
+                  <TableCell className="font-semibold text-slate-800">
+                    {t.distanceKm} km
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-sm font-medium text-slate-800">{t.driverName}</div>
+                    <div className="text-xs text-slate-500 flex items-center gap-1">
+                      <Truck className="w-3 h-3" />
+                      {t.ambulanceId}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        t.urgencyLevel === "CRITICAL"
+                          ? "danger"
+                          : t.urgencyLevel === "URGENT"
+                          ? "warning"
+                          : "neutral"
+                      }
+                    >
+                      {t.urgencyLevel}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={t.status === "COMPLETED" ? "success" : "warning"}>
+                      {t.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {t.status !== "COMPLETED" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setCompleteModalTrip(t);
+                          setEndOdometer(t.startOdometerKm + 25);
+                        }}
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-1 text-emerald-600" />
+                        Complete
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
-        <TablePagination
-          currentPage={currentPage}
-          totalPages={1}
-          totalItems={filteredTrips.length}
-          itemsPerPage={10}
-          onPageChange={setCurrentPage}
-        />
       </TableContainer>
 
-      {/* Trip Details Modal */}
-      {selectedTrip && (
-        <Modal
-          isOpen={!!selectedTrip}
-          onClose={() => setSelectedTrip(null)}
-          title={`Trip Log: ${selectedTrip.tripCode}`}
-          description={`Logged dispatch for ${selectedTrip.date}`}
-          footer={
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedTrip(null)}
-            >
-              Close
-            </Button>
-          }
-        >
-          <div className="space-y-4 text-xs">
-            <div className="grid grid-cols-2 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div>
-                <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold block">
-                  Case Category
-                </span>
-                <span className="font-bold text-slate-900 text-sm mt-0.5 inline-block">
-                  {selectedTrip.patientType}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-400 uppercase tracking-wider text-[10px] font-bold block">
-                  Logged Distance
-                </span>
-                <span className="font-bold text-slate-900 text-sm mt-0.5 inline-block">
-                  {selectedTrip.distanceKm} km Round-trip
-                </span>
-              </div>
-            </div>
+      {/* Dispatch Ambulance Modal */}
+      <Modal
+        isOpen={dispatchModalOpen}
+        onClose={() => setDispatchModalOpen(false)}
+        title="Dispatch Emergency Ambulance"
+        size="lg"
+      >
+        <form onSubmit={handleDispatch} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Assign Ambulance Vehicle" required>
+              <select
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 font-medium"
+                value={dispatchForm.ambulanceId}
+                onChange={(e) =>
+                  setDispatchForm({ ...dispatchForm, ambulanceId: e.target.value })
+                }
+              >
+                <option value="amb-1">AMB-01 (Toyota 4x4 Mountain Cruiser)</option>
+                <option value="amb-2">AMB-02 (Toyota HiAce High-Roof Transit)</option>
+              </select>
+            </FormField>
 
-            <div className="space-y-2.5">
-              <div>
-                <strong className="text-slate-700">Patient Pickup Location:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedTrip.origin}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Target Hospital:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedTrip.destination}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Vehicle Assigned:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedTrip.ambulance}</span>
-              </div>
-              <div>
-                <strong className="text-slate-700">Driver:</strong>{" "}
-                <span className="text-slate-900 font-medium">{selectedTrip.driver}</span>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-lg bg-sky-50 border border-sky-200 text-sky-800 text-[11px] leading-relaxed">
-              Transport provided 100% free of charge to the patient, funded by community donors.
-            </div>
+            <FormField label="Urgency Level" required>
+              <select
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 font-medium"
+                value={dispatchForm.urgencyLevel}
+                onChange={(e) =>
+                  setDispatchForm({ ...dispatchForm, urgencyLevel: e.target.value as any })
+                }
+              >
+                <option value="CRITICAL">Critical (Immediate Oxygen / Trauma)</option>
+                <option value="URGENT">Urgent (Maternal Labor / Fracture)</option>
+                <option value="ROUTINE">Routine Transit</option>
+              </select>
+            </FormField>
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Patient Full Name" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                placeholder="e.g. Bibi Fatima"
+                value={dispatchForm.patientName}
+                onChange={(e) =>
+                  setDispatchForm({ ...dispatchForm, patientName: e.target.value })
+                }
+              />
+            </FormField>
+
+            <FormField label="Contact / Caller Phone" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={dispatchForm.patientPhone}
+                onChange={(e) =>
+                  setDispatchForm({ ...dispatchForm, patientPhone: e.target.value })
+                }
+              />
+            </FormField>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Pickup Location / Village" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                placeholder="e.g. Upper Junglan Hamlet"
+                value={dispatchForm.pickupLocation}
+                onChange={(e) =>
+                  setDispatchForm({ ...dispatchForm, pickupLocation: e.target.value })
+                }
+              />
+            </FormField>
+
+            <FormField label="Destination Hospital" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={dispatchForm.dropoffHospital}
+                onChange={(e) =>
+                  setDispatchForm({ ...dispatchForm, dropoffHospital: e.target.value })
+                }
+              />
+            </FormField>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Assigned Driver Name" required>
+              <input
+                type="text"
+                required
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={dispatchForm.driverName}
+                onChange={(e) =>
+                  setDispatchForm({ ...dispatchForm, driverName: e.target.value })
+                }
+              />
+            </FormField>
+
+            <FormField label="Starting Odometer (km)" required>
+              <input
+                type="number"
+                required
+                min={0}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+                value={dispatchForm.startOdometerKm}
+                onChange={(e) =>
+                  setDispatchForm({
+                    ...dispatchForm,
+                    startOdometerKm: Number(e.target.value),
+                  })
+                }
+              />
+            </FormField>
+          </div>
+
+          <FormField label="Medical Dispatch Notes">
+            <textarea
+              rows={2}
+              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500"
+              value={dispatchForm.notes}
+              onChange={(e) => setDispatchForm({ ...dispatchForm, notes: e.target.value })}
+            />
+          </FormField>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+            <Button variant="outline" type="button" onClick={() => setDispatchModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" disabled={saving}>
+              {saving ? "Dispatching..." : "Confirm & Dispatch"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Complete Trip Modal */}
+      {completeModalTrip && (
+        <Modal
+          isOpen={true}
+          onClose={() => setCompleteModalTrip(null)}
+          title={`Complete Mission: ${completeModalTrip.tripIdentifier}`}
+        >
+          <form onSubmit={handleCompleteTrip} className="space-y-4">
+            <div className="p-3 bg-slate-50 rounded-lg text-xs space-y-1">
+              <div>
+                <span className="text-slate-500">Patient:</span>{" "}
+                <span className="font-semibold">{completeModalTrip.patientName}</span>
+              </div>
+              <div>
+                <span className="text-slate-500">Starting Odometer:</span>{" "}
+                <span className="font-semibold">{completeModalTrip.startOdometerKm} km</span>
+              </div>
+            </div>
+
+            <FormField label="Ending Odometer Reading (km)" required>
+              <input
+                type="number"
+                required
+                min={completeModalTrip.startOdometerKm}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-semibold focus:ring-2 focus:ring-emerald-500"
+                value={endOdometer}
+                onChange={(e) => setEndOdometer(Number(e.target.value))}
+              />
+              <div className="text-xs text-slate-500 mt-1">
+                Computed distance:{" "}
+                <strong className="text-emerald-700">
+                  {Math.max(0, endOdometer - completeModalTrip.startOdometerKm)} km
+                </strong>
+              </div>
+            </FormField>
+
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setCompleteModalTrip(null)}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit" disabled={saving}>
+                {saving ? "Completing..." : "Complete Mission & Release Ambulance"}
+              </Button>
+            </div>
+          </form>
         </Modal>
       )}
     </DashboardLayout>

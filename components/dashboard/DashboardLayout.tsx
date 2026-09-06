@@ -21,6 +21,7 @@ import {
   X,
   ChevronRight,
   Search,
+  Settings,
   CheckCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
@@ -33,14 +34,15 @@ export interface NavItem {
 }
 
 const ADMIN_NAV_ITEMS: NavItem[] = [
-  { label: "Overview", href: "/admin", icon: LayoutDashboard },
+  { label: "Executive Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Manage Projects", href: "/admin/projects", icon: FolderGit2 },
+  { label: "Manage News & Stories", href: "/admin/news", icon: Newspaper },
+  { label: "Manage Reports", href: "/admin/reports", icon: FileText },
   { label: "Ambulance Fleet", href: "/admin/ambulances", icon: Truck },
   { label: "Trip Dispatches", href: "/admin/trips", icon: Route },
-  { label: "Expenses & Audit", href: "/admin/expenses", icon: Receipt },
+  { label: "Expense Vouchers", href: "/admin/expenses", icon: Receipt },
+  { label: "Foundation Settings", href: "/admin/settings", icon: Settings },
   { label: "Security Audit Logs", href: "/admin/audit-logs", icon: ShieldCheck },
-  { label: "Projects CMS", href: "/projects", icon: FolderGit2, badge: "Public CMS" },
-  { label: "News & Dispatches", href: "/news", icon: Newspaper, badge: "Public CMS" },
-  { label: "Audit Reports", href: "/reports", icon: FileText, badge: "Public CMS" },
 ];
 
 const DATA_ENTRY_NAV_ITEMS: NavItem[] = [

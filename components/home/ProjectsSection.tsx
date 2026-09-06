@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -15,16 +17,41 @@ import { HOMEPAGE_PROJECTS } from "@/data/content";
 import { Truck, Sprout, Users, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export function ProjectsSection() {
-  const categoryIcons = {
+  const [projects, setProjects] = useState(HOMEPAGE_PROJECTS);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          const formatted = data.data.slice(0, 3).map((p: any) => ({
+            slug: p.slug || p.id,
+            title: p.title,
+            category: (p.category as "HEALTHCARE" | "AGRICULTURE" | "COMMUNITY") || "COMMUNITY",
+            status: p.status === "ACTIVE" ? "ACTIVE" : "COMING_SOON",
+            tagline: p.tagline || (p.beneficiaries ? `${p.beneficiaries} Beneficiaries Targeted` : "Community Initiative"),
+            summary: p.summary || p.description || "",
+            impactMetrics: Array.isArray(p.impactMetrics) && p.impactMetrics.length > 0
+              ? p.impactMetrics
+              : ["Community approved roadmap", `Direct Field Allocation`],
+            ctaText: p.ctaText || (p.status === "ACTIVE" ? "Support Project" : "View Roadmap"),
+          }));
+          setProjects(formatted);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const categoryIcons: Record<string, React.ReactNode> = {
     HEALTHCARE: <Truck className="w-5 h-5 text-red-600" />,
     AGRICULTURE: <Sprout className="w-5 h-5 text-emerald-600" />,
     COMMUNITY: <Users className="w-5 h-5 text-amber-600" />,
   };
 
-  const categoryBadgeVariant = {
-    HEALTHCARE: "danger" as const,
-    AGRICULTURE: "success" as const,
-    COMMUNITY: "warning" as const,
+  const categoryBadgeVariant: Record<string, "danger" | "success" | "warning"> = {
+    HEALTHCARE: "danger",
+    AGRICULTURE: "success",
+    COMMUNITY: "warning",
   };
 
   return (
@@ -39,7 +66,7 @@ export function ProjectsSection() {
 
         {/* Projects Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {HOMEPAGE_PROJECTS.map((project) => {
+          {projects.map((project) => {
             const isComingSoon = project.status === "COMING_SOON";
 
             return (

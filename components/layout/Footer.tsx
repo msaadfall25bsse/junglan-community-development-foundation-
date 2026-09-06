@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   HeartHandshake,
@@ -17,6 +19,23 @@ import {
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const [info, setInfo] = useState(FOUNDATION_INFO);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setInfo((prev) => ({
+            ...prev,
+            hotline: data.data.emergencyHotline || prev.hotline,
+            email: data.data.officialEmail || prev.email,
+            location: data.data.headOfficeAddress || prev.location,
+          }));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800">
@@ -70,11 +89,11 @@ export function Footer() {
                 Emergency Ambulance Hotline
               </div>
               <a
-                href={`tel:${FOUNDATION_INFO.hotline}`}
+                href={`tel:${info.hotline}`}
                 className="text-lg font-bold text-white hover:text-sky-300 transition-colors inline-flex items-center gap-2"
               >
                 <PhoneCall className="w-4 h-4 text-red-400" />
-                <span>{FOUNDATION_INFO.hotline}</span>
+                <span>{info.hotline}</span>
               </a>
               <div className="text-[11px] text-slate-400 mt-1">
                 Free 24/7 service for urgent and critical patient transfers.
@@ -130,24 +149,24 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-slate-400">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-1" />
-                <span className="leading-snug">{FOUNDATION_INFO.location}</span>
+                <span className="leading-snug">{info.location}</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-sky-400 shrink-0" />
                 <a
-                  href={`mailto:${FOUNDATION_INFO.email}`}
+                  href={`mailto:${info.email}`}
                   className="hover:text-white transition-colors"
                 >
-                  {FOUNDATION_INFO.email}
+                  {info.email}
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <PhoneCall className="w-4 h-4 text-sky-400 shrink-0" />
                 <a
-                  href={`tel:${FOUNDATION_INFO.hotline}`}
+                  href={`tel:${info.hotline}`}
                   className="hover:text-white transition-colors"
                 >
-                  {FOUNDATION_INFO.hotline}
+                  {info.hotline}
                 </a>
               </li>
             </ul>

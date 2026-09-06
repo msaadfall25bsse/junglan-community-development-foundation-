@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Container } from "@/components/ui/Container";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -10,10 +10,31 @@ import { PUBLIC_REPORTS } from "@/data/content";
 import { Download, ShieldCheck, CheckCircle2, Lock } from "lucide-react";
 
 export default function ReportsPage() {
-  const categoryBadge = {
-    FINANCIAL_AUDIT: "sky" as const,
-    OPERATIONAL_REVIEW: "success" as const,
-    GOVERNANCE: "neutral" as const,
+  const [reportsList, setReportsList] = useState(PUBLIC_REPORTS);
+
+  useEffect(() => {
+    fetch("/api/reports")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          const formatted = data.data.map((r: any) => ({
+            id: r.id,
+            title: r.title,
+            category: (r.category as "FINANCIAL_AUDIT" | "OPERATIONAL_REVIEW" | "GOVERNANCE") || "OPERATIONAL_REVIEW",
+            period: r.period || "2026 Operational Period",
+            fileSize: r.fileSize || "1.2 MB PDF",
+            summary: r.summary || r.description || "Audited foundation report",
+          }));
+          setReportsList(formatted);
+        }
+      })
+      .catch((err) => console.error("Error loading reports:", err));
+  }, []);
+
+  const categoryBadge: Record<string, "sky" | "success" | "neutral"> = {
+    FINANCIAL_AUDIT: "sky",
+    OPERATIONAL_REVIEW: "success",
+    GOVERNANCE: "neutral",
   };
 
   return (
@@ -42,7 +63,7 @@ export default function ReportsPage() {
       <section className="py-16 sm:py-20 bg-slate-50/50">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            {PUBLIC_REPORTS.map((report) => (
+            {reportsList.map((report) => (
               <Card key={report.id} hoverEffect className="flex flex-col justify-between bg-white">
                 <CardHeader>
                   <div className="flex items-center justify-between gap-2 mb-4">

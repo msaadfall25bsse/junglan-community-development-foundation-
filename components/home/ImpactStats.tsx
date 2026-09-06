@@ -1,10 +1,41 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { IMPACT_METRICS } from "@/data/content";
 import { Activity, ShieldCheck } from "lucide-react";
 
 export function ImpactStats() {
+  const [metrics, setMetrics] = useState(IMPACT_METRICS);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setMetrics((prev) =>
+            prev.map((m) => {
+              if (m.id === "patients" && data.data.patientsHelpedCount) {
+                return { ...m, value: `${Number(data.data.patientsHelpedCount).toLocaleString()}+` };
+              }
+              if (m.id === "trees" && data.data.treesPlantedCount) {
+                return { ...m, value: `${Number(data.data.treesPlantedCount).toLocaleString()}+` };
+              }
+              if (m.id === "ambulances" && data.data.activeAmbulancesCount) {
+                return { ...m, value: `${data.data.activeAmbulancesCount}` };
+              }
+              if (m.id === "villages" && data.data.villagesServedCount) {
+                return { ...m, value: `${data.data.villagesServedCount}` };
+              }
+              return m;
+            })
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section id="impact" className="py-12 sm:py-16 bg-white border-b border-slate-100">
       <Container>
@@ -27,7 +58,7 @@ export function ImpactStats() {
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {IMPACT_METRICS.map((metric) => (
+          {metrics.map((metric) => (
             <div
               key={metric.id}
               className="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-sky-300 hover:bg-sky-50/30 transition-all duration-200 group"
