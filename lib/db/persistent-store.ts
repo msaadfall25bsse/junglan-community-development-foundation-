@@ -624,7 +624,9 @@ export function readStore(): FoundationStoreData {
 }
 
 export function writeStore(data: FoundationStoreData): void {
-  cachedStore = data;
+  // Always clear the in-memory cache after a write so subsequent
+  // reads (including in different serverless invocations) re-read from disk.
+  cachedStore = null;
   const primaryPath = getStoreFilePath();
   try {
     const dir = path.dirname(primaryPath);
@@ -632,11 +634,15 @@ export function writeStore(data: FoundationStoreData): void {
       fs.mkdirSync(dir, { recursive: true });
     }
     fs.writeFileSync(primaryPath, JSON.stringify(data, null, 2), "utf-8");
+    // Re-cache the written data so current invocation benefits from it
+    cachedStore = data;
+    console.log(`[STORE_WRITE_SUCCESS]: Persisted to ${primaryPath}`);
   } catch (err: unknown) {
     const errorObj = err as { code?: string; message?: string };
     console.warn(`[STORE_WRITE_WARNING]: Write failed on ${primaryPath} (${errorObj?.code || errorObj?.message}). Attempting /tmp fallback...`);
     try {
       fs.writeFileSync(TMP_STORE_PATH, JSON.stringify(data, null, 2), "utf-8");
+      cachedStore = data;
       console.log("[STORE_WRITE_SUCCESS]: Fallback persisted cleanly to /tmp/foundation-store.json");
     } catch (fallbackErr) {
       console.error("[STORE_FATAL_WRITE_ERROR]: Could not persist to /tmp:", fallbackErr);

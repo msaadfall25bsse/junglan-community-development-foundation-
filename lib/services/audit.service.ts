@@ -135,3 +135,58 @@ export async function getAuditLogs(query: AuditQueryInput) {
     }
   );
 }
+
+// ==============================================================================
+// AUTH SECURITY EVENT LOGGER — Section 108, 109, 110
+// ==============================================================================
+// Convenience wrapper for auth-specific audit events.
+// STRICTLY: never logs passwords, hashes, tokens, or private secrets.
+// ==============================================================================
+
+export type AuthEventType =
+  | "LOGIN_SUCCESS"
+  | "LOGIN_FAILURE"
+  | "LOGOUT"
+  | "ACCOUNT_DISABLED"
+  | "ROLE_CHANGED";
+
+export interface AuthEventParams {
+  eventType: AuthEventType;
+  userId: string;
+  email?: string;
+  ip?: string;
+  reason?: string;
+  performedByUserId?: string;
+}
+
+/**
+ * Log an auth security event to the audit log.
+ * Never include passwords, tokens, or hashes in metadata.
+ */
+export async function logAuthEvent(params: AuthEventParams): Promise<void> {
+  try {
+    const actionMap: Record<AuthEventType, AuditActionType> = {
+      LOGIN_SUCCESS: "LOGIN",
+      LOGIN_FAILURE: "LOGIN",
+      LOGOUT: "LOGOUT",
+      ACCOUNT_DISABLED: "UPDATE",
+      ROLE_CHANGED: "UPDATE",
+    };
+
+    await createAuditEntry(prisma, {
+      action: actionMap[params.eventType],
+      module: "AUTH",
+      recordId: params.userId,
+      userId: params.performedByUserId || params.userId,
+      metadata: {
+        eventType: params.eventType,
+        ...(params.email && { email: params.email }),
+        ...(params.ip && { ip: params.ip }),
+        ...(params.reason && { reason: params.reason }),
+      },
+    });
+  } catch (err) {
+    // Never let audit log failures crash auth flows
+    console.error("[audit] Failed to log auth event:", err);
+  }
+}
