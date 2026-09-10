@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
+import Link from "next/link";
 
 // ==============================================================================
 // LOGIN PAGE — /login
 // ==============================================================================
 // Sections 128–131 — Brand-consistent Foundation login page.
 // Generic error display prevents user enumeration.
+// Wrapped in Suspense boundary for Next.js App Router static optimization.
 // ==============================================================================
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "";
@@ -136,7 +137,7 @@ export default function LoginPage() {
               id="login-submit-btn"
               type="submit"
               disabled={isLoading}
-              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-700 disabled:cursor-not-allowed text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+              className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-700 disabled:cursor-not-allowed text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
             >
               {isLoading ? (
                 <>
@@ -160,11 +161,27 @@ export default function LoginPage() {
 
         {/* Public site link */}
         <p className="text-center mt-4 text-white/40 text-xs">
-          <a href="/" className="hover:text-white/70 transition-colors underline underline-offset-2">
+          <Link href="/" className="hover:text-white/70 transition-colors underline underline-offset-2">
             ← Return to public website
-          </a>
+          </Link>
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-green-950 via-emerald-900 to-green-800 flex items-center justify-center">
+          <div className="text-white/70 text-sm font-medium animate-pulse">
+            Loading authentication portal...
+          </div>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

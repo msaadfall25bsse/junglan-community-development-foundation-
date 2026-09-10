@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -76,6 +76,7 @@ export function DashboardLayout({
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     let isMounted = true;
@@ -99,7 +100,8 @@ export function DashboardLayout({
     } catch (err) {
       console.error("Logout error:", err);
     } finally {
-      window.location.href = "/login";
+      router.push("/login");
+      router.refresh();
     }
   };
 
