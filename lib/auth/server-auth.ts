@@ -16,10 +16,12 @@ import type { UserProfile, UserRole, Permission } from "@/types/auth";
 //   const user = await requireDataEntry();     // throws 403 if not DATA_ENTRY
 // ==============================================================================
 
+import { UnauthorizedError, ForbiddenError } from "@/lib/api/errors";
+
 // ------------------------------------------------------------------------------
-// Auth Errors
+// Auth Errors (Mapped with Global API Error Hierarchy)
 // ------------------------------------------------------------------------------
-export class AuthenticationError extends Error {
+export class AuthenticationError extends UnauthorizedError {
   status = 401;
   constructor(message = "Authentication required. Please log in.") {
     super(message);
@@ -27,7 +29,7 @@ export class AuthenticationError extends Error {
   }
 }
 
-export class AuthorizationError extends Error {
+export class AuthorizationError extends ForbiddenError {
   status = 403;
   constructor(message = "You do not have permission to access this resource.") {
     super(message);

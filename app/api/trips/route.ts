@@ -7,6 +7,7 @@ import {
 } from "@/lib/validation";
 import { createTrip, getTrips } from "@/lib/services";
 import { apiCreated, apiPaginated, handleApiError } from "@/lib/api";
+import { requirePermission } from "@/lib/auth/server-auth";
 
 // ==============================================================================
 // TRIPS API ROUTE (GET /api/trips, POST /api/trips)
@@ -15,6 +16,7 @@ import { apiCreated, apiPaginated, handleApiError } from "@/lib/api";
 
 export async function GET(req: NextRequest) {
   try {
+    await requirePermission("TRIPS_READ");
     const query = validateQuery(req.nextUrl.searchParams, tripQuerySchema);
     const result = await getTrips(query);
     return apiPaginated(result.trips, result.pagination);
@@ -25,8 +27,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const user = await requirePermission("TRIPS_WRITE");
     const body = await validateBody(req, createTripSchema);
-    const actorId = req.headers.get("x-user-id") || null;
+    const actorId = user.id;
     const trip = await createTrip(body, actorId);
     return apiCreated(trip, "Ambulance mission dispatched successfully.");
   } catch (error) {
