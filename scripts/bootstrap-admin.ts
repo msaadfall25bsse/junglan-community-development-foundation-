@@ -42,28 +42,53 @@ async function upsertUser(user: SeedUser): Promise<void> {
     );
   }
 
-  // Check if user already exists
-  const existing = await prisma.user.findUnique({ where: { email } });
-
-  if (existing) {
-    console.log(`  [SKIP] ${email} — already exists (role: ${existing.role})`);
-    return;
-  }
-
-  // Hash password and create user
   const passwordHash = await hashPassword(user.password);
 
-  await prisma.user.create({
-    data: {
-      email,
-      passwordHash,
-      name: user.name,
-      role: user.role,
-      isActive: true,
-    },
-  });
+  try {
+    // Check if user already exists in Prisma
+    const existing = await prisma.user.findUnique({ where: { email } });
 
-  console.log(`  [CREATED] ${email} — role: ${user.role}`);
+    if (existing) {
+      console.log(`  [SKIP/PRISMA] ${email} — already exists in PostgreSQL (role: ${existing.role})`);
+      return;
+    }
+
+    await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        name: user.name,
+        role: user.role,
+        isActive: true,
+      },
+    });
+
+    console.log(`  [CREATED/PRISMA] ${email} — role: ${user.role}`);
+  } catch (dbErr: any) {
+    console.log(`  [INFO] PostgreSQL not available (${dbErr.message?.slice(0, 40)}...), saving to local persistent store...`);
+    const { readStore, updateStore } = await import("../lib/db/persistent-store");
+    updateStore((store) => {
+      if (!store.users) store.users = [];
+      const idx = store.users.findIndex((u) => u.email === email);
+      const record = {
+        id: `usr-${user.role.toLowerCase()}-${Date.now()}`,
+        email,
+        name: user.name,
+        passwordHash,
+        role: user.role,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      if (idx >= 0) {
+        store.users[idx] = { ...store.users[idx], ...record };
+        console.log(`  [UPDATED/STORE] ${email} — role: ${user.role}`);
+      } else {
+        store.users.push(record);
+        console.log(`  [CREATED/STORE] ${email} — role: ${user.role}`);
+      }
+    });
+  }
 }
 
 async function main() {

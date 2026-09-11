@@ -31,17 +31,21 @@ const SESSION_MAX_AGE = 8 * 60 * 60; // 8 hours in seconds
  */
 export async function setSessionCookie(
   payload: Omit<SessionPayload, "jti" | "iat" | "exp">
-): Promise<void> {
+): Promise<string> {
   const token = await createSessionToken(payload);
-  const cookieStore = await cookies();
-
-  cookieStore.set(SESSION_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: SESSION_MAX_AGE,
-  });
+  try {
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_MAX_AGE,
+    });
+  } catch {
+    // Graceful fallback when invoked outside a Next.js request store scope
+  }
+  return token;
 }
 
 // ------------------------------------------------------------------------------
@@ -81,16 +85,20 @@ export async function getSession(): Promise<SessionPayload | null> {
  * Always call this from the logout API route, never from client JS.
  */
 export async function clearSessionCookie(): Promise<void> {
-  const cookieStore = await cookies();
+  try {
+    const cookieStore = await cookies();
 
-  cookieStore.set(SESSION_COOKIE_NAME, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0, // Immediately expire
-    expires: new Date(0), // Set to epoch — belt and suspenders
-  });
+    cookieStore.set(SESSION_COOKIE_NAME, "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0, // Immediately expire
+      expires: new Date(0), // Set to epoch — belt and suspenders
+    });
+  } catch {
+    // Graceful fallback when invoked outside a Next.js request store scope
+  }
 }
 
 // ------------------------------------------------------------------------------

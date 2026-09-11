@@ -187,6 +187,17 @@ export interface FoundationStoreData {
     treesPlanted: number;
     activeAmbulancesCount: number;
   };
+  users: Array<{
+    id: string;
+    email: string;
+    name: string;
+    passwordHash: string;
+    role: "ADMIN" | "DATA_ENTRY";
+    isActive: boolean;
+    lastLoginAt?: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
 }
 
 const DEFAULT_STORE: FoundationStoreData = {
@@ -553,6 +564,28 @@ const DEFAULT_STORE: FoundationStoreData = {
     treesPlanted: 5000,
     activeAmbulancesCount: 2,
   },
+  users: [
+    {
+      id: "usr-admin-01",
+      email: "admin@junglan.org",
+      name: "Foundation Administrator",
+      passwordHash: "$2b$12$4y0Xr4v62sBwK/DfjUHWqOvaVE6/KamffxWGyjYgi.fRjohoWXFJ6",
+      role: "ADMIN",
+      isActive: true,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+    },
+    {
+      id: "usr-dataentry-01",
+      email: "dataentry@junglan.org",
+      name: "Data Entry Officer",
+      passwordHash: "$2b$12$lP1KSv1d5NI0cOIiMQdU7uIcA1Iobr5ZvqizDT5E/zexRNtHjyPRu",
+      role: "DATA_ENTRY",
+      isActive: true,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+    },
+  ],
 };
 
 const IS_SERVERLESS = !!(

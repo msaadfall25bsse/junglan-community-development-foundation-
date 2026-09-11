@@ -287,6 +287,33 @@
   ],
   "auditLogs": [
     {
+      "id": "aud-1789158057145",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-11T20:20:57.145Z",
+      "metadataJson": "{\"result\":\"SUCCESS\",\"ip\":\"127.0.0.1\"}"
+    },
+    {
+      "id": "aud-1789158043813",
+      "userId": "usr-admin-1789080308017",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-11T20:20:43.813Z",
+      "metadataJson": "{\"result\":\"FAILURE\",\"reason\":\"INVALID_PASSWORD\",\"ip\":\"127.0.0.1\"}"
+    },
+    {
+      "id": "aud-1789158034544",
+      "userId": "usr-admin-1789080308017",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-11T20:20:34.544Z",
+      "metadataJson": "{\"result\":\"SUCCESS\",\"ip\":\"127.0.0.1\"}"
+    },
+    {
       "id": "aud-1",
       "action": "CREATE",
       "module": "SYSTEM",
@@ -403,5 +430,29 @@
     "familiesAssisted": 780,
     "treesPlanted": 5000,
     "activeAmbulancesCount": 2
-  }
+  },
+  "users": [
+    {
+      "id": "usr-admin-1789080308017",
+      "email": "admin@junglan.org",
+      "name": "Foundation Administrator",
+      "passwordHash": "$2b$12$TwshfCqgUSMEOH66IiBzDOrBY1D2v9EsJvCbsY3btU3NtOFLmLgXm",
+      "role": "ADMIN",
+      "isActive": true,
+      "createdAt": "2026-09-10T22:45:08.017Z",
+      "updatedAt": "2026-09-10T22:45:08.022Z",
+      "lastLoginAt": "2026-09-11T20:20:30.478Z"
+    },
+    {
+      "id": "usr-data_entry-1789080313173",
+      "email": "dataentry@junglan.org",
+      "name": "Data Entry Officer",
+      "passwordHash": "$2b$12$hsvysUaxj0TbduM5EooqzOapNxYL5xB.5nzZR76.FtilVDzp2inhq",
+      "role": "DATA_ENTRY",
+      "isActive": true,
+      "createdAt": "2026-09-10T22:45:13.173Z",
+      "updatedAt": "2026-09-10T22:45:13.173Z",
+      "lastLoginAt": "2026-09-11T20:20:53.070Z"
+    }
+  ]
 }

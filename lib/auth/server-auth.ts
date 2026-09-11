@@ -1,6 +1,8 @@
 import { getSession } from "@/lib/auth/cookies";
 import { hasPermission, canAccessRoute } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/prisma";
+import { readStore } from "@/lib/db";
+import { tryPrismaOrFallback } from "@/lib/services/db-helper";
 import type { UserProfile, UserRole, Permission } from "@/types/auth";
 
 // ==============================================================================
@@ -56,20 +58,38 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
     const session = await getSession();
     if (!session) return null;
 
-    // Always validate against DB — ensures disabled accounts are blocked
-    const user = await prisma.user.findUnique({
-      where: { id: session.sub },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        isActive: true,
-        lastLoginAt: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    // Always validate against DB or persistent store fallback
+    const user = await tryPrismaOrFallback(
+      () =>
+        prisma.user.findUnique({
+          where: { id: session.sub },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            isActive: true,
+            lastLoginAt: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        }),
+      () => {
+        const store = readStore();
+        const found = store.users?.find((u) => u.id === session.sub);
+        if (!found) return null;
+        return {
+          id: found.id,
+          name: found.name,
+          email: found.email,
+          role: found.role,
+          isActive: found.isActive,
+          lastLoginAt: found.lastLoginAt ? new Date(found.lastLoginAt) : null,
+          createdAt: new Date(found.createdAt),
+          updatedAt: new Date(found.updatedAt),
+        };
+      }
+    );
 
     if (!user) return null;
     if (!user.isActive) return null;
