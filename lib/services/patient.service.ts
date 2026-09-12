@@ -350,3 +350,123 @@ export async function updatePatient(
     }
   );
 }
+
+export async function archivePatient(id: string, actorId?: string | null) {
+  return tryPrismaOrFallback(
+    async () => {
+      const existing = await prisma.patient.findUnique({ where: { id } });
+      if (!existing || existing.deletedAt) {
+        throw new NotFoundError("Patient", id);
+      }
+      return prisma.$transaction(async (tx) => {
+        const archived = await (tx as any).patient.update({
+          where: { id },
+          data: {
+            deletedAt: new Date(),
+            isArchived: true,
+          },
+        });
+        await createAuditEntry(tx, {
+          action: "ARCHIVE" as any,
+          module: "PATIENTS",
+          recordId: archived.id,
+          userId: actorId,
+          metadata: { patientIdentifier: archived.patientIdentifier },
+        });
+        return archived;
+      });
+    },
+    async () => {
+      const store = readStore();
+      const index = store.patients.findIndex((p) => p.id === id || p.patientIdentifier === id);
+      if (index === -1) {
+        throw new NotFoundError("Patient", id);
+      }
+      let archived: (typeof store.patients)[0];
+      updateStore((s) => {
+        const patient = s.patients[index];
+        archived = {
+          ...patient,
+          isArchived: true,
+          updatedAt: new Date().toISOString(),
+        };
+        s.patients[index] = archived;
+        s.auditLogs.push({
+          id: `aud-${Date.now()}`,
+          action: "ARCHIVE",
+          module: "PATIENTS",
+          recordId: archived.id,
+          userId: actorId || null,
+          timestamp: new Date().toISOString(),
+          metadataJson: JSON.stringify({ patientIdentifier: archived.patientIdentifier }),
+        });
+      });
+      return archived!;
+    }
+  );
+}
+
+export async function checkDuplicatePatient(input: {
+  cnicOrBForm?: string | null;
+  contactNumber?: string | null;
+  fullName?: string | null;
+}) {
+  const cnic = input.cnicOrBForm?.trim();
+  const phone = input.contactNumber?.trim();
+  const name = input.fullName?.trim()?.toLowerCase();
+
+  return tryPrismaOrFallback(
+    async () => {
+      const matches = await prisma.patient.findMany({
+        where: {
+          OR: [
+            ...(cnic ? [{ cnicOrBForm: cnic }] : []),
+            ...(phone ? [{ contactNumber: phone }] : []),
+            ...(name ? [{ fullName: { equals: name, mode: "insensitive" as const } }] : []),
+          ],
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+          patientIdentifier: true,
+          fullName: true,
+          cnicOrBForm: true,
+          contactNumber: true,
+          residenceArea: true,
+          yearPeriodId: true,
+          createdAt: true,
+        },
+      });
+      return {
+        hasDuplicate: matches.length > 0,
+        matches,
+      };
+    },
+    async () => {
+      const store = readStore();
+      const matches = store.patients
+        .filter((p) => !p.isArchived)
+        .filter((p) => {
+          if (cnic && p.cnicOrBForm === cnic) return true;
+          if (phone && p.contactNumber === phone) return true;
+          if (name && p.fullName.toLowerCase() === name) return true;
+          return false;
+        })
+        .map((p) => ({
+          id: p.id,
+          patientIdentifier: p.patientIdentifier,
+          fullName: p.fullName,
+          cnicOrBForm: p.cnicOrBForm,
+          contactNumber: p.contactNumber,
+          residenceArea: p.residenceArea,
+          yearPeriodId: p.yearPeriodId,
+          createdAt: p.createdAt,
+        }));
+
+      return {
+        hasDuplicate: matches.length > 0,
+        matches,
+      };
+    }
+  );
+}

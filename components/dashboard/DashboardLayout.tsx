@@ -36,6 +36,7 @@ export interface NavItem {
 
 const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Executive Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Patients Registry", href: "/admin/patients", icon: Users },
   { label: "Manage Projects", href: "/admin/projects", icon: FolderGit2 },
   { label: "Manage News & Stories", href: "/admin/news", icon: Newspaper },
   { label: "Manage Reports", href: "/admin/reports", icon: FileText },
