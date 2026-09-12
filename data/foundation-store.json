@@ -287,6 +287,33 @@
   ],
   "auditLogs": [
     {
+      "id": "aud-1789219863451",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-12T13:31:03.451Z",
+      "metadataJson": "{\"result\":\"SUCCESS\",\"ip\":\"127.0.0.1\"}"
+    },
+    {
+      "id": "aud-1789219850194",
+      "userId": "usr-admin-1789080308017",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-12T13:30:50.194Z",
+      "metadataJson": "{\"result\":\"FAILURE\",\"reason\":\"INVALID_PASSWORD\",\"ip\":\"127.0.0.1\"}"
+    },
+    {
+      "id": "aud-1789219841068",
+      "userId": "usr-admin-1789080308017",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-12T13:30:41.068Z",
+      "metadataJson": "{\"result\":\"SUCCESS\",\"ip\":\"127.0.0.1\"}"
+    },
+    {
       "id": "aud-1789158057145",
       "userId": "usr-data_entry-1789080313173",
       "action": "LOGIN",
@@ -441,7 +468,7 @@
       "isActive": true,
       "createdAt": "2026-09-10T22:45:08.017Z",
       "updatedAt": "2026-09-10T22:45:08.022Z",
-      "lastLoginAt": "2026-09-11T20:20:30.478Z"
+      "lastLoginAt": "2026-09-12T13:30:36.996Z"
     },
     {
       "id": "usr-data_entry-1789080313173",
@@ -452,7 +479,7 @@
       "isActive": true,
       "createdAt": "2026-09-10T22:45:13.173Z",
       "updatedAt": "2026-09-10T22:45:13.173Z",
-      "lastLoginAt": "2026-09-11T20:20:53.070Z"
+      "lastLoginAt": "2026-09-12T13:30:59.396Z"
     }
   ]
 }

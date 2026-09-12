@@ -202,9 +202,10 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error) {
+    const message = error instanceof Error ? error.message : "An unexpected error occurred.";
     console.error("[/api/auth/login] Unexpected error:", error);
     return NextResponse.json(
-      { success: false, error: "An unexpected error occurred." },
+      { success: false, error: message },
       { status: 500 }
     );
   }
