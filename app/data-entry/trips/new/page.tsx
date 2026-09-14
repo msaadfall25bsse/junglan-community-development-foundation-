@@ -87,7 +87,7 @@ export default function NewTripPage() {
       urgencyLevel,
       status: endKm ? "COMPLETED" : "DISPATCHED",
       notes: formData.attendantNotes.trim() || undefined,
-      yearPeriodId: "YP-2026",
+      yearPeriodId: "2026",
     };
 
     try {

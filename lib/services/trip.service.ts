@@ -24,57 +24,8 @@ async function generateTripIdentifier(yearPeriodId: string): Promise<string> {
   return `TRP-${yearPeriodId}-${padded}`;
 }
 
-export async function getAmbulances() {
-  return tryPrismaOrFallback(
-    async () => {
-      return prisma.ambulanceVehicle.findMany({
-        orderBy: { ambulanceIdentifier: "asc" },
-      });
-    },
-    async () => {
-      const store = readStore();
-      return store.ambulances;
-    }
-  );
-}
-
-export async function createAmbulance(data: CreateAmbulanceInput) {
-  return tryPrismaOrFallback(
-    async () => {
-      return prisma.ambulanceVehicle.create({
-        data: {
-          ambulanceIdentifier: data.vehicleNumber,
-          registrationNumber: data.vehicleNumber,
-          model: `${data.make} ${data.model}`,
-          manufacturingYear: data.yearOfManufacture,
-          status: data.status === "ON_MISSION" ? "ON_TRIP" : (data.status as any) || "AVAILABLE",
-          currentOdometerKm: new Prisma.Decimal(data.currentOdometerKm || 0),
-          assignedDriverName: "M. Tariq Khan",
-        },
-      });
-    },
-    async () => {
-      const newAmb = {
-        id: `amb-${Date.now()}`,
-        ambulanceIdentifier: data.vehicleNumber,
-        registrationNumber: data.vehicleNumber,
-        model: `${data.make} ${data.model}`,
-        manufacturingYear: data.yearOfManufacture,
-        status: (data.status as any) || "AVAILABLE",
-        currentOdometerKm: Number(data.currentOdometerKm || 0),
-        assignedDriverName: "M. Tariq Khan",
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      updateStore((s) => {
-        s.ambulances.push(newAmb);
-        s.settings.activeAmbulancesCount = s.ambulances.length;
-      });
-      return newAmb;
-    }
-  );
-}
+// Re-export all ambulance fleet operations
+export * from "./ambulance.service";
 
 export async function createTrip(
   data: CreateTripInput,
@@ -169,6 +120,7 @@ export async function createTrip(
         tripIdentifier,
         date: data.dispatchTime,
         ambulanceId: vehicle.id,
+        patientId: data.patientId && data.patientId.trim() !== "" ? data.patientId : null,
         patientName: data.patientName,
         patientPhone: data.patientPhone?.trim() || null,
         pickupLocation: data.pickupLocation,
@@ -437,3 +389,241 @@ export async function getTrips(query: TripQueryInput) {
     }
   );
 }
+
+export async function getTripById(idOrIdentifier: string) {
+  return tryPrismaOrFallback(
+    async () => {
+      const trip = await prisma.trip.findFirst({
+        where: {
+          OR: [
+            { id: idOrIdentifier },
+            { tripIdentifier: idOrIdentifier },
+          ],
+        },
+        include: {
+          ambulance: true,
+          patient: true,
+          yearPeriod: true,
+        },
+      });
+
+      if (!trip) {
+        throw new NotFoundError("Trip", idOrIdentifier);
+      }
+
+      return trip;
+    },
+    async () => {
+      const store = readStore();
+      const trip = (store.trips || []).find(
+        (t) => t.id === idOrIdentifier || t.tripIdentifier === idOrIdentifier
+      );
+
+      if (!trip) {
+        throw new NotFoundError("Trip", idOrIdentifier);
+      }
+
+      const ambulance = (store.ambulances || []).find(
+        (a) => a.id === trip.ambulanceId || a.ambulanceIdentifier === trip.ambulanceId
+      );
+      const patient = (store.patients || []).find((p) => p.id === (trip as any).patientId);
+      const yearPeriod = (store.yearPeriods || []).find((yp) => yp.id === trip.yearPeriodId);
+
+      return {
+        ...trip,
+        ambulance: ambulance || null,
+        patient: patient || null,
+        yearPeriod: yearPeriod || null,
+      };
+    }
+  );
+}
+
+export async function updateTrip(
+  id: string,
+  data: UpdateTripInput,
+  actorId?: string | null
+) {
+  return tryPrismaOrFallback(
+    async () => {
+      const trip = await prisma.trip.findUnique({
+        where: { id },
+      });
+
+      if (!trip) {
+        throw new NotFoundError("Trip", id);
+      }
+
+      const updateData: Prisma.TripUpdateInput = {};
+      if (data.patientName) updateData.patientName = data.patientName;
+      if (data.patientPhone !== undefined) updateData.patientPhone = data.patientPhone || null;
+      if (data.pickupLocation) updateData.pickupLocation = data.pickupLocation;
+      if (data.dropoffHospital) updateData.dropoffHospital = data.dropoffHospital;
+      if (data.driverName) updateData.driverName = data.driverName;
+      if (data.paramedicName !== undefined) updateData.paramedicName = data.paramedicName || null;
+      if (data.urgencyLevel) updateData.urgencyLevel = data.urgencyLevel;
+      if (data.status) updateData.status = data.status as any;
+      if (data.notes !== undefined) updateData.notes = data.notes || null;
+
+      return prisma.$transaction(async (tx) => {
+        const updated = await tx.trip.update({
+          where: { id },
+          data: updateData,
+        });
+
+        await createAuditEntry(tx, {
+          action: "UPDATE",
+          module: "TRIPS",
+          recordId: updated.id,
+          userId: actorId,
+          metadata: {
+            tripIdentifier: updated.tripIdentifier,
+            notes: "Trip details updated",
+          },
+        });
+
+        return updated;
+      });
+    },
+    async () => {
+      const store = readStore();
+      const idx = (store.trips || []).findIndex(
+        (t) => t.id === id || t.tripIdentifier === id
+      );
+
+      if (idx === -1) {
+        throw new NotFoundError("Trip", id);
+      }
+
+      const current = store.trips[idx];
+      const updated = {
+        ...current,
+        patientName: data.patientName || current.patientName,
+        patientPhone:
+          data.patientPhone !== undefined ? data.patientPhone || null : current.patientPhone,
+        pickupLocation: data.pickupLocation || current.pickupLocation,
+        dropoffHospital: data.dropoffHospital || current.dropoffHospital,
+        driverName: data.driverName || current.driverName,
+        paramedicName:
+          data.paramedicName !== undefined ? data.paramedicName || null : current.paramedicName,
+        urgencyLevel: data.urgencyLevel || current.urgencyLevel,
+        status: (data.status as any) || current.status,
+        notes: data.notes !== undefined ? data.notes || null : current.notes,
+        updatedAt: new Date().toISOString(),
+      };
+
+      updateStore((s) => {
+        s.trips[idx] = updated;
+        s.auditLogs.push({
+          id: `aud-${Date.now()}`,
+          action: "UPDATE",
+          module: "TRIPS",
+          recordId: updated.id,
+          userId: actorId,
+          timestamp: new Date().toISOString(),
+          metadataJson: JSON.stringify({
+            tripIdentifier: updated.tripIdentifier,
+            action: "UPDATE_TRIP",
+          }),
+        });
+      });
+
+      return updated;
+    }
+  );
+}
+
+export async function archiveTrip(id: string, actorId?: string | null) {
+  return tryPrismaOrFallback(
+    async () => {
+      const trip = await prisma.trip.findUnique({
+        where: { id },
+      });
+
+      if (!trip) {
+        throw new NotFoundError("Trip", id);
+      }
+
+      return prisma.$transaction(async (tx) => {
+        const archived = await tx.trip.update({
+          where: { id },
+          data: {
+            isArchived: true,
+            deletedAt: new Date(),
+            status: "CANCELLED",
+          },
+        });
+
+        // If trip was active, restore ambulance status to AVAILABLE
+        if (trip.status === "DISPATCHED" || trip.status === "IN_TRANSIT") {
+          await tx.ambulanceVehicle.update({
+            where: { id: trip.ambulanceId },
+            data: { status: "AVAILABLE" },
+          });
+        }
+
+        await createAuditEntry(tx, {
+          action: "ARCHIVE",
+          module: "TRIPS",
+          recordId: archived.id,
+          userId: actorId,
+          metadata: {
+            tripIdentifier: archived.tripIdentifier,
+            reason: "Trip cancelled and archived",
+          },
+        });
+
+        return archived;
+      });
+    },
+    async () => {
+      const store = readStore();
+      const idx = (store.trips || []).findIndex(
+        (t) => t.id === id || t.tripIdentifier === id
+      );
+
+      if (idx === -1) {
+        throw new NotFoundError("Trip", id);
+      }
+
+      const trip = store.trips[idx];
+      const archived = {
+        ...trip,
+        isArchived: true,
+        deletedAt: new Date().toISOString(),
+        status: "CANCELLED" as const,
+        updatedAt: new Date().toISOString(),
+      };
+
+      updateStore((s) => {
+        s.trips[idx] = archived;
+
+        // If ambulance was ON_TRIP for this trip, restore to AVAILABLE
+        if (trip.status === "DISPATCHED" || trip.status === "IN_TRANSIT") {
+          const amb = (s.ambulances || []).find(
+            (a) => a.id === trip.ambulanceId || a.ambulanceIdentifier === trip.ambulanceId
+          );
+          if (amb && amb.status === "ON_TRIP") {
+            amb.status = "AVAILABLE";
+          }
+        }
+
+        s.auditLogs.push({
+          id: `aud-${Date.now()}`,
+          action: "ARCHIVE",
+          module: "TRIPS",
+          recordId: archived.id,
+          userId: actorId,
+          timestamp: new Date().toISOString(),
+          metadataJson: JSON.stringify({
+            tripIdentifier: archived.tripIdentifier,
+            action: "ARCHIVE_TRIP",
+          }),
+        });
+      });
+
+      return archived;
+    }
+  );
+}
+

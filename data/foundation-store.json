@@ -92,9 +92,51 @@
       "isActive": true,
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "id": "amb-1789369515110",
+      "ambulanceIdentifier": "TEST-AMB-0929",
+      "registrationNumber": "TEST-AMB-0929",
+      "model": "Toyota Land Cruiser 4x4 Mountain Unit",
+      "manufacturingYear": 2025,
+      "status": "OUT_OF_SERVICE",
+      "currentOdometerKm": 5062,
+      "assignedDriverName": "M. Tariq Khan",
+      "baseLocation": "Hazara Mountain Depot",
+      "isActive": false,
+      "createdAt": "2026-09-14T07:05:15.110Z",
+      "updatedAt": "2026-09-14T07:06:12.169Z"
     }
   ],
   "trips": [
+    {
+      "id": "trp-1789369547719",
+      "tripIdentifier": "TRP-2026-000003",
+      "date": "2026-09-14T07:05:39.584Z",
+      "ambulanceId": "amb-1789369515110",
+      "patientId": "pat-1789369539582",
+      "patientName": "Zainab Bibi",
+      "patientPhone": "03009988776",
+      "pickupLocation": "Upper Junglan Valley Point A",
+      "dropoffHospital": "Ayub Teaching Hospital Abbottabad",
+      "tripType": "Emergency Transfer",
+      "distanceKm": 62,
+      "startOdometerKm": 5000,
+      "endOdometerKm": 5062,
+      "dispatchTime": "2026-09-14T07:05:39.584Z",
+      "status": "CANCELLED",
+      "urgencyLevel": "CRITICAL",
+      "driverName": "M. Tariq Khan",
+      "paramedicName": "Qari Imran",
+      "notes": "Patient arrived safely; handed over to emergency triage.",
+      "yearPeriodId": "2026",
+      "createdById": "usr-admin-test",
+      "createdAt": "2026-09-14T07:05:47.719Z",
+      "updatedAt": "2026-09-14T07:06:08.092Z",
+      "completedTime": "2026-09-14T07:05:51.796Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:06:08.092Z"
+    },
     {
       "id": "trp-1",
       "tripIdentifier": "TRP-2026-000042",
@@ -145,6 +187,25 @@
     }
   ],
   "patients": [
+    {
+      "id": "pat-1789369539582",
+      "patientIdentifier": "JCD-P-2026-0005",
+      "fullName": "Zainab Bibi",
+      "cnicOrBForm": null,
+      "gender": "FEMALE",
+      "age": 28,
+      "contactNumber": "03009988776",
+      "emergencyContactName": null,
+      "emergencyContactPhone": null,
+      "residenceArea": "Junglan Upper Valley",
+      "medicalConditionSummary": "Emergency maternity delivery transit",
+      "yearPeriodId": "2026",
+      "isFlaggedForReview": false,
+      "flagReason": null,
+      "isArchived": false,
+      "createdAt": "2026-09-14T07:05:39.582Z",
+      "updatedAt": "2026-09-14T07:05:39.582Z"
+    },
     {
       "id": "pat-1789236141931",
       "patientIdentifier": "JCD-P-2026-0004",
@@ -504,6 +565,78 @@
       "userId": "usr-admin-01",
       "timestamp": "2026-09-12T18:02:46.450Z",
       "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0004\"}"
+    },
+    {
+      "id": "aud-1789369515112",
+      "action": "CREATE",
+      "module": "FLEET",
+      "recordId": "amb-1789369515110",
+      "userId": "usr-admin-test",
+      "timestamp": "2026-09-14T07:05:15.112Z",
+      "metadataJson": "{\"ambulanceIdentifier\":\"TEST-AMB-0929\",\"registrationNumber\":\"TEST-AMB-0929\"}"
+    },
+    {
+      "id": "aud-1789369519197",
+      "action": "UPDATE",
+      "module": "FLEET",
+      "recordId": "amb-1789369515110",
+      "userId": "usr-admin-test",
+      "timestamp": "2026-09-14T07:05:19.197Z",
+      "metadataJson": "{\"ambulanceIdentifier\":\"TEST-AMB-0929\",\"status\":\"MAINTENANCE\"}"
+    },
+    {
+      "id": "aud-1789369531455",
+      "action": "UPDATE",
+      "module": "FLEET",
+      "recordId": "amb-1789369515110",
+      "userId": "usr-admin-test",
+      "timestamp": "2026-09-14T07:05:31.455Z",
+      "metadataJson": "{\"ambulanceIdentifier\":\"TEST-AMB-0929\",\"status\":\"AVAILABLE\"}"
+    },
+    {
+      "id": "aud-1789369539582",
+      "action": "CREATE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789369539582",
+      "userId": "usr-admin-test",
+      "timestamp": "2026-09-14T07:05:39.582Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0005\"}"
+    },
+    {
+      "id": "aud-1789369547719",
+      "action": "CREATE",
+      "module": "TRIPS",
+      "recordId": "trp-1789369547719",
+      "userId": "usr-admin-test",
+      "timestamp": "2026-09-14T07:05:47.719Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000003\"}"
+    },
+    {
+      "id": "aud-1789369555876",
+      "action": "UPDATE",
+      "module": "TRIPS",
+      "recordId": "trp-1789369547719",
+      "userId": "usr-admin-test",
+      "timestamp": "2026-09-14T07:05:55.876Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000003\",\"status\":\"COMPLETED\"}"
+    },
+    {
+      "id": "aud-1789369568092",
+      "action": "ARCHIVE",
+      "module": "TRIPS",
+      "recordId": "trp-1789369547719",
+      "userId": "usr-admin-test",
+      "timestamp": "2026-09-14T07:06:08.092Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000003\",\"action\":\"ARCHIVE_TRIP\"}"
+    },
+    {
+      "id": "aud-1789369572170",
+      "action": "ARCHIVE",
+      "module": "FLEET",
+      "recordId": "amb-1789369515110",
+      "userId": "usr-admin-test",
+      "timestamp": "2026-09-14T07:06:12.170Z",
+      "metadataJson": "{\"ambulanceIdentifier\":\"TEST-AMB-0929\",\"action\":\"ARCHIVED\"}"
     }
   ],
   "settings": {
@@ -527,7 +660,7 @@
     "missionStatement": "To deliver uninterrupted, free emergency medical transit to vulnerable mountain communities and foster generational prosperity through climate-resilient olive cultivation.",
     "visionStatement": "A self-sustaining rural society where no life is lost due to transit delays and every smallholder farmer thrives on sustainable mountain agriculture.",
     "donationNotes": "100% of all public contributions are audited and directly allocated to fuel, medical oxygen, vehicle maintenance, and subsidized olive saplings.",
-    "patientsServed": 422,
+    "patientsServed": 423,
     "familiesAssisted": 780,
     "treesPlanted": 5000,
     "activeAmbulancesCount": 2
