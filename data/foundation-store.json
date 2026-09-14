@@ -8,6 +8,24 @@
       "isCurrentActive": true,
       "startDate": "2026-01-01T00:00:00.000Z",
       "endDate": "2026-12-31T23:59:59.000Z"
+    },
+    {
+      "id": "2025",
+      "year": 2025,
+      "label": "Operational Year 2025",
+      "status": "CLOSED",
+      "isCurrentActive": false,
+      "startDate": "2025-01-01T00:00:00.000Z",
+      "endDate": "2025-12-31T23:59:59.000Z"
+    },
+    {
+      "id": "2024",
+      "year": 2024,
+      "label": "Operational Year 2024",
+      "status": "CLOSED",
+      "isCurrentActive": false,
+      "startDate": "2024-01-01T00:00:00.000Z",
+      "endDate": "2024-12-31T23:59:59.000Z"
     }
   ],
   "projects": [
@@ -1166,6 +1184,78 @@
       "recordId": "global-settings",
       "timestamp": "2026-09-14T07:52:27.956Z",
       "metadataJson": "{\"ambulanceHotline\":\"+92 300 0000000\"}"
+    },
+    {
+      "id": "aud-1789420536709",
+      "action": "CREATE",
+      "module": "YEAR_PERIODS",
+      "recordId": "2028",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T21:15:36.709Z",
+      "metadataJson": "{\"year\":2028,\"label\":\"Operational Year 2028 (Kaghan Valley Expansion)\"}"
+    },
+    {
+      "id": "aud-1789420544936",
+      "action": "UPDATE",
+      "module": "YEAR_PERIODS",
+      "recordId": "2028",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T21:15:44.936Z",
+      "metadataJson": "{\"action\":\"SET_ACTIVE_PERIOD\",\"year\":2028}"
+    },
+    {
+      "id": "aud-1789420553169",
+      "action": "UPDATE",
+      "module": "YEAR_PERIODS",
+      "recordId": "2028",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T21:15:53.169Z",
+      "metadataJson": "{\"action\":\"CLOSE_PERIOD\",\"year\":2028}"
+    },
+    {
+      "id": "aud-1789420561412",
+      "action": "UPDATE",
+      "module": "YEAR_PERIODS",
+      "recordId": "2026",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T21:16:01.412Z",
+      "metadataJson": "{\"action\":\"SET_ACTIVE_PERIOD\",\"year\":2026}"
+    },
+    {
+      "id": "aud-1789420980283",
+      "action": "CREATE",
+      "module": "YEAR_PERIODS",
+      "recordId": "2028",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T21:23:00.283Z",
+      "metadataJson": "{\"year\":2028,\"label\":\"Operational Year 2028 (Kaghan Valley Expansion)\"}"
+    },
+    {
+      "id": "aud-1789420988474",
+      "action": "UPDATE",
+      "module": "YEAR_PERIODS",
+      "recordId": "2028",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T21:23:08.474Z",
+      "metadataJson": "{\"action\":\"SET_ACTIVE_PERIOD\",\"year\":2028}"
+    },
+    {
+      "id": "aud-1789420996673",
+      "action": "UPDATE",
+      "module": "YEAR_PERIODS",
+      "recordId": "2028",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T21:23:16.673Z",
+      "metadataJson": "{\"action\":\"CLOSE_PERIOD\",\"year\":2028}"
+    },
+    {
+      "id": "aud-1789421004880",
+      "action": "UPDATE",
+      "module": "YEAR_PERIODS",
+      "recordId": "2026",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T21:23:24.880Z",
+      "metadataJson": "{\"action\":\"SET_ACTIVE_PERIOD\",\"year\":2026}"
     }
   ],
   "settings": {

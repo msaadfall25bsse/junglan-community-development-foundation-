@@ -75,6 +75,7 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [activeYearLabel, setActiveYearLabel] = useState<string>("2026");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -89,6 +90,17 @@ export function DashboardLayout({
         }
       })
       .catch(() => {});
+
+    fetch("/api/year-periods")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((res) => {
+        if (isMounted && res?.success && res.data?.periods) {
+          const active = res.data.periods.find((p: any) => p.isCurrentActive);
+          if (active) setActiveYearLabel(String(active.year));
+        }
+      })
+      .catch(() => {});
+
     return () => {
       isMounted = false;
     };
@@ -179,6 +191,11 @@ export function DashboardLayout({
 
           {/* Right: User Profile & Actions */}
           <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[11px] font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Year {activeYearLabel} (Active)</span>
+            </div>
+
             <Link
               href="/"
               target="_blank"

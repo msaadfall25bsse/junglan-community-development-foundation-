@@ -110,6 +110,8 @@ export interface FoundationStoreData {
     status: "DRAFT" | "PENDING_APPROVAL" | "APPROVED" | "REJECTED";
     yearPeriodId: string;
     loggedByUserId?: string | null;
+    isArchived?: boolean;
+    deletedAt?: string | null;
     createdAt: string;
     updatedAt: string;
   }>;
@@ -127,6 +129,8 @@ export interface FoundationStoreData {
     receiptDocumentRef?: string | null;
     yearPeriodId: string;
     isAnonymous: boolean;
+    isArchived?: boolean;
+    deletedAt?: string | null;
     createdAt: string;
     updatedAt: string;
   }>;
