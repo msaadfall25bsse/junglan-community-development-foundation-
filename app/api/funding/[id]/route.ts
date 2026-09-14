@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { validateBody, updateFundingSchema } from "@/lib/validation";
 import { getFundingById, updateFunding, archiveFunding } from "@/lib/services";
 import { apiSuccess, handleApiError } from "@/lib/api";
-import { requirePermission } from "@/lib/auth/server-auth";
+import { requirePermission, requireAdmin } from "@/lib/auth/server-auth";
 
 export async function GET(
   _req: NextRequest,
@@ -38,7 +38,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requirePermission("FUNDING_WRITE");
+    const user = await requireAdmin();
     const { id } = await params;
     const archived = await archiveFunding(id, user.id);
     return apiSuccess(archived, "Funding record voided and archived safely.");

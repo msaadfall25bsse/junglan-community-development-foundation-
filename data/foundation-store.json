@@ -1256,6 +1256,132 @@
       "userId": "usr-admin-01",
       "timestamp": "2026-09-14T21:23:24.880Z",
       "metadataJson": "{\"action\":\"SET_ACTIVE_PERIOD\",\"year\":2026}"
+    },
+    {
+      "id": "aud-1789421924114",
+      "action": "CREATE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789421924111",
+      "userId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T21:38:44.114Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0008\"}"
+    },
+    {
+      "id": "aud-1789421936397",
+      "action": "CREATE",
+      "module": "TRIPS",
+      "recordId": "trp-1789421936397",
+      "userId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T21:38:56.397Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000006\"}"
+    },
+    {
+      "id": "aud-1789422029125",
+      "action": "CREATE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789422029123",
+      "userId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T21:40:29.125Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0008\"}"
+    },
+    {
+      "id": "aud-1789422041414",
+      "action": "CREATE",
+      "module": "TRIPS",
+      "recordId": "trp-1789422041413",
+      "userId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T21:40:41.414Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000006\"}"
+    },
+    {
+      "id": "aud-1789422053703",
+      "action": "CREATE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789422053703",
+      "userId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T21:40:53.703Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-2026-000007\"}"
+    },
+    {
+      "id": "aud-1789422057819",
+      "action": "ARCHIVE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789422029123",
+      "userId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-14T21:40:57.819Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0008\"}"
+    },
+    {
+      "id": "aud-1789422061922",
+      "action": "ARCHIVE",
+      "module": "TRIPS",
+      "recordId": "trp-1789422041413",
+      "userId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-14T21:41:01.922Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000006\",\"action\":\"ARCHIVE_TRIP\"}"
+    },
+    {
+      "id": "aud-1789422066031",
+      "action": "ARCHIVE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789422053703",
+      "userId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-14T21:41:06.031Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-2026-000007\",\"action\":\"ARCHIVE_EXPENSE\"}"
+    },
+    {
+      "id": "aud-1789422242374",
+      "action": "CREATE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789422242372",
+      "userId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T21:44:02.374Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0008\"}"
+    },
+    {
+      "id": "aud-1789422254682",
+      "action": "CREATE",
+      "module": "TRIPS",
+      "recordId": "trp-1789422254682",
+      "userId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T21:44:14.682Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000006\"}"
+    },
+    {
+      "id": "aud-1789422262878",
+      "action": "CREATE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789422262878",
+      "userId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T21:44:22.878Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-2026-TEST01\"}"
+    },
+    {
+      "id": "aud-1789422266990",
+      "action": "ARCHIVE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789422242372",
+      "userId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-14T21:44:26.990Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0008\"}"
+    },
+    {
+      "id": "aud-1789422271081",
+      "action": "ARCHIVE",
+      "module": "TRIPS",
+      "recordId": "trp-1789422254682",
+      "userId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-14T21:44:31.081Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000006\",\"action\":\"ARCHIVE_TRIP\"}"
+    },
+    {
+      "id": "aud-1789422275173",
+      "action": "ARCHIVE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789422262878",
+      "userId": "usr-admin-1789080308017",
+      "timestamp": "2026-09-14T21:44:35.173Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-2026-TEST01\",\"action\":\"ARCHIVE_EXPENSE\"}"
     }
   ],
   "settings": {
@@ -1279,7 +1405,7 @@
     "missionStatement": "To deliver uninterrupted, free emergency medical transit to vulnerable mountain communities and foster generational prosperity through climate-resilient olive cultivation.",
     "visionStatement": "A self-sustaining rural society where no life is lost due to transit delays and every smallholder farmer thrives on sustainable mountain agriculture.",
     "donationNotes": "100% of all public contributions are audited and directly allocated to fuel, medical oxygen, vehicle maintenance, and subsidized olive saplings.",
-    "patientsServed": 425,
+    "patientsServed": 428,
     "familiesAssisted": 780,
     "treesPlanted": 5000,
     "activeAmbulancesCount": 2

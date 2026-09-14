@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { validateBody, updatePatientSchema } from "@/lib/validation";
 import { getPatientById, updatePatient, archivePatient } from "@/lib/services";
 import { apiSuccess, handleApiError } from "@/lib/api";
-import { requirePermission } from "@/lib/auth/server-auth";
+import { requirePermission, requireAdmin } from "@/lib/auth/server-auth";
 
 // ==============================================================================
 // PATIENT DETAIL ROUTE (GET, PATCH, DELETE /api/patients/[id])
@@ -38,7 +38,7 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
 
 export async function DELETE(req: NextRequest, context: RouteContext) {
   try {
-    const user = await requirePermission("PATIENTS_WRITE");
+    const user = await requireAdmin();
     const { id } = await context.params;
     const actorId = user.id;
     const archived = await archivePatient(id, actorId);

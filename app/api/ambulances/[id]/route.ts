@@ -6,7 +6,7 @@ import {
   archiveAmbulance,
 } from "@/lib/services";
 import { apiSuccess, handleApiError } from "@/lib/api";
-import { requirePermission } from "@/lib/auth/server-auth";
+import { requirePermission, requireAdmin } from "@/lib/auth/server-auth";
 
 export async function GET(
   _req: NextRequest,
@@ -42,7 +42,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requirePermission("AMBULANCE_WRITE");
+    const user = await requireAdmin();
     const { id } = await params;
     const archived = await archiveAmbulance(id, user.id);
     return apiSuccess(

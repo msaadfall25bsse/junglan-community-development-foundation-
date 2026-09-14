@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { validateBody, updateExpenseSchema } from "@/lib/validation";
 import { getExpenseById, updateExpense, archiveExpense } from "@/lib/services";
 import { apiSuccess, handleApiError } from "@/lib/api";
-import { requirePermission } from "@/lib/auth/server-auth";
+import { requirePermission, requireAdmin } from "@/lib/auth/server-auth";
 
 export async function GET(
   _req: NextRequest,
@@ -38,7 +38,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await requirePermission("EXPENSES_WRITE");
+    const user = await requireAdmin();
     const { id } = await params;
     const archived = await archiveExpense(id, user.id);
     return apiSuccess(archived, "Expense voucher voided and archived safely.");

@@ -49,10 +49,7 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
 
 const DATA_ENTRY_NAV_ITEMS: NavItem[] = [
   { label: "Operational Desk", href: "/data-entry", icon: LayoutDashboard },
-  { label: "Log New Trip", href: "/data-entry/trips/new", icon: Route, badge: "Action" },
-  { label: "Patients Registry", href: "/data-entry#patients", icon: Users },
-  { label: "Fuel Log", href: "/data-entry#fuel", icon: Fuel },
-  { label: "Maintenance Log", href: "/data-entry#maintenance", icon: Wrench },
+  { label: "Dispatch Trip", href: "/data-entry/trips/new", icon: Route, badge: "Action" },
   { label: "Approved Reports", href: "/reports", icon: FileText, badge: "View" },
 ];
 

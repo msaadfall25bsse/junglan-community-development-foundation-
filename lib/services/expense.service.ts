@@ -44,17 +44,21 @@ export async function createExpense(
   data: CreateExpenseInput,
   actorId: string
 ) {
+  const voucherNumber = data.voucherNumber && data.voucherNumber.trim().length > 0
+    ? data.voucherNumber.trim()
+    : await generateVoucherNumber(data.yearPeriodId);
+
   return tryPrismaOrFallback(
     async () => {
       await assertYearPeriodActive(data.yearPeriodId);
 
       const existing = await prisma.expense.findUnique({
-        where: { voucherNumber: data.voucherNumber.trim() },
+        where: { voucherNumber },
       });
 
       if (existing) {
         throw new ConflictError(
-          `An expense voucher with number '${data.voucherNumber}' already exists.`
+          `An expense voucher with number '${voucherNumber}' already exists.`
         );
       }
 
@@ -63,7 +67,7 @@ export async function createExpense(
       return prisma.$transaction(async (tx) => {
         const expense = await (tx as any).expense.create({
           data: {
-            voucherNumber: data.voucherNumber.trim(),
+            voucherNumber,
             title: data.title,
             category: prismaCategory,
             amountPKR: new Prisma.Decimal(data.amountPKR),
@@ -76,15 +80,16 @@ export async function createExpense(
           },
         });
 
+        // Audit Log Entry
         await createAuditEntry(tx, {
+          userId: actorId,
           action: "CREATE",
           module: "EXPENSES",
           recordId: expense.id,
-          userId: actorId,
           metadata: {
             voucherNumber: expense.voucherNumber,
+            amountPKR: expense.amountPKR.toString(),
             category: expense.category,
-            amountPKR: String(data.amountPKR),
           },
         });
 
@@ -93,16 +98,16 @@ export async function createExpense(
     },
     async () => {
       const store = readStore();
-      const existing = store.expenses.find((e) => e.voucherNumber === data.voucherNumber.trim());
+      const existing = store.expenses.find((e) => e.voucherNumber === voucherNumber);
       if (existing) {
         throw new ConflictError(
-          `An expense voucher with number '${data.voucherNumber}' already exists.`
+          `An expense voucher with number '${voucherNumber}' already exists.`
         );
       }
 
       const newExpense = {
         id: `exp-${Date.now()}`,
-        voucherNumber: data.voucherNumber.trim(),
+        voucherNumber,
         date: data.expenseDate,
         amountPKR: Number(data.amountPKR),
         category: (mapToPrismaExpenseCategory(data.category) as any) || "OPERATIONS",

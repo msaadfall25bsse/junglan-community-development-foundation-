@@ -22,7 +22,20 @@ interface AmbulanceOption {
 
 export default function NewTripPage() {
   const [ambulances, setAmbulances] = useState<AmbulanceOption[]>([]);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    ambulanceId: string;
+    patientId?: string;
+    patientCode: string;
+    patientName: string;
+    emergencyType: string;
+    pickupLocation: string;
+    destinationHospital: string;
+    driver: string;
+    driverPhone: string;
+    odometerStart: string;
+    odometerEnd: string;
+    attendantNotes: string;
+  }>({
     ambulanceId: "",
     patientCode: "P-4829",
     patientName: "Emergency Patient P-4829",
@@ -41,6 +54,19 @@ export default function NewTripPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const name = params.get("patientName");
+      const pid = params.get("patientId");
+      if (name || pid) {
+        setFormData((prev) => ({
+          ...prev,
+          patientName: name ? decodeURIComponent(name) : prev.patientName,
+          patientId: pid || prev.patientId,
+        }));
+      }
+    }
+
     fetch("/api/ambulances")
       .then((res) => res.json())
       .then((data) => {
@@ -75,6 +101,7 @@ export default function NewTripPage() {
 
     const payload = {
       ambulanceId: formData.ambulanceId || (ambulances[0]?.id ?? "amb-01"),
+      patientId: formData.patientId || undefined,
       driverName: formData.driver.trim() || "M. Tariq Khan",
       driverPhone: formData.driverPhone.trim() || "03001234567",
       patientName: formData.patientName.trim() || formData.patientCode,

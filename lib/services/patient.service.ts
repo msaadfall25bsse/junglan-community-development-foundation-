@@ -421,8 +421,8 @@ export async function checkDuplicatePatient(
       ? { cnicOrBForm: input, contactNumber: undefined, fullName: undefined }
       : input;
 
-  const cnic = parsed.cnicOrBForm?.trim();
-  const phone = parsed.contactNumber?.trim();
+  const cnic = ((parsed as any).cnic || parsed.cnicOrBForm)?.trim();
+  const phone = ((parsed as any).phone || parsed.contactNumber)?.trim();
   const name = parsed.fullName?.trim()?.toLowerCase();
 
   return tryPrismaOrFallback(
@@ -449,6 +449,7 @@ export async function checkDuplicatePatient(
       });
       return {
         hasDuplicate: matches.length > 0,
+        isDuplicate: matches.length > 0,
         exists: matches.length > 0,
         patient: matches[0] || null,
         matches,
@@ -477,6 +478,7 @@ export async function checkDuplicatePatient(
 
       return {
         hasDuplicate: matches.length > 0,
+        isDuplicate: matches.length > 0,
         exists: matches.length > 0,
         patient: matches[0] || null,
         matches,
