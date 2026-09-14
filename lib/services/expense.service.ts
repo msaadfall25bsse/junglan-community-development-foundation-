@@ -7,12 +7,27 @@ import { tryPrismaOrFallback } from "./db-helper";
 import { Prisma, type ExpenseCategory } from "@prisma/client";
 import type {
   CreateExpenseInput,
+  UpdateExpenseInput,
   ExpenseQueryInput,
 } from "@/lib/validation";
 
 // ==============================================================================
 // FINANCIAL EXPENSE SERVICE
 // ==============================================================================
+
+export async function generateVoucherNumber(yearPeriodId: string): Promise<string> {
+  return tryPrismaOrFallback(
+    async () => {
+      const count = await prisma.expense.count({ where: { yearPeriodId } });
+      return `EXP-${yearPeriodId}-${String(count + 1).padStart(6, "0")}`;
+    },
+    async () => {
+      const store = readStore();
+      const count = (store.expenses || []).filter((e) => e.yearPeriodId === yearPeriodId).length;
+      return `EXP-${yearPeriodId}-${String(count + 1).padStart(6, "0")}`;
+    }
+  );
+}
 
 function mapToPrismaExpenseCategory(category: string): ExpenseCategory {
   if (category.includes("FUEL")) return "FUEL";
@@ -246,3 +261,172 @@ export async function getExpenseById(id: string) {
     }
   );
 }
+
+export async function updateExpense(
+  id: string,
+  data: UpdateExpenseInput,
+  actorId?: string | null
+) {
+  return tryPrismaOrFallback(
+    async () => {
+      const expense = await prisma.expense.findUnique({
+        where: { id },
+      });
+
+      if (!expense || expense.deletedAt) {
+        throw new NotFoundError("Expense", id);
+      }
+
+      const updateData: Prisma.ExpenseUpdateInput = {};
+      if (data.title) updateData.title = data.title;
+      if (data.category) updateData.category = mapToPrismaExpenseCategory(data.category);
+      if (data.amountPKR !== undefined) updateData.amountPKR = new Prisma.Decimal(data.amountPKR);
+      if (data.paidTo) updateData.paidTo = data.paidTo;
+      if (data.expenseDate) updateData.date = new Date(data.expenseDate);
+      if (data.description !== undefined) updateData.description = data.description;
+      if (data.receiptDocumentUrl !== undefined) updateData.receiptDocumentRef = data.receiptDocumentUrl;
+
+      return prisma.$transaction(async (tx) => {
+        const updated = await tx.expense.update({
+          where: { id },
+          data: updateData,
+        });
+
+        await createAuditEntry(tx, {
+          action: "UPDATE",
+          module: "EXPENSES",
+          recordId: updated.id,
+          userId: actorId,
+          metadata: {
+            voucherNumber: updated.voucherNumber,
+            amountPKR: String(updated.amountPKR),
+          },
+        });
+
+        return updated;
+      });
+    },
+    async () => {
+      const store = readStore();
+      const idx = (store.expenses || []).findIndex(
+        (e) => e.id === id || e.voucherNumber === id
+      );
+
+      if (idx === -1 || (store.expenses[idx] as any).deletedAt) {
+        throw new NotFoundError("Expense", id);
+      }
+
+      const current = store.expenses[idx];
+      const updated = {
+        ...current,
+        title: data.title || current.title,
+        category: data.category
+          ? (mapToPrismaExpenseCategory(data.category) as any)
+          : current.category,
+        amountPKR: data.amountPKR !== undefined ? Number(data.amountPKR) : current.amountPKR,
+        paidTo: data.paidTo || current.paidTo,
+        date: data.expenseDate || current.date,
+        description: data.description !== undefined ? data.description : current.description,
+        receiptDocumentRef:
+          data.receiptDocumentUrl !== undefined
+            ? data.receiptDocumentUrl
+            : current.receiptDocumentRef,
+        updatedAt: new Date().toISOString(),
+      };
+
+      updateStore((s) => {
+        s.expenses[idx] = updated;
+        s.auditLogs.push({
+          id: `aud-${Date.now()}`,
+          action: "UPDATE",
+          module: "EXPENSES",
+          recordId: updated.id,
+          userId: actorId,
+          timestamp: new Date().toISOString(),
+          metadataJson: JSON.stringify({
+            voucherNumber: updated.voucherNumber,
+            action: "UPDATE_EXPENSE",
+          }),
+        });
+      });
+
+      return updated;
+    }
+  );
+}
+
+export async function archiveExpense(id: string, actorId?: string | null) {
+  return tryPrismaOrFallback(
+    async () => {
+      const expense = await prisma.expense.findUnique({
+        where: { id },
+      });
+
+      if (!expense || expense.deletedAt) {
+        throw new NotFoundError("Expense", id);
+      }
+
+      return prisma.$transaction(async (tx) => {
+        const archived = await tx.expense.update({
+          where: { id },
+          data: {
+            isArchived: true,
+            deletedAt: new Date(),
+            status: "REJECTED",
+          },
+        });
+
+        await createAuditEntry(tx, {
+          action: "ARCHIVE",
+          module: "EXPENSES",
+          recordId: archived.id,
+          userId: actorId,
+          metadata: {
+            voucherNumber: archived.voucherNumber,
+            reason: "Voucher voided and archived",
+          },
+        });
+
+        return archived;
+      });
+    },
+    async () => {
+      const store = readStore();
+      const idx = (store.expenses || []).findIndex(
+        (e) => e.id === id || e.voucherNumber === id
+      );
+
+      if (idx === -1) {
+        throw new NotFoundError("Expense", id);
+      }
+
+      const expense = store.expenses[idx];
+      const archived = {
+        ...expense,
+        isArchived: true,
+        deletedAt: new Date().toISOString(),
+        status: "REJECTED" as const,
+        updatedAt: new Date().toISOString(),
+      };
+
+      updateStore((s) => {
+        s.expenses[idx] = archived as any;
+        s.auditLogs.push({
+          id: `aud-${Date.now()}`,
+          action: "ARCHIVE",
+          module: "EXPENSES",
+          recordId: archived.id,
+          userId: actorId,
+          timestamp: new Date().toISOString(),
+          metadataJson: JSON.stringify({
+            voucherNumber: archived.voucherNumber,
+            action: "ARCHIVE_EXPENSE",
+          }),
+        });
+      });
+
+      return archived;
+    }
+  );
+}
+

@@ -279,6 +279,42 @@
   ],
   "expenses": [
     {
+      "id": "exp-1789370808109",
+      "voucherNumber": "EXP-TEST-1789370799975",
+      "date": "2026-02-15",
+      "amountPKR": 31000,
+      "category": "MAINTENANCE",
+      "title": "Winter Mountain Road Snow Chains & Brake Pads Replacement",
+      "description": "Added rear brake pads replacement due to mountain wear",
+      "paidTo": "Kaghan Tyre & Auto Mechanics, Balakot",
+      "receiptDocumentRef": "https://docs.junglan.org/receipts/test-chain-invoice.pdf",
+      "status": "REJECTED",
+      "yearPeriodId": "2026",
+      "loggedByUserId": "usr-admin-01",
+      "createdAt": "2026-09-14T07:26:48.109Z",
+      "updatedAt": "2026-09-14T07:27:00.379Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:27:00.379Z"
+    },
+    {
+      "id": "exp-1789370705226",
+      "voucherNumber": "EXP-TEST-1789370697080",
+      "date": "2026-02-15",
+      "amountPKR": 31000,
+      "category": "MAINTENANCE",
+      "title": "Winter Mountain Road Snow Chains & Brake Pads Replacement",
+      "description": "Added rear brake pads replacement due to mountain wear",
+      "paidTo": "Kaghan Tyre & Auto Mechanics, Balakot",
+      "receiptDocumentRef": "https://docs.junglan.org/receipts/test-chain-invoice.pdf",
+      "status": "REJECTED",
+      "yearPeriodId": "2026",
+      "loggedByUserId": "usr-admin-01",
+      "createdAt": "2026-09-14T07:25:05.226Z",
+      "updatedAt": "2026-09-14T07:25:17.475Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:25:17.475Z"
+    },
+    {
       "id": "exp-1",
       "voucherNumber": "EXP-2026-0001",
       "date": "2026-03-01T00:00:00.000Z",
@@ -308,6 +344,42 @@
     }
   ],
   "funding": [
+    {
+      "id": "fnd-1789370828528",
+      "referenceNumber": "FND-2026-000003",
+      "date": "2026-03-01",
+      "amountPKR": 300000,
+      "source": "COMMUNITY_DONATION",
+      "donorName": "Overseas Pakistani Community UK",
+      "donorContact": "+44 7700 900123",
+      "projectId": "proj-1",
+      "purpose": "Expanded Emergency Ambulance Fuel & Mountain Safety Subsidy",
+      "paymentMethod": "BANK_TRANSFER",
+      "receiptDocumentRef": "PK-HBL-9928172",
+      "yearPeriodId": "2026",
+      "createdAt": "2026-09-14T07:27:08.528Z",
+      "updatedAt": "2026-09-14T07:27:20.762Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:27:20.762Z"
+    },
+    {
+      "id": "fnd-1789370725647",
+      "referenceNumber": "FND-2026-000002",
+      "date": "2026-03-01",
+      "amountPKR": 300000,
+      "source": "COMMUNITY_DONATION",
+      "donorName": "Overseas Pakistani Community UK",
+      "donorContact": "+44 7700 900123",
+      "projectId": "proj-1",
+      "purpose": "Expanded Emergency Ambulance Fuel & Mountain Safety Subsidy",
+      "paymentMethod": "BANK_TRANSFER",
+      "receiptDocumentRef": "PK-HBL-9928172",
+      "yearPeriodId": "2026",
+      "createdAt": "2026-09-14T07:25:25.647Z",
+      "updatedAt": "2026-09-14T07:25:37.945Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:25:37.944Z"
+    },
     {
       "id": "fnd-1",
       "referenceNumber": "FND-2026-000001",
@@ -637,6 +709,114 @@
       "userId": "usr-admin-test",
       "timestamp": "2026-09-14T07:06:12.170Z",
       "metadataJson": "{\"ambulanceIdentifier\":\"TEST-AMB-0929\",\"action\":\"ARCHIVED\"}"
+    },
+    {
+      "id": "aud-1789370705232",
+      "action": "CREATE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789370705226",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:25:05.232Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-TEST-1789370697080\"}"
+    },
+    {
+      "id": "aud-1789370713397",
+      "action": "UPDATE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789370705226",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:25:13.397Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-TEST-1789370697080\",\"action\":\"UPDATE_EXPENSE\"}"
+    },
+    {
+      "id": "aud-1789370717476",
+      "action": "ARCHIVE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789370705226",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:25:17.476Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-TEST-1789370697080\",\"action\":\"ARCHIVE_EXPENSE\"}"
+    },
+    {
+      "id": "aud-1789370725648",
+      "action": "CREATE",
+      "module": "FUNDING",
+      "recordId": "fnd-1789370725647",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:25:25.648Z",
+      "metadataJson": "{\"referenceNumber\":\"FND-2026-000002\"}"
+    },
+    {
+      "id": "aud-1789370733844",
+      "action": "UPDATE",
+      "module": "FUNDING",
+      "recordId": "fnd-1789370725647",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:25:33.844Z",
+      "metadataJson": "{\"referenceNumber\":\"FND-2026-000002\",\"action\":\"UPDATE_FUNDING\"}"
+    },
+    {
+      "id": "aud-1789370737945",
+      "action": "ARCHIVE",
+      "module": "FUNDING",
+      "recordId": "fnd-1789370725647",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:25:37.945Z",
+      "metadataJson": "{\"referenceNumber\":\"FND-2026-000002\",\"action\":\"ARCHIVE_FUNDING\"}"
+    },
+    {
+      "id": "aud-1789370808111",
+      "action": "CREATE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789370808109",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:26:48.111Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-TEST-1789370799975\"}"
+    },
+    {
+      "id": "aud-1789370816281",
+      "action": "UPDATE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789370808109",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:26:56.281Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-TEST-1789370799975\",\"action\":\"UPDATE_EXPENSE\"}"
+    },
+    {
+      "id": "aud-1789370820379",
+      "action": "ARCHIVE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789370808109",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:27:00.379Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-TEST-1789370799975\",\"action\":\"ARCHIVE_EXPENSE\"}"
+    },
+    {
+      "id": "aud-1789370828529",
+      "action": "CREATE",
+      "module": "FUNDING",
+      "recordId": "fnd-1789370828528",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:27:08.529Z",
+      "metadataJson": "{\"referenceNumber\":\"FND-2026-000003\"}"
+    },
+    {
+      "id": "aud-1789370836697",
+      "action": "UPDATE",
+      "module": "FUNDING",
+      "recordId": "fnd-1789370828528",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:27:16.697Z",
+      "metadataJson": "{\"referenceNumber\":\"FND-2026-000003\",\"action\":\"UPDATE_FUNDING\"}"
+    },
+    {
+      "id": "aud-1789370840762",
+      "action": "ARCHIVE",
+      "module": "FUNDING",
+      "recordId": "fnd-1789370828528",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:27:20.762Z",
+      "metadataJson": "{\"referenceNumber\":\"FND-2026-000003\",\"action\":\"ARCHIVE_FUNDING\"}"
     }
   ],
   "settings": {
