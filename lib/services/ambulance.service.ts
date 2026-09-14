@@ -176,11 +176,16 @@ export async function getAmbulanceById(idOrIdentifier: string) {
 }
 
 export async function createAmbulance(
-  data: CreateAmbulanceInput,
+  data: CreateAmbulanceInput | any,
   actorId?: string | null
 ) {
+  const vehicleNumber = (data.vehicleNumber || data.registrationNumber || data.ambulanceIdentifier || "").trim();
   const normalizedStatus =
     data.status === "ON_MISSION" ? "ON_TRIP" : (data.status as any) || "AVAILABLE";
+  const modelStr = data.make && data.model ? `${data.make} ${data.model}` : data.model || "Toyota Hilux 4x4 Mountain Spec";
+  const yearVal = data.yearOfManufacture || data.year || 2024;
+  const driverName = data.primaryDriverName || data.assignedDriverName || "M. Tariq Khan";
+  const baseLoc = data.baseLocation || data.baseStationLocation || "Junglan Central Emergency Depot";
 
   return tryPrismaOrFallback(
     async () => {
@@ -188,28 +193,28 @@ export async function createAmbulance(
       const existing = await prisma.ambulanceVehicle.findFirst({
         where: {
           OR: [
-            { ambulanceIdentifier: data.vehicleNumber },
-            { registrationNumber: data.vehicleNumber },
+            { ambulanceIdentifier: vehicleNumber },
+            { registrationNumber: vehicleNumber },
           ],
         },
       });
 
       if (existing) {
         throw new ConflictError(
-          `An ambulance with identifier or plate '${data.vehicleNumber}' already exists.`
+          `An ambulance with identifier or plate '${vehicleNumber}' already exists.`
         );
       }
 
       return prisma.$transaction(async (tx) => {
         const vehicle = await tx.ambulanceVehicle.create({
           data: {
-            ambulanceIdentifier: data.vehicleNumber,
-            registrationNumber: data.vehicleNumber,
-            model: `${data.make} ${data.model}`,
-            manufacturingYear: data.yearOfManufacture,
+            ambulanceIdentifier: vehicleNumber,
+            registrationNumber: vehicleNumber,
+            model: modelStr,
+            manufacturingYear: yearVal,
             status: normalizedStatus,
             currentOdometerKm: new Prisma.Decimal(data.currentOdometerKm || 0),
-            assignedDriverName: "M. Tariq Khan",
+            assignedDriverName: driverName,
             isActive: true,
           },
         });
@@ -233,26 +238,26 @@ export async function createAmbulance(
       const store = readStore();
       const exists = (store.ambulances || []).some(
         (a) =>
-          a.ambulanceIdentifier?.toLowerCase() === data.vehicleNumber.toLowerCase() ||
-          a.registrationNumber?.toLowerCase() === data.vehicleNumber.toLowerCase()
+          (a.ambulanceIdentifier && a.ambulanceIdentifier.toLowerCase() === vehicleNumber.toLowerCase()) ||
+          (a.registrationNumber && a.registrationNumber.toLowerCase() === vehicleNumber.toLowerCase())
       );
 
       if (exists) {
         throw new ConflictError(
-          `An ambulance with identifier or plate '${data.vehicleNumber}' already exists.`
+          `An ambulance with identifier or plate '${vehicleNumber}' already exists.`
         );
       }
 
       const newAmb = {
         id: `amb-${Date.now()}`,
-        ambulanceIdentifier: data.vehicleNumber,
-        registrationNumber: data.vehicleNumber,
-        model: `${data.make} ${data.model}`,
-        manufacturingYear: data.yearOfManufacture,
+        ambulanceIdentifier: vehicleNumber,
+        registrationNumber: vehicleNumber,
+        model: modelStr,
+        manufacturingYear: yearVal,
         status: normalizedStatus,
         currentOdometerKm: Number(data.currentOdometerKm || 0),
-        assignedDriverName: "M. Tariq Khan",
-        baseLocation: data.baseLocation || "Junglan Central Depot",
+        assignedDriverName: driverName,
+        baseLocation: baseLoc,
         isActive: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

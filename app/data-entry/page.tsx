@@ -130,7 +130,7 @@ export default function DataEntryOverviewPage() {
           paymentMethod: "CASH",
           expenseDate: new Date().toISOString(),
           description: `Fuel refill ${fuelForm.liters}L at ${fuelForm.station}, Odometer ${fuelForm.odometer} km. Logged at operational intake desk.`,
-          yearPeriodId: "YP-2026",
+          yearPeriodId: "2026",
         }),
       });
       setVoucherModalSuccess(true);

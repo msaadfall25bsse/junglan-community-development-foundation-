@@ -62,9 +62,10 @@ async function runFinancialTestSuite() {
       {
         voucherNumber: uniqueVoucher,
         title: "Winter Mountain Road Snow Chains & Tire Servicing",
-        category: "MAINTENANCE",
+        category: "AMBULANCE_MAINTENANCE",
         amountPKR: 28500,
         paidTo: "Kaghan Tyre & Auto Mechanics, Balakot",
+        paymentMethod: "CASH",
         expenseDate: "2026-02-15",
         description: "Four reinforced tire snow chains and hydraulic brake fluid replacement",
         receiptDocumentUrl: "https://docs.junglan.org/receipts/test-chain-invoice.pdf",
@@ -137,15 +138,15 @@ async function runFinancialTestSuite() {
     const uniqueRef = `DON-TEST-${Date.now()}`;
     const newFunding = await createFunding(
       {
-        referenceNumber: uniqueRef,
         donorName: "Overseas Pakistani Community UK",
         donorContact: "+44 7700 900123",
-        fundingSource: "COMMUNITY_DONATION",
+        fundingSource: "COMMUNITY_POOL",
         amountPKR: 250000,
         purpose: "Emergency Ambulance Fuel & Equipment Subsidy",
         paymentMethod: "BANK_TRANSFER",
         receiptNumber: "PK-HBL-9928172",
         receivedDate: "2026-03-01",
+        isAnonymous: false,
         projectId: targetProject ? targetProject.id : undefined,
         yearPeriodId: "2026",
       },
@@ -223,10 +224,10 @@ async function runFinancialTestSuite() {
     // 10. Financial Query & Aggregation
     // -------------------------------------------------------------------------
     console.log("\n--- 10. Multi-Criteria Expense & Funding Queries ---");
-    const expenseList = await getExpenses({ yearPeriodId: "2026", limit: 50 });
+    const expenseList = await getExpenses({ page: 1, limit: 50, sortOrder: "desc", yearPeriodId: "2026" });
     assert(expenseList.expenses.length >= 0, `Expenses list query returned ${expenseList.expenses.length} records`);
 
-    const fundingList = await getFundings({ yearPeriodId: "2026", limit: 50 });
+    const fundingList = await getFundings({ page: 1, limit: 50, sortOrder: "desc", yearPeriodId: "2026" });
     assert(fundingList.fundings.length >= 0, `Funding list query returned ${fundingList.fundings.length} records`);
 
   } catch (err: any) {

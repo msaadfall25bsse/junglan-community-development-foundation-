@@ -388,6 +388,7 @@ export async function archivePatient(id: string, actorId?: string | null) {
         archived = {
           ...patient,
           isArchived: true,
+          deletedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
         s.patients[index] = archived;
@@ -406,14 +407,23 @@ export async function archivePatient(id: string, actorId?: string | null) {
   );
 }
 
-export async function checkDuplicatePatient(input: {
-  cnicOrBForm?: string | null;
-  contactNumber?: string | null;
-  fullName?: string | null;
-}) {
-  const cnic = input.cnicOrBForm?.trim();
-  const phone = input.contactNumber?.trim();
-  const name = input.fullName?.trim()?.toLowerCase();
+export async function checkDuplicatePatient(
+  input:
+    | string
+    | {
+        cnicOrBForm?: string | null;
+        contactNumber?: string | null;
+        fullName?: string | null;
+      }
+) {
+  const parsed =
+    typeof input === "string"
+      ? { cnicOrBForm: input, contactNumber: undefined, fullName: undefined }
+      : input;
+
+  const cnic = parsed.cnicOrBForm?.trim();
+  const phone = parsed.contactNumber?.trim();
+  const name = parsed.fullName?.trim()?.toLowerCase();
 
   return tryPrismaOrFallback(
     async () => {
@@ -439,13 +449,15 @@ export async function checkDuplicatePatient(input: {
       });
       return {
         hasDuplicate: matches.length > 0,
+        exists: matches.length > 0,
+        patient: matches[0] || null,
         matches,
       };
     },
     async () => {
       const store = readStore();
       const matches = store.patients
-        .filter((p) => !p.isArchived)
+        .filter((p) => !p.isArchived && !(p as any).deletedAt)
         .filter((p) => {
           if (cnic && p.cnicOrBForm === cnic) return true;
           if (phone && p.contactNumber === phone) return true;
@@ -465,6 +477,8 @@ export async function checkDuplicatePatient(input: {
 
       return {
         hasDuplicate: matches.length > 0,
+        exists: matches.length > 0,
+        patient: matches[0] || null,
         matches,
       };
     }

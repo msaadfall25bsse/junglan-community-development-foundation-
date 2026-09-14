@@ -106,9 +106,76 @@
       "isActive": false,
       "createdAt": "2026-09-14T07:05:15.110Z",
       "updatedAt": "2026-09-14T07:06:12.169Z"
+    },
+    {
+      "id": "amb-1789372270454",
+      "ambulanceIdentifier": "TEST-AMB-6390",
+      "registrationNumber": "TEST-AMB-6390",
+      "model": "Toyota Hilux 4x4 Mountain Spec",
+      "manufacturingYear": 2024,
+      "status": "OUT_OF_SERVICE",
+      "currentOdometerKm": 25485,
+      "assignedDriverName": "M. Tariq Khan",
+      "baseLocation": "Junglan Central Emergency Depot",
+      "isActive": false,
+      "createdAt": "2026-09-14T07:51:10.454Z",
+      "updatedAt": "2026-09-14T07:51:34.905Z"
     }
   ],
   "trips": [
+    {
+      "id": "trp-1789372331572",
+      "tripIdentifier": "TRP-2026-000005",
+      "date": "2026-09-14T07:52:03.432Z",
+      "ambulanceId": "amb-1",
+      "patientId": null,
+      "patientName": "Emergency Patient Intake #8812",
+      "patientPhone": null,
+      "pickupLocation": "Birote Valley, Junglan",
+      "dropoffHospital": "DHQ Hospital Mansehra",
+      "tripType": "Emergency Transfer",
+      "distanceKm": 0,
+      "startOdometerKm": 51200,
+      "endOdometerKm": null,
+      "dispatchTime": "2026-09-14T07:52:03.432Z",
+      "status": "CANCELLED",
+      "urgencyLevel": "URGENT",
+      "driverName": "Muhammad Tariq Khan",
+      "paramedicName": null,
+      "notes": "Intake desk rapid dispatch",
+      "yearPeriodId": "2026",
+      "createdById": "usr-data-01",
+      "createdAt": "2026-09-14T07:52:11.572Z",
+      "updatedAt": "2026-09-14T07:52:23.874Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:52:23.874Z"
+    },
+    {
+      "id": "trp-1789372278586",
+      "tripIdentifier": "TRP-2026-000004",
+      "date": "2026-09-14T07:51:10.460Z",
+      "ambulanceId": "amb-1789372270454",
+      "patientId": "pat-1789372254176",
+      "patientName": "Sardar Muhammad Rafique",
+      "patientPhone": null,
+      "pickupLocation": "Junglan Bala Remote Hamlet",
+      "dropoffHospital": "Ayub Teaching Hospital Abbottabad",
+      "tripType": "Emergency Transfer",
+      "distanceKm": 85,
+      "startOdometerKm": 25400,
+      "endOdometerKm": 25485,
+      "dispatchTime": "2026-09-14T07:51:10.460Z",
+      "status": "COMPLETED",
+      "urgencyLevel": "CRITICAL",
+      "driverName": "Alamzeb Khan",
+      "paramedicName": null,
+      "notes": "Safe clinical handover completed at ATH Abbottabad Emergency Trauma Bay",
+      "yearPeriodId": "2026",
+      "createdById": "usr-admin-01",
+      "createdAt": "2026-09-14T07:51:18.586Z",
+      "updatedAt": "2026-09-14T07:51:26.767Z",
+      "completedTime": "2026-09-14T07:51:22.673Z"
+    },
     {
       "id": "trp-1789369547719",
       "tripIdentifier": "TRP-2026-000003",
@@ -187,6 +254,45 @@
     }
   ],
   "patients": [
+    {
+      "id": "pat-1789372254176",
+      "patientIdentifier": "JCD-P-2026-0007",
+      "fullName": "Sardar Muhammad Rafique",
+      "cnicOrBForm": "13101-6439687-5",
+      "gender": "MALE",
+      "age": 52,
+      "contactNumber": "0300-1122334",
+      "emergencyContactName": "Tariq Rafique (Son)",
+      "emergencyContactPhone": "0312-9988776",
+      "residenceArea": "Junglan Payeen",
+      "medicalConditionSummary": "Chronic respiratory difficulty — managed with regular oxygen",
+      "yearPeriodId": "2026",
+      "isFlaggedForReview": false,
+      "flagReason": null,
+      "isArchived": true,
+      "createdAt": "2026-09-14T07:50:54.176Z",
+      "updatedAt": "2026-09-14T07:51:06.387Z",
+      "deletedAt": "2026-09-14T07:51:06.387Z"
+    },
+    {
+      "id": "pat-1789371417985",
+      "patientIdentifier": "JCD-P-2026-0006",
+      "fullName": "Sardar Muhammad Rafique",
+      "cnicOrBForm": "13101-5388708-5",
+      "gender": "MALE",
+      "age": 52,
+      "contactNumber": "0300-1122334",
+      "emergencyContactName": "Tariq Rafique (Son)",
+      "emergencyContactPhone": "0312-9988776",
+      "residenceArea": "Junglan Payeen",
+      "medicalConditionSummary": "Chronic respiratory difficulty — managed with regular oxygen",
+      "yearPeriodId": "2026",
+      "isFlaggedForReview": false,
+      "flagReason": null,
+      "isArchived": true,
+      "createdAt": "2026-09-14T07:36:57.985Z",
+      "updatedAt": "2026-09-14T07:37:10.220Z"
+    },
     {
       "id": "pat-1789369539582",
       "patientIdentifier": "JCD-P-2026-0005",
@@ -279,6 +385,42 @@
   ],
   "expenses": [
     {
+      "id": "exp-1789372339761",
+      "voucherNumber": "VCH-DESK-1577",
+      "date": "2026-09-14T07:52:11.577Z",
+      "amountPKR": 14250,
+      "category": "FUEL",
+      "title": "Ambulance Diesel: 50 Liters (AMB-01)",
+      "description": "Fuel refill 50L at PSO Station Mansehra, Odometer 51240 km. Logged at operational intake desk.",
+      "paidTo": "PSO Station Mansehra",
+      "receiptDocumentRef": null,
+      "status": "REJECTED",
+      "yearPeriodId": "2026",
+      "loggedByUserId": "usr-data-01",
+      "createdAt": "2026-09-14T07:52:19.761Z",
+      "updatedAt": "2026-09-14T07:52:27.952Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:52:27.952Z"
+    },
+    {
+      "id": "exp-1789372307098",
+      "voucherNumber": "EXP-2026-000005",
+      "date": "2026-03-05",
+      "amountPKR": 18500,
+      "category": "FUEL",
+      "title": "Mountain Heavy Diesel Refill — Fleet Emergency Reserve",
+      "description": "65 Liters Euro-5 Diesel for high-altitude emergency transit",
+      "paidTo": "Attock Petroleum Abbottabad Road",
+      "receiptDocumentRef": null,
+      "status": "REJECTED",
+      "yearPeriodId": "2026",
+      "loggedByUserId": "usr-admin-01",
+      "createdAt": "2026-09-14T07:51:47.098Z",
+      "updatedAt": "2026-09-14T07:51:51.187Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:51:51.187Z"
+    },
+    {
       "id": "exp-1789370808109",
       "voucherNumber": "EXP-TEST-1789370799975",
       "date": "2026-02-15",
@@ -344,6 +486,25 @@
     }
   ],
   "funding": [
+    {
+      "id": "fnd-1789372319356",
+      "referenceNumber": "FND-2026-000004",
+      "date": "2026-03-10",
+      "amountPKR": 120000,
+      "source": "INTERNATIONAL_AID",
+      "donorName": "Friends of Junglan Calgary, Canada",
+      "donorContact": "0300-8889900",
+      "projectId": "proj-1",
+      "purpose": "Emergency Oxygen Subsidies",
+      "paymentMethod": "BANK_TRANSFER",
+      "receiptDocumentRef": null,
+      "yearPeriodId": "2026",
+      "isAnonymous": false,
+      "createdAt": "2026-09-14T07:51:59.356Z",
+      "updatedAt": "2026-09-14T07:52:03.430Z",
+      "isArchived": true,
+      "deletedAt": "2026-09-14T07:52:03.430Z"
+    },
     {
       "id": "fnd-1789370828528",
       "referenceNumber": "FND-2026-000003",
@@ -457,6 +618,42 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "aud-1789372168821",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T07:49:28.821Z",
+      "metadataJson": "{\"result\":\"SUCCESS\",\"ip\":\"::1\"}"
+    },
+    {
+      "id": "aud-1789372116599",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T07:48:36.599Z",
+      "metadataJson": "{\"result\":\"FAILURE\",\"reason\":\"INVALID_PASSWORD\",\"ip\":\"::1\"}"
+    },
+    {
+      "id": "aud-1789372082370",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T07:48:02.370Z",
+      "metadataJson": "{\"result\":\"FAILURE\",\"reason\":\"INVALID_PASSWORD\",\"ip\":\"::1\"}"
+    },
+    {
+      "id": "aud-1789372066697",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-09-14T07:47:46.697Z",
+      "metadataJson": "{\"result\":\"FAILURE\",\"reason\":\"INVALID_PASSWORD\",\"ip\":\"::1\"}"
+    },
     {
       "id": "aud-1789219863451",
       "userId": "usr-data_entry-1789080313173",
@@ -817,6 +1014,158 @@
       "userId": "usr-admin-01",
       "timestamp": "2026-09-14T07:27:20.762Z",
       "metadataJson": "{\"referenceNumber\":\"FND-2026-000003\",\"action\":\"ARCHIVE_FUNDING\"}"
+    },
+    {
+      "id": "aud-1789371417988",
+      "action": "CREATE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789371417985",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:36:57.988Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0006\"}"
+    },
+    {
+      "id": "aud-1789371430220",
+      "action": "ARCHIVE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789371417985",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:37:10.220Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0006\"}"
+    },
+    {
+      "id": "aud-1789372254178",
+      "action": "CREATE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789372254176",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:50:54.178Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0007\"}"
+    },
+    {
+      "id": "aud-1789372266387",
+      "action": "ARCHIVE",
+      "module": "PATIENTS",
+      "recordId": "pat-1789372254176",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:51:06.387Z",
+      "metadataJson": "{\"patientIdentifier\":\"JCD-P-2026-0007\"}"
+    },
+    {
+      "id": "aud-1789372270454",
+      "action": "CREATE",
+      "module": "FLEET",
+      "recordId": "amb-1789372270454",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:51:10.454Z",
+      "metadataJson": "{\"ambulanceIdentifier\":\"TEST-AMB-6390\",\"registrationNumber\":\"TEST-AMB-6390\"}"
+    },
+    {
+      "id": "aud-1789372278586",
+      "action": "CREATE",
+      "module": "TRIPS",
+      "recordId": "trp-1789372278586",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:51:18.586Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000004\"}"
+    },
+    {
+      "id": "aud-1789372286767",
+      "action": "UPDATE",
+      "module": "TRIPS",
+      "recordId": "trp-1789372278586",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:51:26.767Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000004\",\"status\":\"COMPLETED\"}"
+    },
+    {
+      "id": "aud-1789372294905",
+      "action": "ARCHIVE",
+      "module": "FLEET",
+      "recordId": "amb-1789372270454",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:51:34.905Z",
+      "metadataJson": "{\"ambulanceIdentifier\":\"TEST-AMB-6390\",\"action\":\"ARCHIVED\"}"
+    },
+    {
+      "id": "aud-1789372307098",
+      "action": "CREATE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789372307098",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:51:47.098Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-2026-000005\"}"
+    },
+    {
+      "id": "aud-1789372311187",
+      "action": "ARCHIVE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789372307098",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:51:51.187Z",
+      "metadataJson": "{\"voucherNumber\":\"EXP-2026-000005\",\"action\":\"ARCHIVE_EXPENSE\"}"
+    },
+    {
+      "id": "aud-1789372319357",
+      "action": "CREATE",
+      "module": "FUNDING",
+      "recordId": "fnd-1789372319356",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:51:59.357Z",
+      "metadataJson": "{\"referenceNumber\":\"FND-2026-000004\"}"
+    },
+    {
+      "id": "aud-1789372323430",
+      "action": "ARCHIVE",
+      "module": "FUNDING",
+      "recordId": "fnd-1789372319356",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:52:03.430Z",
+      "metadataJson": "{\"referenceNumber\":\"FND-2026-000004\",\"action\":\"ARCHIVE_FUNDING\"}"
+    },
+    {
+      "id": "aud-1789372331572",
+      "action": "CREATE",
+      "module": "TRIPS",
+      "recordId": "trp-1789372331572",
+      "userId": "usr-data-01",
+      "timestamp": "2026-09-14T07:52:11.572Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000005\"}"
+    },
+    {
+      "id": "aud-1789372339761",
+      "action": "CREATE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789372339761",
+      "userId": "usr-data-01",
+      "timestamp": "2026-09-14T07:52:19.761Z",
+      "metadataJson": "{\"voucherNumber\":\"VCH-DESK-1577\"}"
+    },
+    {
+      "id": "aud-1789372343874",
+      "action": "ARCHIVE",
+      "module": "TRIPS",
+      "recordId": "trp-1789372331572",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:52:23.874Z",
+      "metadataJson": "{\"tripIdentifier\":\"TRP-2026-000005\",\"action\":\"ARCHIVE_TRIP\"}"
+    },
+    {
+      "id": "aud-1789372347952",
+      "action": "ARCHIVE",
+      "module": "EXPENSES",
+      "recordId": "exp-1789372339761",
+      "userId": "usr-admin-01",
+      "timestamp": "2026-09-14T07:52:27.952Z",
+      "metadataJson": "{\"voucherNumber\":\"VCH-DESK-1577\",\"action\":\"ARCHIVE_EXPENSE\"}"
+    },
+    {
+      "id": "aud-1789372347956",
+      "action": "UPDATE",
+      "module": "SITE_SETTINGS",
+      "recordId": "global-settings",
+      "timestamp": "2026-09-14T07:52:27.956Z",
+      "metadataJson": "{\"ambulanceHotline\":\"+92 300 0000000\"}"
     }
   ],
   "settings": {
@@ -840,7 +1189,7 @@
     "missionStatement": "To deliver uninterrupted, free emergency medical transit to vulnerable mountain communities and foster generational prosperity through climate-resilient olive cultivation.",
     "visionStatement": "A self-sustaining rural society where no life is lost due to transit delays and every smallholder farmer thrives on sustainable mountain agriculture.",
     "donationNotes": "100% of all public contributions are audited and directly allocated to fuel, medical oxygen, vehicle maintenance, and subsidized olive saplings.",
-    "patientsServed": 423,
+    "patientsServed": 425,
     "familiesAssisted": 780,
     "treesPlanted": 5000,
     "activeAmbulancesCount": 2
@@ -866,7 +1215,7 @@
       "isActive": true,
       "createdAt": "2026-09-10T22:45:13.173Z",
       "updatedAt": "2026-09-10T22:45:13.173Z",
-      "lastLoginAt": "2026-09-12T13:30:59.396Z"
+      "lastLoginAt": "2026-09-14T07:49:24.689Z"
     }
   ]
 }
