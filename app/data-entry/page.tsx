@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { DashboardStatCard } from "@/components/dashboard/DashboardStatCard";
 import {
@@ -19,7 +18,6 @@ import { Modal } from "@/components/ui/Modal";
 import {
   Route,
   Fuel,
-  Wrench,
   PlusCircle,
   CheckCircle2,
   Users,
@@ -28,1186 +26,1283 @@ import {
   RefreshCw,
   Truck,
   HeartPulse,
-  UserCheck,
+  Receipt,
+  FileText,
+  BarChart3,
+  Download,
+  Calendar,
+  Clock,
+  MapPin,
+  Gauge,
+  Wallet,
+  ArrowRight,
+  TrendingUp,
+  ShieldCheck,
 } from "lucide-react";
+import type {
+  GoogleSheetTrip,
+  GoogleSheetExpense,
+  GoogleSheetAnalytics,
+} from "@/lib/google-sheets";
 
-interface ShiftEntry {
-  id: string;
-  type: "DISPATCH" | "FUEL" | "MAINTENANCE";
-  title: string;
-  vehicle: string;
-  timestamp: string;
-  loggedBy: string;
-  status: "SUBMITTED" | "PENDING_AUDIT";
-}
+export default function DataEntryDeskPage() {
+  // Navigation tabs
+  const [activeTab, setActiveTab] = useState<"TRIPS" | "EXPENSES" | "ANALYTICS">("TRIPS");
 
-interface PatientItem {
-  id: string;
-  patientIdentifier: string;
-  fullName: string;
-  cnicOrBForm?: string | null;
-  gender: "MALE" | "FEMALE" | "CHILD" | "OTHER";
-  age: number;
-  contactNumber: string;
-  emergencyContactName?: string | null;
-  emergencyContactPhone?: string | null;
-  residenceArea: string;
-  village?: string | null;
-  medicalConditionSummary: string;
-  yearPeriodId: string;
-  createdAt: string;
-}
+  // Live Google Sheet data states
+  const [trips, setTrips] = useState<GoogleSheetTrip[]>([]);
+  const [expenses, setExpenses] = useState<GoogleSheetExpense[]>([]);
+  const [analytics, setAnalytics] = useState<GoogleSheetAnalytics | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default function DataEntryOverviewPage() {
-  const [activeTab, setActiveTab] = useState<"SHIFT_LOG" | "PATIENT_LOOKUP">("SHIFT_LOG");
-  const [entries, setEntries] = useState<ShiftEntry[]>([]);
-  const [patients, setPatients] = useState<PatientItem[]>([]);
-  const [patientSearch, setPatientSearch] = useState("");
-  
-  // Shift telemetry stats
-  const [stats, setStats] = useState({
-    todayDispatches: 0,
-    totalPatients: 0,
-    readyAmbulances: 2,
-    shiftVouchersCount: 0,
-  });
+  // Search & Filter (Privacy on demand)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<GoogleSheetTrip[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Modals state
-  const [activeModal, setActiveModal] = useState<"PATIENT" | "FUEL" | "MAINTENANCE" | null>(null);
+  const [activeModal, setActiveModal] = useState<"PATIENT_TRIP" | "EXPENSE" | null>(null);
   const [modalSuccess, setModalSuccess] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Duplicate warning state for patient intake
-  const [duplicateMatches, setDuplicateMatches] = useState<any[] | null>(null);
+  // Expense tab filter
+  const [expenseFilter, setExpenseFilter] = useState<string>("ALL");
 
-  // Patient Intake Form Data
-  const [patientForm, setPatientForm] = useState({
-    fullName: "",
-    cnicOrBForm: "",
-    gender: "MALE" as "MALE" | "FEMALE" | "CHILD" | "OTHER",
-    age: 32,
-    contactNumber: "03001234567",
-    emergencyContactName: "",
-    emergencyContactPhone: "",
-    residenceArea: "Junglan Main Valley",
-    village: "Junglan",
-    medicalConditionSummary: "Emergency medical transit required.",
-    yearPeriodId: "2026",
+  // FORM 1: Patient & Ambulance Trip Form Data (14 Fields in exact Google Sheet sequence)
+  const [tripForm, setTripForm] = useState({
+    sNo: "758",
+    date: new Date().toISOString().split("T")[0],
+    day: new Date().toLocaleDateString("en-US", { weekday: "long" }),
+    time: "10:00 AM",
+    patientName: "",
+    pickup: "Gali",
+    drop: "Mansehra",
+    kmPick: "",
+    kmDrop: "",
+    distance: "",
+    petrol: "",
+    received: "",
+    reason: "",
+    otherExpense: "",
   });
 
-  // Fuel Slip Form Data
-  const [fuelForm, setFuelForm] = useState({
-    vehicle: "AMB-01",
-    liters: "50",
-    odometer: "51200",
-    station: "PSO Station Mansehra",
-    cost: "14250",
+  // FORM 2: General Expense Form Data (7 Fields in exact Google Sheet sequence)
+  const [expenseForm, setExpenseForm] = useState({
+    date: new Date().toISOString().split("T")[0],
+    name: "",
+    received: "",
+    expense: "",
+    reason: "Documentation",
+    jcdfReceipt: "",
+    remark: "",
   });
 
-  // Maintenance Slip Form Data
-  const [maintenanceForm, setMaintenanceForm] = useState({
-    vehicle: "AMB-01",
-    serviceType: "Routine Oil & Filter Change",
-    vendor: "Oghi Central Workshop",
-    invoiceNumber: "INV-8912",
-    amountPKR: "8500",
-    description: "Scheduled engine oil replacement, oil filter, and air pressure check.",
-  });
-
-  // Load telemetry and live activity stream
-  const loadLiveEntries = useCallback(() => {
-    Promise.all([
-      fetch("/api/trips?limit=15").then((r) => r.json()).catch(() => ({ data: [] })),
-      fetch("/api/expenses?limit=15").then((r) => r.json()).catch(() => ({ data: [] })),
-      fetch("/api/patients?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
-      fetch("/api/ambulances").then((r) => r.json()).catch(() => ({ data: [] })),
-    ]).then(([tripsRes, expensesRes, patientsRes, ambulancesRes]) => {
-      const shiftList: ShiftEntry[] = [];
-      let dispatchCount = 0;
-      let vouchersCount = 0;
+  // Load Google Sheet Data
+  const loadSheetData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [tripsRes, expensesRes, analyticsRes] = await Promise.all([
+        fetch("/api/google-sheets/trips").then((r) => r.json()).catch(() => ({ data: [] })),
+        fetch("/api/google-sheets/expenses").then((r) => r.json()).catch(() => ({ data: [] })),
+        fetch("/api/google-sheets/analytics").then((r) => r.json()).catch(() => ({ data: null })),
+      ]);
 
       if (tripsRes.success && Array.isArray(tripsRes.data)) {
-        dispatchCount = tripsRes.data.length;
-        tripsRes.data.slice(0, 10).forEach((t: any) => {
-          shiftList.push({
-            id: t.id,
-            type: "DISPATCH",
-            title: `${t.tripIdentifier || "Trip"} (${t.patientName || "Patient Transfer"} to ${t.dropoffHospital})`,
-            vehicle: t.ambulance?.ambulanceIdentifier || t.ambulanceId || "AMB-01",
-            timestamp: new Date(t.dispatchTime || t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            loggedBy: t.driverName || "Field Driver",
-            status: "SUBMITTED",
-          });
-        });
+        setTrips(tripsRes.data);
       }
-
       if (expensesRes.success && Array.isArray(expensesRes.data)) {
-        vouchersCount = expensesRes.data.length;
-        expensesRes.data.slice(0, 8).forEach((e: any) => {
-          shiftList.push({
-            id: e.id,
-            type: e.category?.includes("FUEL") ? "FUEL" : "MAINTENANCE",
-            title: `${e.voucherNumber}: ${e.title} (PKR ${Number(e.amountPKR).toLocaleString()})`,
-            vehicle: e.category?.includes("FUEL") ? "Ambulance Unit" : "Workshop Depot",
-            timestamp: new Date(e.expenseDate || e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            loggedBy: e.paidTo || "Intake Desk",
-            status: "SUBMITTED",
-          });
-        });
+        setExpenses(expensesRes.data);
+      }
+      if (analyticsRes.success && analyticsRes.data) {
+        setAnalytics(analyticsRes.data);
+        // Pre-fill next S.No and last drop KM
+        const nextNum = (analyticsRes.data.lastSNo || 757) + 1;
+        setTripForm((prev) => ({
+          ...prev,
+          sNo: String(nextNum),
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to load sheet data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSheetData();
+  }, [loadSheetData]);
+
+  // Live Auto-Calculation for Trip Form (Distance = kmDrop - kmPick, Day from Date)
+  const handleTripFormChange = (field: string, value: string) => {
+    setTripForm((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      if (field === "date") {
+        const parsed = new Date(value);
+        if (!isNaN(parsed.getTime())) {
+          updated.day = parsed.toLocaleDateString("en-US", { weekday: "long" });
+        }
       }
 
-      let patientCount = 0;
-      if (patientsRes.success && Array.isArray(patientsRes.data)) {
-        patientCount = patientsRes.data.length;
-        setPatients(patientsRes.data);
+      if (field === "kmPick" || field === "kmDrop") {
+        const pick = parseFloat(field === "kmPick" ? value : prev.kmPick);
+        const drop = parseFloat(field === "kmDrop" ? value : prev.kmDrop);
+        if (!isNaN(drop) && !isNaN(pick) && drop >= pick) {
+          updated.distance = String(drop - pick);
+        } else {
+          updated.distance = "";
+        }
       }
 
-      let availableAmbulanceCount = 2;
-      if (ambulancesRes.success && Array.isArray(ambulancesRes.data)) {
-        availableAmbulanceCount = ambulancesRes.data.filter((a: any) => a.status === "AVAILABLE" || a.isActive).length;
-      }
-
-      setStats({
-        todayDispatches: dispatchCount,
-        totalPatients: patientCount,
-        readyAmbulances: availableAmbulanceCount || 2,
-        shiftVouchersCount: vouchersCount,
-      });
-
-      if (shiftList.length > 0) {
-        setEntries(shiftList);
-      }
+      return updated;
     });
-  }, []);
+  };
 
-  useEffect(() => {
-    loadLiveEntries();
-  }, [loadLiveEntries]);
-
-  // Real-time Duplicate Patient Detection Handler
-  const checkDuplicate = useCallback(async (cnic: string, phone: string) => {
-    if (!cnic && !phone) {
-      setDuplicateMatches(null);
+  // Handle Live Patient Search (Privacy-First on demand)
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) {
+      setSearchResults(null);
       return;
     }
-    const cleanCnic = cnic.replace(/\D/g, "");
-    const cleanPhone = phone.replace(/\D/g, "");
-    if (cleanCnic.length < 13 && cleanPhone.length < 10) {
-      setDuplicateMatches(null);
-      return;
-    }
-
+    setIsSearching(true);
     try {
-      const params = new URLSearchParams();
-      if (cleanCnic.length >= 13) params.set("cnic", cnic);
-      if (cleanPhone.length >= 10) params.set("phone", phone);
-
-      const res = await fetch(`/api/patients/check-duplicate?${params.toString()}`);
-      const data = await res.json();
-      if (data.success && data.matches && data.matches.length > 0) {
-        setDuplicateMatches(data.matches);
+      const res = await fetch(`/api/google-sheets/trips?q=${encodeURIComponent(q)}`);
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        setSearchResults(json.data);
       } else {
-        setDuplicateMatches(null);
+        setSearchResults([]);
       }
-    } catch {
-      setDuplicateMatches(null);
+    } catch (err) {
+      console.error("Search error:", err);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
     }
-  }, []);
+  };
 
-  // Debounced trigger for duplicate checking
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (activeModal === "PATIENT") {
-        checkDuplicate(patientForm.cnicOrBForm, patientForm.contactNumber);
-      }
-    }, 450);
-    return () => clearTimeout(timer);
-  }, [patientForm.cnicOrBForm, patientForm.contactNumber, activeModal, checkDuplicate]);
-
-  // Handle Patient Intake Submit
-  const handlePatientSubmit = async (e: React.FormEvent) => {
+  // Handle Patient Trip Submit
+  const handleTripSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setFormError(null);
 
     try {
-      const res = await fetch("/api/patients", {
+      if (!tripForm.patientName.trim()) {
+        throw new Error("Please provide patient name.");
+      }
+
+      const res = await fetch("/api/google-sheets/trips", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: patientForm.fullName.trim(),
-          cnicOrBForm: patientForm.cnicOrBForm.trim() || undefined,
-          gender: patientForm.gender,
-          age: Number(patientForm.age),
-          contactNumber: patientForm.contactNumber.trim(),
-          emergencyContactName: patientForm.emergencyContactName.trim() || undefined,
-          emergencyContactPhone: patientForm.emergencyContactPhone.trim() || undefined,
-          residenceArea: patientForm.residenceArea.trim(),
-          village: patientForm.village.trim() || undefined,
-          medicalConditionSummary: patientForm.medicalConditionSummary.trim(),
-          yearPeriodId: patientForm.yearPeriodId,
-        }),
+        body: JSON.stringify(tripForm),
       });
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to register patient");
+        throw new Error(json.error || "Failed to record patient trip");
       }
 
-      setModalSuccess(`Patient "${patientForm.fullName}" registered successfully with ID: ${json.data?.patientIdentifier || "Generated"}`);
+      setModalSuccess(
+        `Trip S.No #${tripForm.sNo} registered! Financial rows (Used Service, Petrol, Maintenance) auto-split into ledger.`
+      );
+
       setTimeout(() => {
         setModalSuccess(null);
         setActiveModal(null);
-        setPatientForm({
-          fullName: "",
-          cnicOrBForm: "",
-          gender: "MALE",
-          age: 30,
-          contactNumber: "03001234567",
-          emergencyContactName: "",
-          emergencyContactPhone: "",
-          residenceArea: "Junglan Main Valley",
-          village: "Junglan",
-          medicalConditionSummary: "Emergency medical transit required.",
-          yearPeriodId: "2026",
+        loadSheetData();
+        // Reset form with incremented S.No
+        const nextNum = parseInt(tripForm.sNo, 10) + 1;
+        setTripForm({
+          sNo: isNaN(nextNum) ? "" : String(nextNum),
+          date: new Date().toISOString().split("T")[0],
+          day: new Date().toLocaleDateString("en-US", { weekday: "long" }),
+          time: "10:00 AM",
+          patientName: "",
+          pickup: "Gali",
+          drop: "Mansehra",
+          kmPick: tripForm.kmDrop || "",
+          kmDrop: "",
+          distance: "",
+          petrol: "",
+          received: "",
+          reason: "",
+          otherExpense: "",
         });
-        setDuplicateMatches(null);
-        loadLiveEntries();
-      }, 1200);
+      }, 1400);
     } catch (err: any) {
-      setFormError(err.message || "An unexpected error occurred during patient registration.");
+      setFormError(err.message || "An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle Fuel Slip Submit
-  const handleFuelSubmit = async (e: React.FormEvent) => {
+  // Handle General Expense Submit
+  const handleExpenseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setFormError(null);
-    const litersNum = Number(fuelForm.liters) || 0;
-    const calculatedAmount = Number(fuelForm.cost) || (litersNum * 285) || 5000;
-    const voucherNumber = `EXP-2026-F${Date.now().toString().slice(-4)}`;
 
     try {
-      const res = await fetch("/api/expenses", {
+      if (!expenseForm.expense && !expenseForm.received) {
+        throw new Error("Please enter either an Expense amount or Received amount.");
+      }
+
+      const res = await fetch("/api/google-sheets/expenses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          voucherNumber,
-          title: `Ambulance Diesel: ${fuelForm.liters}L (${fuelForm.vehicle})`,
-          category: "AMBULANCE_FUEL",
-          amountPKR: calculatedAmount,
-          paidTo: fuelForm.station,
-          paymentMethod: "CASH",
-          expenseDate: new Date().toISOString(),
-          description: `Fuel refill ${fuelForm.liters}L at ${fuelForm.station}, Odometer ${fuelForm.odometer} km. Logged at Field Operations Desk.`,
-          yearPeriodId: "2026",
-        }),
+        body: JSON.stringify(expenseForm),
       });
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to record fuel slip voucher");
+        throw new Error(json.error || "Failed to record expense voucher");
       }
 
-      setModalSuccess("Fuel voucher logged successfully into official treasury ledger.");
+      setModalSuccess("Expense voucher recorded and sorted chronologically by Date in official ledger.");
+
       setTimeout(() => {
         setModalSuccess(null);
         setActiveModal(null);
-        setFuelForm({ vehicle: "AMB-01", liters: "50", odometer: "51200", station: "PSO Station Mansehra", cost: "14250" });
-        loadLiveEntries();
-      }, 1200);
-    } catch (err: any) {
-      setFormError(err.message || "Failed to record fuel voucher");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Handle Workshop Maintenance Submit
-  const handleMaintenanceSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setFormError(null);
-    const voucherNumber = `EXP-2026-M${Date.now().toString().slice(-4)}`;
-
-    try {
-      const res = await fetch("/api/expenses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          voucherNumber,
-          title: `${maintenanceForm.serviceType} (${maintenanceForm.vehicle})`,
-          category: "VEHICLE_MAINTENANCE",
-          amountPKR: Number(maintenanceForm.amountPKR) || 5000,
-          paidTo: maintenanceForm.vendor,
-          paymentMethod: "CASH",
-          expenseDate: new Date().toISOString(),
-          description: `Invoice: ${maintenanceForm.invoiceNumber}. ${maintenanceForm.description}`,
-          yearPeriodId: "2026",
-        }),
-      });
-
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to record maintenance voucher");
-      }
-
-      setModalSuccess("Maintenance service voucher recorded into fleet log.");
-      setTimeout(() => {
-        setModalSuccess(null);
-        setActiveModal(null);
-        setMaintenanceForm({
-          vehicle: "AMB-01",
-          serviceType: "Routine Oil & Filter Change",
-          vendor: "Oghi Central Workshop",
-          invoiceNumber: "INV-8912",
-          amountPKR: "8500",
-          description: "Scheduled engine oil replacement, oil filter, and air pressure check.",
+        loadSheetData();
+        setExpenseForm({
+          date: new Date().toISOString().split("T")[0],
+          name: "",
+          received: "",
+          expense: "",
+          reason: "Documentation",
+          jcdfReceipt: "",
+          remark: "",
         });
-        loadLiveEntries();
-      }, 1200);
+      }, 1400);
     } catch (err: any) {
-      setFormError(err.message || "Failed to record maintenance slip");
+      setFormError(err.message || "An unexpected error occurred.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Filter patients for Tab 2
-  const filteredPatients = patients.filter((p) => {
-    if (!patientSearch.trim()) return true;
-    const query = patientSearch.toLowerCase();
-    return (
-      p.fullName.toLowerCase().includes(query) ||
-      (p.cnicOrBForm && p.cnicOrBForm.includes(query)) ||
-      p.contactNumber.includes(query) ||
-      p.residenceArea.toLowerCase().includes(query) ||
-      (p.village && p.village.toLowerCase().includes(query)) ||
-      p.patientIdentifier.toLowerCase().includes(query)
-    );
+  // CSV Export Helper
+  const downloadCSV = (type: "TRIPS" | "EXPENSES") => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    if (type === "TRIPS") {
+      csvContent += "S.No,Date,Day,Time,Patient name,Pick up,Drop,KM at Pick up,KM at Drop,Distance cover in one trip KM,Petrol,Received,Reason,Other Expanse\n";
+      trips.forEach((t) => {
+        csvContent += `"${t.sNo}","${t.date}","${t.day}","${t.time}","${t.patientName.replace(/"/g, '""')}","${t.pickup}","${t.drop}","${t.kmPick}","${t.kmDrop}","${t.distance}","${t.petrol}","${t.received}","${t.reason}","${t.otherExpense}"\n`;
+      });
+    } else {
+      csvContent += "Date,Name,Received,Expense,Reason,JCDF Receipt,Remark\n";
+      expenses.forEach((e) => {
+        csvContent += `"${e.date}","${e.name.replace(/"/g, '""')}","${e.received}","${e.expense}","${e.reason}","${e.jcdfReceipt}","${e.remark.replace(/"/g, '""')}"\n`;
+      });
+    }
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `JCDF_${type}_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Filter expenses based on selected reason
+  const filteredExpenses = expenses.filter((e) => {
+    if (expenseFilter === "ALL") return true;
+    return e.reason?.toLowerCase().trim() === expenseFilter.toLowerCase().trim();
   });
 
   return (
     <DashboardLayout
       role="DATA_ENTRY"
-      pageTitle="Field Operations & Intake Desk"
-      pageSubtitle="Authorized workstation for rapid patient intake, ambulance dispatching, fuel slips, and workshop invoices."
+      pageTitle="Field Operations & Google Drive Intake Desk"
+      pageSubtitle="Direct Google Sheets synchronization workstation. Zero Vercel storage footprint with instant date-sorting & ledger auto-splitting."
       breadcrumbs={[{ label: "Operations Desk" }]}
       actions={
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={loadLiveEntries}
-            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+            onClick={loadSheetData}
+            disabled={isLoading}
+            leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />}
           >
-            Refresh Desk
+            Refresh Sheet
           </Button>
           <Button
-            href="/data-entry/trips/new"
+            onClick={() => {
+              setFormError(null);
+              setModalSuccess(null);
+              setActiveModal("PATIENT_TRIP");
+            }}
             variant="primary"
             size="sm"
             leftIcon={<PlusCircle className="w-4 h-4" />}
           >
-            Dispatch Ambulance
+            New Patient Trip
           </Button>
         </div>
       }
     >
       <div className="space-y-6">
-        {/* Top Shift Telemetry KPI Cards */}
+        {/* Top Shift Telemetry KPI Cards from Google Sheet */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           <DashboardStatCard
-            title="Total Dispatches"
-            value={stats.todayDispatches}
-            subtitle="Emergency transit runs"
+            title="Total Trips"
+            value={analytics ? analytics.totalTrips : trips.length}
+            subtitle={`Last S.No: #${analytics?.lastSNo || 757}`}
             icon={<Route className="w-5 h-5" />}
             variant="sky"
           />
           <DashboardStatCard
-            title="Patients Enrolled"
-            value={stats.totalPatients}
-            subtitle="Verified community registry"
-            icon={<Users className="w-5 h-5" />}
+            title="Total Distance"
+            value={`${(analytics?.totalDistanceKm || 0).toLocaleString()} KM`}
+            subtitle="Transit route telemetry"
+            icon={<Truck className="w-5 h-5" />}
             variant="emerald"
           />
           <DashboardStatCard
-            title="Fleet Readiness"
-            value={`${stats.readyAmbulances} Units`}
-            subtitle="Available 4x4 vehicles"
-            icon={<Truck className="w-5 h-5" />}
-            variant="amber"
+            title="Received (Revenue)"
+            value={`PKR ${(analytics?.totalReceivedPKR || 0).toLocaleString()}`}
+            subtitle="Patient fares & service funds"
+            icon={<Wallet className="w-5 h-5" />}
+            variant="emerald"
           />
           <DashboardStatCard
-            title="Shift Vouchers"
-            value={stats.shiftVouchersCount}
-            subtitle="Fuel & workshop receipts"
+            title="Total Expenses"
+            value={`PKR ${(analytics?.totalExpensesPKR || 0).toLocaleString()}`}
+            subtitle="Fuel, maintenance & salaries"
             icon={<Fuel className="w-5 h-5" />}
-            variant="default"
+            variant="red"
           />
         </div>
 
-        {/* 4 Quick Action Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Dispatch */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-sky-300 hover:shadow-xs transition-all flex flex-col justify-between">
+        {/* 2 Primary Clean Action Cards (Replacing redundant forms) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Action 1: Patient & Trip Entry */}
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-sky-50/40 border border-sky-100 shadow-sm hover:border-sky-300 transition-all flex flex-col justify-between">
             <div>
-              <div className="p-3 rounded-xl bg-sky-50 text-sky-700 w-fit mb-3">
-                <Route className="w-5 h-5" />
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-3 rounded-xl bg-sky-100/70 text-sky-700">
+                  <HeartPulse className="w-6 h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Google Sheet Sync
+                </span>
               </div>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">
-                Emergency Trip Dispatch
+              <h3 className="text-base font-bold text-slate-900 mb-1.5">
+                New Patient & Ambulance Trip Entry
               </h3>
-              <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                Launch rapid patient transfer with assigned driver, vehicle, and route telemetry.
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                Record emergency transit with exact 14 columns matching Sheet 1. Auto-calculates distance & day, and automatically splits Used Service, Petrol, and Maintenance into the financial ledger.
               </p>
             </div>
             <Button
-              href="/data-entry/trips/new"
+              onClick={() => {
+                setFormError(null);
+                setModalSuccess(null);
+                setActiveModal("PATIENT_TRIP");
+              }}
               variant="primary"
-              size="sm"
-              className="w-full justify-center"
+              size="md"
+              className="w-full justify-center bg-sky-600 hover:bg-sky-700"
               leftIcon={<PlusCircle className="w-4 h-4" />}
             >
-              Start Trip Dispatch
+              Open Patient Trip Form
             </Button>
           </div>
 
-          {/* Card 2: Patient Intake */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-emerald-300 hover:shadow-xs transition-all flex flex-col justify-between">
+          {/* Action 2: General Expense Voucher */}
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-white to-amber-50/40 border border-amber-100 shadow-sm hover:border-amber-300 transition-all flex flex-col justify-between">
             <div>
-              <div className="p-3 rounded-xl bg-emerald-50 text-emerald-700 w-fit mb-3">
-                <Users className="w-5 h-5" />
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-3 rounded-xl bg-amber-100/70 text-amber-800">
+                  <Receipt className="w-6 h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                  <Calendar className="w-3.5 h-3.5" /> Chronological Sort
+                </span>
               </div>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">
-                Quick Patient Intake
+              <h3 className="text-base font-bold text-slate-900 mb-1.5">
+                Record Expense / Documentary Voucher
               </h3>
-              <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                Register incoming patient with live CNIC/Phone duplicate detection before dispatch.
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                Record staff salaries, office paperwork, vehicle registration, or independent workshop expenses. Never clutters patient tables and automatically seats itself in proper date order.
               </p>
             </div>
             <Button
               onClick={() => {
                 setFormError(null);
                 setModalSuccess(null);
-                setActiveModal("PATIENT");
+                setActiveModal("EXPENSE");
               }}
               variant="outline"
-              size="sm"
-              className="w-full justify-center border-emerald-300 text-emerald-800 hover:bg-emerald-50"
-              leftIcon={<HeartPulse className="w-4 h-4" />}
+              size="md"
+              className="w-full justify-center border-amber-300 text-amber-900 hover:bg-amber-50"
+              leftIcon={<Receipt className="w-4 h-4" />}
             >
-              Admit New Patient
-            </Button>
-          </div>
-
-          {/* Card 3: Fuel */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-amber-300 hover:shadow-xs transition-all flex flex-col justify-between">
-            <div>
-              <div className="p-3 rounded-xl bg-amber-50 text-amber-700 w-fit mb-3">
-                <Fuel className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">
-                Record Fuel Voucher
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                Submit pump fuel slip, station name, liters dispensed, and odometer reading.
-              </p>
-            </div>
-            <Button
-              onClick={() => {
-                setFormError(null);
-                setModalSuccess(null);
-                setActiveModal("FUEL");
-              }}
-              variant="outline"
-              size="sm"
-              className="w-full justify-center border-amber-300 text-amber-800 hover:bg-amber-50"
-              leftIcon={<Fuel className="w-4 h-4" />}
-            >
-              Log Fuel Slip
-            </Button>
-          </div>
-
-          {/* Card 4: Maintenance */}
-          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs hover:border-slate-300 hover:shadow-xs transition-all flex flex-col justify-between">
-            <div>
-              <div className="p-3 rounded-xl bg-slate-100 text-slate-700 w-fit mb-3">
-                <Wrench className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-slate-900 mb-1">
-                Workshop Service Slip
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                Document oil service, tire repair, brake pads, or medical oxygen cylinder refill.
-              </p>
-            </div>
-            <Button
-              onClick={() => {
-                setFormError(null);
-                setModalSuccess(null);
-                setActiveModal("MAINTENANCE");
-              }}
-              variant="outline"
-              size="sm"
-              className="w-full justify-center"
-              leftIcon={<Wrench className="w-4 h-4" />}
-            >
-              Log Service Check
+              Log Expense Voucher
             </Button>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="border-b border-slate-200">
-          <div className="flex gap-4">
-            <button
-              onClick={() => setActiveTab("SHIFT_LOG")}
-              className={`pb-3 text-sm font-bold transition-all border-b-2 ${
-                activeTab === "SHIFT_LOG"
-                  ? "border-sky-600 text-sky-700"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              Today&apos;s Field Shift Log ({entries.length})
-            </button>
-            <button
-              onClick={() => setActiveTab("PATIENT_LOOKUP")}
-              className={`pb-3 text-sm font-bold transition-all border-b-2 ${
-                activeTab === "PATIENT_LOOKUP"
-                  ? "border-sky-600 text-sky-700"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              Patient Registry & Verification ({patients.length})
-            </button>
-          </div>
-        </div>
-
-        {/* TAB 1: SHIFT LOG */}
-        {activeTab === "SHIFT_LOG" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-bold text-slate-900">
-                  Current Duty Shift Activity Stream
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Real-time feed of trips, fuel slips, and maintenance vouchers logged at this terminal.
-                </p>
-              </div>
-              <Badge variant="success" size="sm">
-                Duty Cycle: Active
-              </Badge>
+        {/* Privacy-First Patient Lookup & Live Search Section */}
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Search className="w-4 h-4 text-sky-600" />
+                Patient Record Verification & Live Lookup
+              </h2>
+              <p className="text-xs text-slate-500">
+                Patient records are securely stored on Google Drive. Filter on demand by patient name or S.No without screen clutter.
+              </p>
             </div>
-
-            <TableContainer>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Activity Type</TableHead>
-                    <TableHead>Event Details</TableHead>
-                    <TableHead>Assigned Vehicle</TableHead>
-                    <TableHead>Logged Time</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {entries.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-slate-400">
-                        No shift entries recorded yet today. Click one of the quick actions above to record activity.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    entries.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              entry.type === "DISPATCH"
-                                ? "sky"
-                                : entry.type === "FUEL"
-                                ? "warning"
-                                : "neutral"
-                            }
-                            size="sm"
-                          >
-                            {entry.type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-semibold text-slate-800 text-xs">
-                            {entry.title}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-xs text-slate-600 font-medium">
-                            {entry.vehicle}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-xs text-slate-500 font-mono">
-                            {entry.timestamp}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="success" size="sm">
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Submitted
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </div>
-        )}
-
-        {/* TAB 2: PATIENT LOOKUP */}
-        {activeTab === "PATIENT_LOOKUP" && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <h2 className="text-base font-bold text-slate-900">
-                  Patient Registry & Rapid Verification
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Search existing patient medical profiles before dispatching an ambulance to avoid duplication.
-                </p>
-              </div>
+            {searchResults !== null && (
               <Button
-                onClick={() => {
-                  setFormError(null);
-                  setModalSuccess(null);
-                  setActiveModal("PATIENT");
-                }}
-                variant="primary"
+                variant="ghost"
                 size="sm"
-                leftIcon={<PlusCircle className="w-4 h-4" />}
+                onClick={() => {
+                  setSearchQuery("");
+                  setSearchResults(null);
+                }}
               >
-                Intake New Patient
+                Clear Search
               </Button>
-            </div>
+            )}
+          </div>
 
-            {/* Search Input */}
-            <div className="relative max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                value={patientSearch}
-                onChange={(e) => setPatientSearch(e.target.value)}
-                placeholder="Search by Name, CNIC, Phone, or Village..."
-                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Type Patient Name, Pickup Location, or S.No (e.g. 'Idrees', 'Abdul Hameed', or '597')..."
+                className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all"
               />
             </div>
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              disabled={isSearching}
+              leftIcon={<Search className="w-4 h-4" />}
+            >
+              {isSearching ? "Searching..." : "Search"}
+            </Button>
+          </form>
 
-            <TableContainer>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Identifier</TableHead>
-                    <TableHead>Patient Name</TableHead>
-                    <TableHead>Age / Gender</TableHead>
-                    <TableHead>Contact Phone</TableHead>
-                    <TableHead>Residence / Village</TableHead>
-                    <TableHead className="text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPatients.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-slate-400">
-                        No matching patients found. Click &quot;Intake New Patient&quot; to enroll this patient.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredPatients.slice(0, 15).map((pat) => (
-                      <TableRow key={pat.id}>
-                        <TableCell>
-                          <span className="font-mono text-xs font-bold text-sky-700">
-                            {pat.patientIdentifier}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-semibold text-slate-900 text-xs">
-                            {pat.fullName}
-                          </div>
-                          {pat.cnicOrBForm && (
-                            <div className="text-[10px] text-slate-400 font-mono">
-                              CNIC: {pat.cnicOrBForm}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-xs text-slate-700">
-                            {pat.age} yrs • {pat.gender}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-xs text-slate-600 font-mono">
-                            {pat.contactNumber}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs text-slate-700 font-medium">
-                            {pat.residenceArea}
-                          </div>
-                          {pat.village && (
-                            <div className="text-[10px] text-slate-400">
-                              {pat.village}
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Link
-                            href={`/data-entry/trips/new?patientId=${pat.id}&patientName=${encodeURIComponent(pat.fullName)}`}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 transition-colors"
-                          >
-                            <Route className="w-3.5 h-3.5" />
-                            Dispatch Trip
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+          {/* Search Results Display */}
+          {searchResults !== null && (
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-slate-700">
+                  Found {searchResults.length} matching trip record(s) in Google Drive:
+                </span>
+              </div>
+              {searchResults.length === 0 ? (
+                <div className="p-4 rounded-xl bg-slate-50 text-center text-xs text-slate-500">
+                  No matching records found for &quot;{searchQuery}&quot;. Please check the spelling or search by S.No.
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-700">
+                      <tr>
+                        <th className="p-2.5 font-bold">S.No</th>
+                        <th className="p-2.5 font-bold">Date & Day</th>
+                        <th className="p-2.5 font-bold">Patient Name</th>
+                        <th className="p-2.5 font-bold">Route</th>
+                        <th className="p-2.5 font-bold">Odometer (KM)</th>
+                        <th className="p-2.5 font-bold">Distance</th>
+                        <th className="p-2.5 font-bold">Fare Received</th>
+                        <th className="p-2.5 font-bold">Petrol</th>
+                        <th className="p-2.5 font-bold">Other Exp</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {searchResults.map((r, i) => (
+                        <tr key={i} className="hover:bg-sky-50/50 transition-colors">
+                          <td className="p-2.5 font-bold text-sky-700">#{r.sNo}</td>
+                          <td className="p-2.5 text-slate-600">{r.date} ({r.day})</td>
+                          <td className="p-2.5 font-semibold text-slate-900">{r.patientName}</td>
+                          <td className="p-2.5 text-slate-700">{r.pickup} &rarr; {r.drop}</td>
+                          <td className="p-2.5 text-slate-500">{r.kmPick} - {r.kmDrop}</td>
+                          <td className="p-2.5 font-semibold text-slate-800">{r.distance} KM</td>
+                          <td className="p-2.5 text-emerald-700 font-bold">{r.received ? `PKR ${r.received}` : "-"}</td>
+                          <td className="p-2.5 text-amber-700">{r.petrol ? `PKR ${r.petrol}` : "-"}</td>
+                          <td className="p-2.5 text-rose-700">{r.otherExpense ? `PKR ${r.otherExpense} (${r.reason})` : "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 3 Main View Tabs */}
+        <div className="border-b border-slate-200">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex gap-2 sm:gap-6">
+              <button
+                onClick={() => setActiveTab("TRIPS")}
+                className={`pb-3 text-sm font-bold transition-all border-b-2 flex items-center gap-2 ${
+                  activeTab === "TRIPS"
+                    ? "border-sky-600 text-sky-700"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Truck className="w-4 h-4" />
+                Ambulance Record Complete ({trips.length})
+              </button>
+              <button
+                onClick={() => setActiveTab("EXPENSES")}
+                className={`pb-3 text-sm font-bold transition-all border-b-2 flex items-center gap-2 ${
+                  activeTab === "EXPENSES"
+                    ? "border-amber-600 text-amber-800"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Receipt className="w-4 h-4" />
+                Financial Expense Ledger ({expenses.length})
+              </button>
+              <button
+                onClick={() => setActiveTab("ANALYTICS")}
+                className={`pb-3 text-sm font-bold transition-all border-b-2 flex items-center gap-2 ${
+                  activeTab === "ANALYTICS"
+                    ? "border-emerald-600 text-emerald-800"
+                    : "border-transparent text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <BarChart3 className="w-4 h-4" />
+                Live Analysis & Summary
+              </button>
+            </div>
+
+            <div className="pb-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => downloadCSV(activeTab === "EXPENSES" ? "EXPENSES" : "TRIPS")}
+                leftIcon={<Download className="w-3.5 h-3.5" />}
+              >
+                Export CSV ({activeTab === "EXPENSES" ? "Expanse" : "2026 Trips"})
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* TAB 1: 2026 AMBULANCE RECORD COMPLETE (14 COLUMNS) */}
+        {activeTab === "TRIPS" && (
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Ambulance Trip Register (Tab 1: 2026 ambulance record complete )
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Displaying live records in exact 14-column sequence from Google Sheet.
+                </p>
+              </div>
+              <span className="text-xs text-slate-400">
+                Showing {Math.min(trips.length, 50)} of {trips.length} rows
+              </span>
+            </div>
+
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-2xs">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
+                  <tr>
+                    <th className="p-3">S.No</th>
+                    <th className="p-3">Date</th>
+                    <th className="p-3">Day</th>
+                    <th className="p-3">Time</th>
+                    <th className="p-3">Patient Name</th>
+                    <th className="p-3">Pick Up</th>
+                    <th className="p-3">Drop</th>
+                    <th className="p-3">Pick KM</th>
+                    <th className="p-3">Drop KM</th>
+                    <th className="p-3">Distance</th>
+                    <th className="p-3">Petrol (PKR)</th>
+                    <th className="p-3">Received (PKR)</th>
+                    <th className="p-3">Reason</th>
+                    <th className="p-3">Other Exp</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {trips.slice(0, 50).map((t, idx) => (
+                    <tr
+                      key={idx}
+                      className={`hover:bg-slate-50/70 transition-colors ${
+                        t.isLiveAdded ? "bg-emerald-50/40" : ""
+                      }`}
+                    >
+                      <td className="p-3 font-bold text-sky-700">
+                        {t.isLiveAdded && (
+                          <span className="mr-1.5 inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        )}
+                        #{t.sNo}
+                      </td>
+                      <td className="p-3 text-slate-600 whitespace-nowrap">{t.date}</td>
+                      <td className="p-3 text-slate-500">{t.day}</td>
+                      <td className="p-3 text-slate-500 whitespace-nowrap">{t.time}</td>
+                      <td className="p-3 font-semibold text-slate-900">{t.patientName}</td>
+                      <td className="p-3 text-slate-700">{t.pickup}</td>
+                      <td className="p-3 text-slate-700">{t.drop}</td>
+                      <td className="p-3 text-slate-500">{t.kmPick || "-"}</td>
+                      <td className="p-3 text-slate-500">{t.kmDrop || "-"}</td>
+                      <td className="p-3 font-semibold text-slate-800">
+                        {t.distance ? `${t.distance} KM` : "-"}
+                      </td>
+                      <td className="p-3 text-amber-700 font-medium">
+                        {t.petrol ? `PKR ${t.petrol}` : "-"}
+                      </td>
+                      <td className="p-3 text-emerald-700 font-bold">
+                        {t.received ? `PKR ${t.received}` : "-"}
+                      </td>
+                      <td className="p-3 text-slate-600">{t.reason || "-"}</td>
+                      <td className="p-3 text-rose-700 font-medium">
+                        {t.otherExpense ? `PKR ${t.otherExpense}` : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
-        {/* MODAL 1: QUICK PATIENT INTAKE */}
-        {activeModal === "PATIENT" && (
-          <Modal
-            isOpen={activeModal === "PATIENT"}
-            onClose={() => setActiveModal(null)}
-            title="Field Patient Rapid Intake"
-            description="Enroll incoming patient with duplicate verification and assign to current operational year."
-          >
-            {modalSuccess ? (
-              <div className="p-6 rounded-xl bg-emerald-50 text-emerald-900 text-center space-y-2">
-                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-                <div className="font-bold text-base">Patient Admitted Successfully!</div>
-                <p className="text-xs text-emerald-700">{modalSuccess}</p>
+        {/* TAB 2: FINANCIAL EXPENSE LEDGER (7 COLUMNS) */}
+        {activeTab === "EXPENSES" && (
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Financial Accounting General Ledger (Tab 2: Expanse)
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Sorted chronologically by Date. Contains Used Service fares, Fuel, Maintenance, Salaries, and Paperwork.
+                </p>
               </div>
-            ) : (
-              <form onSubmit={handlePatientSubmit} className="space-y-4 text-xs">
-                {formError && (
-                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 shrink-0" />
-                    <span>{formError}</span>
-                  </div>
-                )}
 
-                {/* Duplicate Warning Banner */}
-                {duplicateMatches && duplicateMatches.length > 0 && (
-                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 space-y-2">
-                    <div className="flex items-center gap-2 font-bold text-amber-800">
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      <span>Potential Duplicate Found in Registry!</span>
-                    </div>
-                    <p className="text-[11px] text-amber-700">
-                      The entered CNIC or Phone Number matches an existing patient:
-                    </p>
-                    <div className="space-y-1">
-                      {duplicateMatches.map((m: any) => (
-                        <div key={m.id} className="p-2 rounded bg-white/80 border border-amber-200 text-[11px] font-medium flex items-center justify-between">
-                          <div>
-                            <span className="font-bold text-slate-800">{m.fullName}</span> ({m.patientIdentifier}) — {m.residenceArea || m.village}
-                          </div>
-                          <Badge variant="warning" size="sm">Existing Match</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {/* Filter Pills */}
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "ALL",
+                  "Used Service",
+                  "Petrol",
+                  "Maintenance",
+                  "Salary",
+                  "Documentation",
+                  "Ambulance Insurance",
+                  "Fund",
+                ].map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => setExpenseFilter(reason)}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                      expenseFilter === reason
+                        ? "bg-amber-700 text-white shadow-xs"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Full Name <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Abdul Hameed"
-                      value={patientForm.fullName}
-                      onChange={(e) => setPatientForm({ ...patientForm, fullName: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      CNIC / Form-B (XXXXX-XXXXXXX-X)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="13202-1234567-1"
-                      value={patientForm.cnicOrBForm}
-                      onChange={(e) => setPatientForm({ ...patientForm, cnicOrBForm: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Gender <span className="text-rose-500">*</span>
-                    </label>
-                    <select
-                      value={patientForm.gender}
-                      onChange={(e: any) => setPatientForm({ ...patientForm, gender: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900"
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-2xs">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
+                  <tr>
+                    <th className="p-3">Date</th>
+                    <th className="p-3">Payee / Name</th>
+                    <th className="p-3">Received (Inflow)</th>
+                    <th className="p-3">Expense (Outflow)</th>
+                    <th className="p-3">Reason / Category</th>
+                    <th className="p-3">JCDF Receipt #</th>
+                    <th className="p-3">Remark / Note</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredExpenses.slice(0, 60).map((e, idx) => (
+                    <tr
+                      key={e.id || idx}
+                      className={`hover:bg-slate-50/70 transition-colors ${
+                        e.isLiveAdded ? "bg-amber-50/40" : ""
+                      }`}
                     >
-                      <option value="MALE">Male</option>
-                      <option value="FEMALE">Female</option>
-                      <option value="CHILD">Child</option>
-                      <option value="OTHER">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Age (Years) <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      max="125"
-                      value={patientForm.age}
-                      onChange={(e) => setPatientForm({ ...patientForm, age: Number(e.target.value) })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Contact Phone <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="03001234567"
-                      value={patientForm.contactNumber}
-                      onChange={(e) => setPatientForm({ ...patientForm, contactNumber: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                </div>
+                      <td className="p-3 font-semibold text-slate-700 whitespace-nowrap">
+                        {e.isLiveAdded && (
+                          <span className="mr-1.5 inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                        )}
+                        {e.date}
+                      </td>
+                      <td className="p-3 text-slate-900 font-medium">
+                        {e.name || <span className="text-slate-400 italic">-</span>}
+                      </td>
+                      <td className="p-3 text-emerald-700 font-bold">
+                        {e.received ? `PKR ${Number(e.received).toLocaleString()}` : "-"}
+                      </td>
+                      <td className="p-3 text-rose-700 font-bold">
+                        {e.expense ? `PKR ${Number(e.expense).toLocaleString()}` : "-"}
+                      </td>
+                      <td className="p-3">
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-md text-xs font-semibold ${
+                            e.reason === "Used Service"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : e.reason === "Petrol"
+                              ? "bg-amber-100 text-amber-800"
+                              : e.reason === "Maintenance"
+                              ? "bg-purple-100 text-purple-800"
+                              : e.reason === "Salary"
+                              ? "bg-sky-100 text-sky-800"
+                              : e.reason === "Documentation"
+                              ? "bg-blue-100 text-blue-800"
+                              : e.reason === "Fund"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-slate-100 text-slate-700"
+                          }`}
+                        >
+                          {e.reason}
+                        </span>
+                      </td>
+                      <td className="p-3 text-slate-600 font-mono">
+                        {e.jcdfReceipt ? (
+                          <span className="font-bold text-sky-700">#{e.jcdfReceipt}</span>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td className="p-3 text-slate-500 max-w-xs truncate">{e.remark || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Residence Area / Mohalla <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Birote Mohalla, Junglan"
-                      value={patientForm.residenceArea}
-                      onChange={(e) => setPatientForm({ ...patientForm, residenceArea: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Village / Valley
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Junglan, Oghi"
-                      value={patientForm.village}
-                      onChange={(e) => setPatientForm({ ...patientForm, village: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
+        {/* TAB 3: LIVE ANALYTICS & SUMMARY (MIRRORING ANALYSIS TAB) */}
+        {activeTab === "ANALYTICS" && analytics && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {/* Pickup Leaderboard */}
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
+                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  Top Pickup Locations (Origins)
+                </h3>
+                <p className="text-xs text-slate-500 mb-3">
+                  Trip frequency aggregated from community valleys
+                </p>
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {analytics.pickupCounts.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-xs"
+                    >
+                      <span className="font-semibold text-slate-800">{item.location}</span>
+                      <span className="font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                        {item.count} Trips
+                      </span>
+                    </div>
+                  ))}
                 </div>
+              </div>
 
+              {/* Drop Leaderboard */}
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
+                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                  <ArrowRight className="w-4 h-4 text-sky-600" />
+                  Top Drop Destinations (Hospitals)
+                </h3>
+                <p className="text-xs text-slate-500 mb-3">
+                  Receiving medical centers and transit endpoints
+                </p>
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {analytics.dropCounts.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-xs"
+                    >
+                      <span className="font-semibold text-slate-800">{item.location}</span>
+                      <span className="font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800">
+                        {item.count} Drops
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Financial Ledger Breakdown */}
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
+                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-amber-600" />
+                  Financial Accounting Breakdown
+                </h3>
+                <p className="text-xs text-slate-500 mb-3">
+                  Reason-wise summary matching Sheet 3 Pivot
+                </p>
+                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                  {analytics.reasonBreakdown.map((item, i) => (
+                    <div
+                      key={i}
+                      className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-xs space-y-1"
+                    >
+                      <div className="flex justify-between font-bold text-slate-900">
+                        <span>{item.reason}</span>
+                        <span>
+                          {item.expense > 0 ? (
+                            <span className="text-rose-700">PKR {item.expense.toLocaleString()}</span>
+                          ) : (
+                            <span className="text-emerald-700">+PKR {item.received.toLocaleString()}</span>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* MODAL 1: NEW PATIENT & AMBULANCE TRIP FORM (14 FIELDS EXACT SEQUENCE)     */}
+        {/* ========================================================================= */}
+        <Modal
+          isOpen={activeModal === "PATIENT_TRIP"}
+          onClose={() => {
+            if (!isSubmitting) setActiveModal(null);
+          }}
+          title="New Patient & Ambulance Trip Form"
+          description="Exact 14-field order matching Google Sheet Tab 1. Submitting auto-splits Used Service, Petrol, and Maintenance rows into the financial ledger."
+          size="xl"
+        >
+          {modalSuccess ? (
+            <div className="p-6 text-center space-y-3">
+              <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">Trip Registered Successfully!</h3>
+              <p className="text-xs text-slate-600 max-w-md mx-auto">{modalSuccess}</p>
+            </div>
+          ) : (
+            <form onSubmit={handleTripSubmit} className="space-y-4">
+              {formError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
+              {/* 14 Fields in Two-Column Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
+                {/* 1. S.No */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    Emergency Medical Summary / Chief Complaint <span className="text-rose-500">*</span>
+                    1. S.No (Serial / Receipt)
                   </label>
-                  <textarea
-                    rows={2}
+                  <input
+                    type="text"
                     required
-                    placeholder="e.g. Acute respiratory distress, oxygen support required during transfer."
-                    value={patientForm.medicalConditionSummary}
-                    onChange={(e) => setPatientForm({ ...patientForm, medicalConditionSummary: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
+                    value={tripForm.sNo}
+                    onChange={(e) => handleTripFormChange("sNo", e.target.value)}
+                    placeholder="e.g. 758"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-sky-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveModal(null)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="sm"
-                    isLoading={isSubmitting}
-                    leftIcon={<UserCheck className="w-4 h-4" />}
-                  >
-                    Complete Intake
-                  </Button>
-                </div>
-              </form>
-            )}
-          </Modal>
-        )}
-
-        {/* MODAL 2: FUEL SLIP */}
-        {activeModal === "FUEL" && (
-          <Modal
-            isOpen={activeModal === "FUEL"}
-            onClose={() => setActiveModal(null)}
-            title="Log Ambulance Fuel Slip"
-            description="Enter verified pump voucher details for operational fuel ledger."
-          >
-            {modalSuccess ? (
-              <div className="p-6 rounded-xl bg-emerald-50 text-emerald-900 text-center space-y-2">
-                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-                <div className="font-bold text-base">Fuel Slip Logged Successfully!</div>
-                <p className="text-xs text-emerald-700">{modalSuccess}</p>
-              </div>
-            ) : (
-              <form onSubmit={handleFuelSubmit} className="space-y-4 text-xs">
-                {formError && (
-                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-                    {formError}
-                  </div>
-                )}
+                {/* 2. Date */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Ambulance Unit <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={fuelForm.vehicle}
-                    onChange={(e) => setFuelForm({ ...fuelForm, vehicle: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900 font-medium"
-                  >
-                    <option value="AMB-01">AMB-01 (Toyota Hilux 4x4 Mountain Unit)</option>
-                    <option value="AMB-02">AMB-02 (Toyota Hiace Van Service)</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Quantity (Liters) <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="e.g. 50"
-                      value={fuelForm.liters}
-                      onChange={(e) => {
-                        const lit = Number(e.target.value) || 0;
-                        setFuelForm({ ...fuelForm, liters: e.target.value, cost: String(lit * 285) });
-                      }}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Current Odometer (km) <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="e.g. 51200"
-                      value={fuelForm.odometer}
-                      onChange={(e) => setFuelForm({ ...fuelForm, odometer: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Pump / Station Slip <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="PSO Station Mansehra"
-                      value={fuelForm.station}
-                      onChange={(e) => setFuelForm({ ...fuelForm, station: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Total Cost (PKR) <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="e.g. 14250"
-                      value={fuelForm.cost}
-                      onChange={(e) => setFuelForm({ ...fuelForm, cost: e.target.value })}
-                      className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900 font-bold text-sky-800"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveModal(null)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" size="sm" isLoading={isSubmitting}>
-                    Record Voucher
-                  </Button>
-                </div>
-              </form>
-            )}
-          </Modal>
-        )}
-
-        {/* MODAL 3: WORKSHOP MAINTENANCE */}
-        {activeModal === "MAINTENANCE" && (
-          <Modal
-            isOpen={activeModal === "MAINTENANCE"}
-            onClose={() => setActiveModal(null)}
-            title="Log Workshop Service Slip"
-            description="Record vehicle repair, routine oil check, or medical oxygen refill."
-          >
-            {modalSuccess ? (
-              <div className="p-6 rounded-xl bg-emerald-50 text-emerald-900 text-center space-y-2">
-                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-                <div className="font-bold text-base">Service Slip Recorded!</div>
-                <p className="text-xs text-emerald-700">{modalSuccess}</p>
-              </div>
-            ) : (
-              <form onSubmit={handleMaintenanceSubmit} className="space-y-4 text-xs">
-                {formError && (
-                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs">
-                    {formError}
-                  </div>
-                )}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Ambulance Vehicle <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={maintenanceForm.vehicle}
-                    onChange={(e) => setMaintenanceForm({ ...maintenanceForm, vehicle: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900 font-medium"
-                  >
-                    <option value="AMB-01">AMB-01 (Toyota Hilux 4x4)</option>
-                    <option value="AMB-02">AMB-02 (Toyota Hiace Van)</option>
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Service Type <span className="text-rose-500">*</span>
-                    </label>
-                    <select
-                      value={maintenanceForm.serviceType}
-                      onChange={(e) => setMaintenanceForm({ ...maintenanceForm, serviceType: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    >
-                      <option value="Routine Oil & Filter Change">Routine Oil & Filter Change</option>
-                      <option value="Brake Overhaul & Fluid">Brake Overhaul & Fluid</option>
-                      <option value="Oxygen Cylinder Refill">Medical Oxygen Cylinder Refill</option>
-                      <option value="All-Terrain Tire Replacement">All-Terrain Tire Replacement</option>
-                      <option value="Suspension & Steering Overhaul">Suspension & Steering Overhaul</option>
-                      <option value="Electrical / Siren System">Electrical / Siren System</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Total Cost (PKR) <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      placeholder="e.g. 8500"
-                      value={maintenanceForm.amountPKR}
-                      onChange={(e) => setMaintenanceForm({ ...maintenanceForm, amountPKR: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900 font-bold text-sky-800"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Workshop / Vendor Name <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Oghi Central Workshop"
-                      value={maintenanceForm.vendor}
-                      onChange={(e) => setMaintenanceForm({ ...maintenanceForm, vendor: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">
-                      Invoice Reference <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. INV-8912"
-                      value={maintenanceForm.invoiceNumber}
-                      onChange={(e) => setMaintenanceForm({ ...maintenanceForm, invoiceNumber: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-slate-900"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Service Notes & Summary
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={maintenanceForm.description}
-                    onChange={(e) => setMaintenanceForm({ ...maintenanceForm, description: e.target.value })}
-                    className="w-full px-3.5 py-2 rounded-lg border border-slate-300 text-slate-900"
+                  <label className="block font-bold text-slate-700 mb-1">2. Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={tripForm.date}
+                    onChange={(e) => handleTripFormChange("date", e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
-                <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveModal(null)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" size="sm" isLoading={isSubmitting}>
-                    Record Service Slip
-                  </Button>
+                {/* 3. Day (Auto-calculated) */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    3. Day <span className="text-sky-600 font-normal">(Auto)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={tripForm.day}
+                    onChange={(e) => handleTripFormChange("day", e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg font-medium text-slate-700"
+                  />
                 </div>
-              </form>
-            )}
-          </Modal>
-        )}
+
+                {/* 4. Time */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">4. Time</label>
+                  <input
+                    type="text"
+                    value={tripForm.time}
+                    onChange={(e) => handleTripFormChange("time", e.target.value)}
+                    placeholder="e.g. 10:00 AM"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+
+                {/* 5. Patient Name */}
+                <div className="sm:col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1">
+                    5. Patient Name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={tripForm.patientName}
+                    onChange={(e) => handleTripFormChange("patientName", e.target.value)}
+                    placeholder="e.g. Abdul Hameed, Idrees's wife, Qary Awais..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+
+                {/* 6. Pick up */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">6. Pick Up (Origin)</label>
+                  <input
+                    type="text"
+                    list="pickup-list"
+                    value={tripForm.pickup}
+                    onChange={(e) => handleTripFormChange("pickup", e.target.value)}
+                    placeholder="e.g. Gali, Batangi, Naari, Danna..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                  <datalist id="pickup-list">
+                    <option value="Gali" />
+                    <option value="Klarian" />
+                    <option value="Naari" />
+                    <option value="Danna" />
+                    <option value="Junglan" />
+                    <option value="Barwala" />
+                    <option value="Batangi" />
+                    <option value="Batian" />
+                  </datalist>
+                </div>
+
+                {/* 7. Drop */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">7. Drop (Destination)</label>
+                  <input
+                    type="text"
+                    list="drop-list"
+                    value={tripForm.drop}
+                    onChange={(e) => handleTripFormChange("drop", e.target.value)}
+                    placeholder="e.g. Mansehra, Abbottabad, Narbeer..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                  <datalist id="drop-list">
+                    <option value="Mansehra" />
+                    <option value="Abbottabad" />
+                    <option value="Takia" />
+                    <option value="Narbeer" />
+                    <option value="Chikia" />
+                    <option value="Qalanderabad" />
+                  </datalist>
+                </div>
+
+                {/* 8. KM at Pick up */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">8. KM at Pick up</label>
+                  <input
+                    type="number"
+                    value={tripForm.kmPick}
+                    onChange={(e) => handleTripFormChange("kmPick", e.target.value)}
+                    placeholder="e.g. 33000"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+
+                {/* 9. KM at Drop */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">9. KM at Drop</label>
+                  <input
+                    type="number"
+                    value={tripForm.kmDrop}
+                    onChange={(e) => handleTripFormChange("kmDrop", e.target.value)}
+                    placeholder="e.g. 33045"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+
+                {/* 10. Distance (Auto calculated) */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    10. Distance (KM) <span className="text-emerald-600 font-normal">(Auto)</span>
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={tripForm.distance ? `${tripForm.distance} KM` : ""}
+                    placeholder="Auto: Drop - Pick"
+                    className="w-full px-3 py-2 bg-emerald-50/70 border border-emerald-200 rounded-lg font-bold text-emerald-800"
+                  />
+                </div>
+
+                {/* 11. Petrol (Fuel Expense) */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">11. Petrol (PKR)</label>
+                  <input
+                    type="number"
+                    value={tripForm.petrol}
+                    onChange={(e) => handleTripFormChange("petrol", e.target.value)}
+                    placeholder="e.g. 3400 (leave empty if none)"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+
+                {/* 12. Received (Fare) */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    12. Received / Fare (PKR)
+                  </label>
+                  <input
+                    type="number"
+                    value={tripForm.received}
+                    onChange={(e) => handleTripFormChange("received", e.target.value)}
+                    placeholder="e.g. 1200, 800"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-emerald-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+
+                {/* 13. Reason */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">13. Reason</label>
+                  <input
+                    type="text"
+                    value={tripForm.reason}
+                    onChange={(e) => handleTripFormChange("reason", e.target.value)}
+                    placeholder="e.g. Maintenance, Routine Transfer..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+
+                {/* 14. Other Expanse */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">14. Other Expanse (PKR)</label>
+                  <input
+                    type="number"
+                    value={tripForm.otherExpense}
+                    onChange={(e) => handleTripFormChange("otherExpense", e.target.value)}
+                    placeholder="e.g. 25000 (leave empty if none)"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+              </div>
+
+              {/* Informational Auto-Split Notice */}
+              <div className="p-3 rounded-xl bg-sky-50/70 border border-sky-200 text-xs text-sky-900 flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />
+                <span>
+                  <strong>Automatic 3-Way Split:</strong> Submitting will record the trip in Tab 1, and automatically create matching rows in Tab 2 (Expanse) for Used Service (PKR {tripForm.received || "0"}), Petrol (PKR {tripForm.petrol || "0"}), and Maintenance (PKR {tripForm.otherExpense || "0"}).
+                </span>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setActiveModal(null)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                  disabled={isSubmitting}
+                  leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                >
+                  {isSubmitting ? "Recording Trip..." : "Record Trip in Google Sheet"}
+                </Button>
+              </div>
+            </form>
+          )}
+        </Modal>
+
+        {/* ========================================================================= */}
+        {/* MODAL 2: GENERAL EXPENSE VOUCHER FORM (7 FIELDS EXACT SEQUENCE)           */}
+        {/* ========================================================================= */}
+        <Modal
+          isOpen={activeModal === "EXPENSE"}
+          onClose={() => {
+            if (!isSubmitting) setActiveModal(null);
+          }}
+          title="Record Expense / Documentary Voucher"
+          description="Exact 7-field order matching Google Sheet Tab 2. Automatically sorted chronologically by Date in the official ledger."
+          size="lg"
+        >
+          {modalSuccess ? (
+            <div className="p-6 text-center space-y-3">
+              <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">Voucher Logged Successfully!</h3>
+              <p className="text-xs text-slate-600 max-w-md mx-auto">{modalSuccess}</p>
+            </div>
+          ) : (
+            <form onSubmit={handleExpenseSubmit} className="space-y-4">
+              {formError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
+              {/* 7 Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+                {/* 1. Date */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">1. Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={expenseForm.date}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* 2. Name */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    2. Payee / Name <span className="text-slate-400 font-normal">(Staff/Vendor)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={expenseForm.name}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, name: e.target.value })}
+                    placeholder="e.g. Habeeb Sahib, Excise Dept..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* 3. Received */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    3. Received (PKR) <span className="text-slate-400 font-normal">(If Inflow)</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={expenseForm.received}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, received: e.target.value })}
+                    placeholder="e.g. 2200"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-emerald-700 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* 4. Expense */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    4. Expense (PKR) <span className="text-slate-400 font-normal">(If Outflow)</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={expenseForm.expense}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, expense: e.target.value })}
+                    placeholder="e.g. 20000, 51800"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-rose-700 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* 5. Reason */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">5. Reason / Category</label>
+                  <select
+                    value={expenseForm.reason}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, reason: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold"
+                  >
+                    <option value="Documentation">Documentation (Excise / Paperwork)</option>
+                    <option value="Salary">Salary (Staff / Drivers)</option>
+                    <option value="Ambulance Insurance">Ambulance Insurance</option>
+                    <option value="Maintenance">Maintenance / Repairs</option>
+                    <option value="Petrol">Petrol / Fuel</option>
+                    <option value="Fund">Fund (Inflow / Donation)</option>
+                    <option value="Used Service">Used Service</option>
+                    <option value="Other">Other Operational</option>
+                  </select>
+                </div>
+
+                {/* 6. JCDF Receipt */}
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    6. JCDF Receipt # <span className="text-slate-400 font-normal">(Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={expenseForm.jcdfReceipt}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, jcdfReceipt: e.target.value })}
+                    placeholder="e.g. 595 (leave blank if general)"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                {/* 7. Remark */}
+                <div className="sm:col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1">7. Remark / Description</label>
+                  <input
+                    type="text"
+                    value={expenseForm.remark}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, remark: e.target.value })}
+                    placeholder="e.g. For Jan Salary, Vehicle registration, Routine maintenance..."
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+              </div>
+
+              {/* Informational Notice */}
+              <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-amber-950 flex items-start gap-2">
+                <Calendar className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+                <span>
+                  <strong>Date-Wise Sorting:</strong> Regardless of when this is entered, it will automatically place itself in chronological sequence by its date in the official financial ledger.
+                </span>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setActiveModal(null)}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                  className="bg-amber-700 hover:bg-amber-800"
+                  disabled={isSubmitting}
+                  leftIcon={<Receipt className="w-4 h-4" />}
+                >
+                  {isSubmitting ? "Saving Voucher..." : "Save Expense Voucher"}
+                </Button>
+              </div>
+            </form>
+          )}
+        </Modal>
       </div>
     </DashboardLayout>
   );
