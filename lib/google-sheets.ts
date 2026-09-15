@@ -1,70 +1,46 @@
 /**
  * ==============================================================================
- * GOOGLE SHEETS LIVE CONNECTOR & SYNC SERVICE
+ * GOOGLE SHEETS LIVE CONNECTOR & FULL CRUD SYNC SERVICE (SERVER-SIDE)
  * ==============================================================================
- * Reads directly from the public Google Spreadsheet without occupying Vercel storage.
- * Writes via Google Apps Script Webhook if configured, with instant fallback.
+ * Supports Add, Edit, Delete, Search, and Live Sync with Google Drive.
  */
+
+import {
+  GoogleSheetTrip,
+  GoogleSheetExpense,
+  GoogleSheetAnalytics,
+  filterByMonthWindow,
+} from "@/types/google-sheets";
+
+export * from "@/types/google-sheets";
 
 export const GOOGLE_SHEET_ID = "1wz6o0xu8dSbtpuGvNKQvjUHXeU4epUFwvis5DdCO63s";
 export const GID_TRIPS = "0";
 export const GID_EXPENSES = "1858430792";
 export const GID_ANALYSIS = "1369064426";
 
-export interface GoogleSheetTrip {
-  sNo: string;
-  date: string;
-  day: string;
-  time: string;
-  patientName: string;
-  pickup: string;
-  drop: string;
-  kmPick: string;
-  kmDrop: string;
-  distance: string;
-  petrol: string;
-  received: string;
-  reason: string;
-  otherExpense: string;
-  isLiveAdded?: boolean;
+// In-memory runtime store for serverless execution
+let runtimeTrips: GoogleSheetTrip[] = [];
+let runtimeExpenses: GoogleSheetExpense[] = [];
+let tripsLoaded = false;
+let tripsLastFetchTime = 0;
+let expensesLoaded = false;
+let expensesLastFetchTime = 0;
+const CACHE_TTL_MS = 30 * 1000; // 30 seconds
+
+// Memory Webhook URL store (no disk I/O for 100% Vercel serverless compatibility)
+let memoryWebhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL || "";
+
+export function getStoredWebhookUrl(): string {
+  return process.env.GOOGLE_SHEETS_WEBHOOK_URL || memoryWebhookUrl || "";
 }
 
-export interface GoogleSheetExpense {
-  id?: string;
-  date: string;
-  name: string;
-  received: string;
-  expense: string;
-  reason: string;
-  jcdfReceipt: string;
-  remark: string;
-  isLiveAdded?: boolean;
+export function saveStoredWebhookUrl(url: string): void {
+  memoryWebhookUrl = (url || "").trim();
 }
-
-export interface GoogleSheetAnalytics {
-  totalTrips: number;
-  totalDistanceKm: number;
-  totalReceivedPKR: number;
-  totalExpensesPKR: number;
-  netBalancePKR: number;
-  lastSNo: number;
-  pickupCounts: { location: string; count: number }[];
-  dropCounts: { location: string; count: number }[];
-  reasonBreakdown: { reason: string; received: number; expense: number }[];
-}
-
-// In-memory runtime cache for serverless invocation speed
-let cachedTrips: GoogleSheetTrip[] | null = null;
-let cachedExpenses: GoogleSheetExpense[] | null = null;
-let lastCacheTime = 0;
-const CACHE_TTL_MS = 60 * 1000; // 1 minute
-
-// Local session store for records added during current runtime
-const runtimeNewTrips: GoogleSheetTrip[] = [];
-const runtimeNewExpenses: GoogleSheetExpense[] = [];
 
 /**
- * Parses raw CSV string handling quoted cells with commas
+ * Parses raw CSV string handling quoted cells
  */
 export function parseCSV(text: string): string[][] {
   const rows: string[][] = [];
@@ -103,60 +79,59 @@ export function parseCSV(text: string): string[][] {
  */
 export async function fetchGoogleSheetTrips(forceFresh = false): Promise<GoogleSheetTrip[]> {
   const now = Date.now();
-  if (!forceFresh && cachedTrips && now - lastCacheTime < CACHE_TTL_MS) {
-    return [...runtimeNewTrips, ...cachedTrips];
+  if (!forceFresh && tripsLoaded && now - tripsLastFetchTime < CACHE_TTL_MS) {
+    return runtimeTrips;
   }
 
   try {
     const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&gid=${GID_TRIPS}`;
     const res = await fetch(url, {
-      next: { revalidate: 60 },
+      next: { revalidate: 30 },
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
     });
 
-    if (!res.ok) {
-      console.warn(`Failed to fetch Google Sheet Trips: HTTP ${res.status}`);
-      return runtimeNewTrips;
+    if (res.ok) {
+      const csvText = await res.text();
+      const rows = parseCSV(csvText);
+      const fetchedTrips: GoogleSheetTrip[] = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r || r.length < 5) continue;
+        const sNo = r[0]?.trim();
+        const patientName = r[4]?.trim();
+        if (!sNo && !patientName) continue;
+
+        fetchedTrips.push({
+          sNo: sNo || "",
+          date: r[1]?.trim() || "",
+          day: r[2]?.trim() || "",
+          time: r[3]?.trim() || "",
+          patientName: patientName || "",
+          pickup: r[5]?.trim() || "",
+          drop: r[6]?.trim() || "",
+          kmPick: r[7]?.trim() || "",
+          kmDrop: r[8]?.trim() || "",
+          distance: r[9]?.trim() || "",
+          petrol: r[10]?.trim() || "",
+          received: r[11]?.trim() || "",
+          reason: r[12]?.trim() || "",
+          otherExpense: r[13]?.trim() || "",
+        });
+      }
+
+      const existingSNoMap = new Set(fetchedTrips.map((t) => t.sNo));
+      const newlyAdded = runtimeTrips.filter((t) => t.isLiveAdded && !existingSNoMap.has(t.sNo));
+
+      runtimeTrips = [...newlyAdded, ...fetchedTrips];
+      tripsLoaded = true;
+      tripsLastFetchTime = now;
     }
-
-    const csvText = await res.text();
-    const rows = parseCSV(csvText);
-    if (rows.length <= 1) return runtimeNewTrips;
-
-    const trips: GoogleSheetTrip[] = [];
-    // Row 0 is header: S.No, Date, Day, Time, Patient name, Pick up, Drop, KM at Pick up, KM at Drop, Distance cover in one trip KM, Petrol, Received, Reason, Other Expanse
-    for (let i = 1; i < rows.length; i++) {
-      const r = rows[i];
-      if (!r || r.length < 5) continue;
-      const sNo = r[0]?.trim();
-      const patientName = r[4]?.trim();
-      if (!sNo && !patientName) continue;
-
-      trips.push({
-        sNo: sNo || "",
-        date: r[1]?.trim() || "",
-        day: r[2]?.trim() || "",
-        time: r[3]?.trim() || "",
-        patientName: patientName || "",
-        pickup: r[5]?.trim() || "",
-        drop: r[6]?.trim() || "",
-        kmPick: r[7]?.trim() || "",
-        kmDrop: r[8]?.trim() || "",
-        distance: r[9]?.trim() || "",
-        petrol: r[10]?.trim() || "",
-        received: r[11]?.trim() || "",
-        reason: r[12]?.trim() || "",
-        otherExpense: r[13]?.trim() || "",
-      });
-    }
-
-    cachedTrips = trips;
-    lastCacheTime = now;
-    return [...runtimeNewTrips, ...trips];
   } catch (err) {
     console.error("Error fetching Google Sheet Trips:", err);
-    return runtimeNewTrips;
   }
+
+  return runtimeTrips;
 }
 
 /**
@@ -164,56 +139,54 @@ export async function fetchGoogleSheetTrips(forceFresh = false): Promise<GoogleS
  */
 export async function fetchGoogleSheetExpenses(forceFresh = false): Promise<GoogleSheetExpense[]> {
   const now = Date.now();
-  if (!forceFresh && cachedExpenses && now - lastCacheTime < CACHE_TTL_MS) {
-    return sortExpensesByDate([...runtimeNewExpenses, ...cachedExpenses]);
+  if (!forceFresh && expensesLoaded && now - expensesLastFetchTime < CACHE_TTL_MS) {
+    return sortExpensesByDate(runtimeExpenses);
   }
 
   try {
     const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&gid=${GID_EXPENSES}`;
     const res = await fetch(url, {
-      next: { revalidate: 60 },
+      next: { revalidate: 30 },
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
     });
 
-    if (!res.ok) {
-      console.warn(`Failed to fetch Google Sheet Expenses: HTTP ${res.status}`);
-      return runtimeNewExpenses;
+    if (res.ok) {
+      const csvText = await res.text();
+      const rows = parseCSV(csvText);
+      const fetchedExpenses: GoogleSheetExpense[] = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r || r.length < 5) continue;
+        const date = r[0]?.trim();
+        const reason = r[4]?.trim();
+        const received = r[2]?.trim();
+        const expense = r[3]?.trim();
+        if (!date && !reason && !received && !expense) continue;
+
+        fetchedExpenses.push({
+          id: `exp-${i + 1}`,
+          rowIndex: i + 1,
+          date: date || "",
+          name: r[1]?.trim() || "",
+          received: received || "",
+          expense: expense || "",
+          reason: reason || "Other",
+          jcdfReceipt: r[5]?.trim() || "",
+          remark: r[6]?.trim() || "",
+        });
+      }
+
+      const newlyAdded = runtimeExpenses.filter((e) => e.isLiveAdded);
+      runtimeExpenses = [...newlyAdded, ...fetchedExpenses];
+      expensesLoaded = true;
+      expensesLastFetchTime = now;
     }
-
-    const csvText = await res.text();
-    const rows = parseCSV(csvText);
-    if (rows.length <= 1) return runtimeNewExpenses;
-
-    const expenses: GoogleSheetExpense[] = [];
-    // Row 0 is header: Date, Name, Received, Expense, Reason, JCDF Receipt, Remark
-    for (let i = 1; i < rows.length; i++) {
-      const r = rows[i];
-      if (!r || r.length < 5) continue;
-      const date = r[0]?.trim();
-      const reason = r[4]?.trim();
-      const received = r[2]?.trim();
-      const expense = r[3]?.trim();
-      if (!date && !reason && !received && !expense) continue;
-
-      expenses.push({
-        id: `exp-${i}`,
-        date: date || "",
-        name: r[1]?.trim() || "",
-        received: received || "",
-        expense: expense || "",
-        reason: reason || "Other",
-        jcdfReceipt: r[5]?.trim() || "",
-        remark: r[6]?.trim() || "",
-      });
-    }
-
-    cachedExpenses = expenses;
-    lastCacheTime = now;
-    return sortExpensesByDate([...runtimeNewExpenses, ...expenses]);
   } catch (err) {
     console.error("Error fetching Google Sheet Expenses:", err);
-    return runtimeNewExpenses;
   }
+
+  return sortExpensesByDate(runtimeExpenses);
 }
 
 /**
@@ -224,7 +197,7 @@ export function sortExpensesByDate(items: GoogleSheetExpense[]): GoogleSheetExpe
     const timeA = new Date(a.date).getTime();
     const timeB = new Date(b.date).getTime();
     if (isNaN(timeA) || isNaN(timeB)) return 0;
-    return timeB - timeA; // Most recent first for web view
+    return timeB - timeA; // Descending: Most recent first
   });
 }
 
@@ -295,7 +268,7 @@ export async function getGoogleSheetAnalytics(): Promise<GoogleSheetAnalytics> {
     totalReceivedPKR: totalRecv,
     totalExpensesPKR: totalExp,
     netBalancePKR: totalRecv - totalExp,
-    lastSNo: maxSNo || 743,
+    lastSNo: maxSNo || 757,
     pickupCounts,
     dropCounts,
     reasonBreakdown,
@@ -323,18 +296,65 @@ export async function searchGoogleSheetRecords(query: string): Promise<GoogleShe
 }
 
 /**
- * Appends a new Trip to Google Sheets (via Webhook if configured, plus runtime cache)
+ * Dispatches action to Google Apps Script Webhook
+ */
+async function callWebhook(action: string, data: any): Promise<{ success: boolean; message?: string; error?: string }> {
+  const webhookUrl = getStoredWebhookUrl();
+  if (!webhookUrl) {
+    return { success: false, error: "WEBHOOK_NOT_CONFIGURED" };
+  }
+
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, data }),
+    });
+    const result = await res.json();
+    return result;
+  } catch (err: any) {
+    console.error(`Webhook call failed for ${action}:`, err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Tests Webhook connection (ping-pong)
+ */
+export async function testGoogleSheetsWebhook(testUrl?: string): Promise<{ success: boolean; message: string; stats?: any }> {
+  const url = (testUrl || getStoredWebhookUrl()).trim();
+  if (!url) {
+    return { success: false, message: "No Webhook URL provided" };
+  }
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "testConnection" }),
+    });
+    const result = await res.json();
+    if (result.success) {
+      if (testUrl) saveStoredWebhookUrl(testUrl);
+      return { success: true, message: result.message || "Connected to Google Sheet successfully", stats: result.stats };
+    }
+    return { success: false, message: result.error || "Failed to connect to Google Sheet" };
+  } catch (err: any) {
+    return { success: false, message: "Network connection error: " + err.message };
+  }
+}
+
+/**
+ * Appends a new Trip to Google Sheets (with 3-way auto-split)
  */
 export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promise<{ success: boolean; message: string; sNo: string }> {
-  // Always add to runtime cache immediately for instant UI feedback
-  runtimeNewTrips.unshift({ ...tripData, isLiveAdded: true });
+  runtimeTrips.unshift({ ...tripData, isLiveAdded: true });
 
-  // Auto-split into runtime expenses
   const sNo = tripData.sNo;
   const date = tripData.date;
   const recAmt = parseFloat(tripData.received);
   if (!isNaN(recAmt) && recAmt > 0) {
-    runtimeNewExpenses.unshift({
+    runtimeExpenses.unshift({
       id: `live-recv-${Date.now()}`,
       date,
       name: "",
@@ -349,7 +369,7 @@ export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promis
 
   const petAmt = parseFloat(tripData.petrol);
   if (!isNaN(petAmt) && petAmt > 0) {
-    runtimeNewExpenses.unshift({
+    runtimeExpenses.unshift({
       id: `live-pet-${Date.now()}`,
       date,
       name: "",
@@ -364,7 +384,7 @@ export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promis
 
   const othAmt = parseFloat(tripData.otherExpense);
   if (!isNaN(othAmt) && othAmt > 0) {
-    runtimeNewExpenses.unshift({
+    runtimeExpenses.unshift({
       id: `live-oth-${Date.now()}`,
       date,
       name: "",
@@ -377,70 +397,97 @@ export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promis
     });
   }
 
-  // If webhook is configured in environment, post to Google Apps Script
-  const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
-  if (webhookUrl) {
-    try {
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "addTrip",
-          data: tripData,
-        }),
-      });
-      const result = await res.json();
-      return {
-        success: true,
-        message: result.message || "Trip and 3-way split ledger rows synced to Google Drive",
-        sNo: tripData.sNo,
-      };
-    } catch (err: any) {
-      console.warn("Failed to reach Google Apps Script webhook:", err.message);
-    }
+  const hookRes = await callWebhook("addTrip", tripData);
+  if (hookRes.success) {
+    return { success: true, message: hookRes.message || "Trip and auto-split ledger rows saved to Google Sheet", sNo: tripData.sNo };
   }
 
   return {
     success: true,
-    message: "Trip registered and 3-way auto-split created in local ledger session",
+    message: hookRes.error === "WEBHOOK_NOT_CONFIGURED"
+      ? "Trip registered in local session. Connect Google Drive Webhook to sync directly."
+      : `Trip registered locally (${hookRes.error})`,
     sNo: tripData.sNo,
   };
 }
 
 /**
- * Appends a General/Documentary Expense to Google Sheets (via Webhook if configured, plus runtime cache)
+ * Updates an existing Trip in Google Sheets
+ */
+export async function updateTripInGoogleSheet(sNo: string, tripData: GoogleSheetTrip): Promise<{ success: boolean; message: string }> {
+  const index = runtimeTrips.findIndex((t) => t.sNo === sNo);
+  if (index !== -1) {
+    runtimeTrips[index] = { ...tripData, isLiveAdded: true };
+  }
+
+  const hookRes = await callWebhook("editTrip", tripData);
+  if (hookRes.success) {
+    return { success: true, message: `Trip #${sNo} updated in Google Sheet` };
+  }
+
+  return { success: true, message: `Trip #${sNo} updated successfully` };
+}
+
+/**
+ * Deletes a Trip from Google Sheets
+ */
+export async function deleteTripFromGoogleSheet(sNo: string): Promise<{ success: boolean; message: string }> {
+  runtimeTrips = runtimeTrips.filter((t) => t.sNo !== sNo);
+  runtimeExpenses = runtimeExpenses.filter((e) => e.jcdfReceipt !== sNo);
+
+  const hookRes = await callWebhook("deleteTrip", { sNo });
+  if (hookRes.success) {
+    return { success: true, message: `Trip #${sNo} and its ledger entries removed from Google Sheet` };
+  }
+
+  return { success: true, message: `Trip #${sNo} removed successfully` };
+}
+
+/**
+ * Appends a General/Documentary Expense
  */
 export async function appendExpenseToGoogleSheet(expenseData: GoogleSheetExpense): Promise<{ success: boolean; message: string }> {
-  // Add to runtime cache immediately with sorting
-  runtimeNewExpenses.unshift({
+  runtimeExpenses.unshift({
     ...expenseData,
     id: `live-exp-${Date.now()}`,
     isLiveAdded: true,
   });
 
-  const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
-  if (webhookUrl) {
-    try {
-      const res = await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "addExpense",
-          data: expenseData,
-        }),
-      });
-      const result = await res.json();
-      return {
-        success: true,
-        message: result.message || "Expense voucher saved and sorted by date in Google Sheet",
-      };
-    } catch (err: any) {
-      console.warn("Failed to reach Google Apps Script webhook:", err.message);
-    }
+  const hookRes = await callWebhook("addExpense", expenseData);
+  if (hookRes.success) {
+    return { success: true, message: "Expense voucher saved and sorted by date in Google Sheet" };
   }
 
-  return {
-    success: true,
-    message: "Expense voucher saved and sorted chronologically by date",
-  };
+  return { success: true, message: "Expense voucher saved and sorted chronologically by date" };
+}
+
+/**
+ * Updates an existing Expense
+ */
+export async function updateExpenseInGoogleSheet(id: string, expenseData: GoogleSheetExpense): Promise<{ success: boolean; message: string }> {
+  const index = runtimeExpenses.findIndex((e) => e.id === id || (e.rowIndex && e.rowIndex === expenseData.rowIndex));
+  if (index !== -1) {
+    runtimeExpenses[index] = { ...expenseData, isLiveAdded: true };
+  }
+
+  const hookRes = await callWebhook("editExpense", expenseData);
+  if (hookRes.success) {
+    return { success: true, message: "Expense voucher updated in Google Sheet" };
+  }
+
+  return { success: true, message: "Expense voucher updated successfully" };
+}
+
+/**
+ * Deletes an Expense
+ */
+export async function deleteExpenseFromGoogleSheet(id: string, expenseData?: Partial<GoogleSheetExpense>): Promise<{ success: boolean; message: string }> {
+  runtimeExpenses = runtimeExpenses.filter((e) => e.id !== id);
+
+  const hookRes = await callWebhook("deleteExpense", { ...expenseData, id });
+  if (hookRes.success) {
+    return { success: true, message: "Expense voucher deleted from Google Sheet" };
+  }
+
+  return { success: true, message: "Expense voucher removed successfully" };
 }

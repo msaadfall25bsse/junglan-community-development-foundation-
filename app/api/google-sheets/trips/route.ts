@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   fetchGoogleSheetTrips,
   appendTripToGoogleSheet,
+  updateTripInGoogleSheet,
+  deleteTripFromGoogleSheet,
   searchGoogleSheetRecords,
   GoogleSheetTrip,
 } from "@/lib/google-sheets";
@@ -37,7 +39,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Auto calculate distance if start and end KM provided
     let distance = body.distance || "";
     if (body.kmPick && body.kmDrop) {
       const drop = parseFloat(body.kmDrop);
@@ -47,7 +48,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Auto determine day of week from date if not given
     let day = body.day || "";
     if (!day && body.date) {
       const parsedDate = new Date(body.date);
@@ -82,6 +82,91 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message || "Failed to record trip in Google Sheet" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const sNo = body.sNo ? String(body.sNo).trim() : "";
+
+    if (!sNo) {
+      return NextResponse.json(
+        { success: false, error: "S.No is required to update a trip" },
+        { status: 400 }
+      );
+    }
+
+    let distance = body.distance || "";
+    if (body.kmPick && body.kmDrop) {
+      const drop = parseFloat(body.kmDrop);
+      const pick = parseFloat(body.kmPick);
+      if (!isNaN(drop) && !isNaN(pick) && drop >= pick) {
+        distance = (drop - pick).toString();
+      }
+    }
+
+    let day = body.day || "";
+    if (!day && body.date) {
+      const parsedDate = new Date(body.date);
+      if (!isNaN(parsedDate.getTime())) {
+        day = parsedDate.toLocaleDateString("en-US", { weekday: "long" });
+      }
+    }
+
+    const tripData: GoogleSheetTrip = {
+      sNo,
+      date: body.date ? String(body.date).trim() : "",
+      day: day || "Monday",
+      time: body.time ? String(body.time).trim() : "",
+      patientName: body.patientName ? String(body.patientName).trim() : "",
+      pickup: body.pickup ? String(body.pickup).trim() : "",
+      drop: body.drop ? String(body.drop).trim() : "",
+      kmPick: body.kmPick ? String(body.kmPick).trim() : "",
+      kmDrop: body.kmDrop ? String(body.kmDrop).trim() : "",
+      distance: String(distance),
+      petrol: body.petrol ? String(body.petrol).trim() : "",
+      received: body.received ? String(body.received).trim() : "",
+      reason: body.reason ? String(body.reason).trim() : "",
+      otherExpense: body.otherExpense ? String(body.otherExpense).trim() : "",
+    };
+
+    const res = await updateTripInGoogleSheet(sNo, tripData);
+    return NextResponse.json({
+      success: true,
+      message: res.message,
+      data: tripData,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to update trip in Google Sheet" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const sNo = searchParams.get("sNo");
+
+    if (!sNo) {
+      return NextResponse.json(
+        { success: false, error: "S.No is required to delete a trip" },
+        { status: 400 }
+      );
+    }
+
+    const res = await deleteTripFromGoogleSheet(sNo);
+    return NextResponse.json({
+      success: true,
+      message: res.message,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to delete trip from Google Sheet" },
       { status: 500 }
     );
   }
