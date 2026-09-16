@@ -70,6 +70,8 @@ export interface GoogleIntegrationRecord {
   status: IntegrationStatus;
   accountEmail: string | null;
   authType: "SERVICE_ACCOUNT" | "OAUTH2";
+  encryptedAccessToken?: string | null;
+  encryptedRefreshToken?: string | null;
   tokenExpiresAt: string | null;
   driveRootFolderId: string | null;
   driveRootFolderName: string;
