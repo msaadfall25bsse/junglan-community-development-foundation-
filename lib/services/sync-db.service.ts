@@ -150,13 +150,29 @@ export async function updateGoogleIntegration(
 // 2. SYNC JOB MANAGEMENT & CONCURRENCY LOCK (Sections 41, 42, 43)
 // ------------------------------------------------------------------------------
 
+const STALE_LOCK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+
 export async function getActiveSyncJob(): Promise<SyncJobRecord | null> {
+  const now = Date.now();
+
   return tryPrismaOrFallback(
     async () => {
       const active = await prisma.syncJob.findFirst({
         where: { isLocked: true, status: "RUNNING" },
       });
       if (!active) return null;
+
+      // Check stale lock
+      const started = active.startedAt ? active.startedAt.getTime() : 0;
+      if (started && now - started > STALE_LOCK_TIMEOUT_MS) {
+        console.warn(`[SyncLock] Auto-releasing stale sync lock ${active.jobIdentifier} (exceeded 5 mins)`);
+        await prisma.syncJob.update({
+          where: { id: active.id },
+          data: { isLocked: false, status: "FAILED", errorDetails: "Stale lock timeout (exceeded 5 minutes)" },
+        });
+        return null;
+      }
+
       return {
         ...active,
         direction: active.direction as SyncDirection,
@@ -170,7 +186,23 @@ export async function getActiveSyncJob(): Promise<SyncJobRecord | null> {
     async () => {
       const store = readStore();
       const active = store.syncJobs?.find((j: any) => j.isLocked && j.status === "RUNNING");
-      return active || null;
+      if (!active) return null;
+
+      const started = active.startedAt ? new Date(active.startedAt).getTime() : 0;
+      if (started && now - started > STALE_LOCK_TIMEOUT_MS) {
+        console.warn(`[SyncLock] Auto-releasing stale sync lock ${active.jobIdentifier} (exceeded 5 mins)`);
+        updateStore((s) => {
+          const j = s.syncJobs?.find((item: any) => item.id === active.id);
+          if (j) {
+            j.isLocked = false;
+            j.status = "FAILED";
+            j.errorDetails = "Stale lock timeout (exceeded 5 minutes)";
+          }
+        });
+        return null;
+      }
+
+      return active;
     }
   );
 }
