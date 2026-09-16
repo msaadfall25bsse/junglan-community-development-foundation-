@@ -6,3 +6,4 @@ export * from "./auth";
 export * from "./ambulance";
 export * from "./finance";
 export * from "./cms";
+export * from "./sync";

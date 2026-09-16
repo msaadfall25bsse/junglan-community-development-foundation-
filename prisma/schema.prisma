@@ -225,8 +225,10 @@ enum DataSource {
 enum SyncStatus {
   SYNCED
   PENDING
+  PROCESSING
   CONFLICT
   FAILED
+  REVIEW_REQUIRED
 }
 
 model Patient {
@@ -256,6 +258,7 @@ model Patient {
   source                  DataSource @default(WEBSITE)
   syncStatus              SyncStatus @default(SYNCED)
   lastSyncedAt            DateTime?
+  syncVersion             Int        @default(1)
 
   createdAt               DateTime   @default(now())
   updatedAt               DateTime   @updatedAt
@@ -293,6 +296,14 @@ model AmbulanceVehicle {
   currentOdometerKm   Decimal          @default(0) @db.Decimal(10, 1)
   assignedDriverName  String?
   isActive            Boolean          @default(true)
+
+  // Sync Metadata
+  externalId          String?
+  source              DataSource       @default(WEBSITE)
+  syncStatus          SyncStatus       @default(SYNCED)
+  lastSyncedAt        DateTime?
+  syncVersion         Int              @default(1)
+
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
@@ -353,6 +364,13 @@ model Trip {
   isArchived      Boolean          @default(false)
   deletedAt       DateTime?
 
+  // Sync Metadata
+  externalId      String?
+  source          DataSource       @default(WEBSITE)
+  syncStatus      SyncStatus       @default(SYNCED)
+  lastSyncedAt    DateTime?
+  syncVersion     Int              @default(1)
+
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -409,6 +427,13 @@ model Expense {
   isArchived         Boolean         @default(false)
   deletedAt          DateTime?
 
+  // Sync Metadata
+  externalId         String?
+  source             DataSource      @default(WEBSITE)
+  syncStatus         SyncStatus      @default(SYNCED)
+  lastSyncedAt       DateTime?
+  syncVersion        Int             @default(1)
+
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 
@@ -449,6 +474,13 @@ model Funding {
   // Lifecycle
   isArchived         Boolean       @default(false)
   deletedAt          DateTime?
+
+  // Sync Metadata
+  externalId         String?
+  dataSource         DataSource    @default(WEBSITE)
+  syncStatus         SyncStatus    @default(SYNCED)
+  lastSyncedAt       DateTime?
+  syncVersion        Int           @default(1)
 
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
@@ -492,6 +524,13 @@ model FuelLog {
   isArchived        Boolean          @default(false)
   deletedAt         DateTime?
 
+  // Sync Metadata
+  externalId        String?
+  source            DataSource       @default(WEBSITE)
+  syncStatus        SyncStatus       @default(SYNCED)
+  lastSyncedAt      DateTime?
+  syncVersion       Int              @default(1)
+
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 
@@ -534,6 +573,13 @@ model MaintenanceLog {
 
   isArchived         Boolean          @default(false)
   deletedAt          DateTime?
+
+  // Sync Metadata
+  externalId         String?
+  source             DataSource       @default(WEBSITE)
+  syncStatus         SyncStatus       @default(SYNCED)
+  lastSyncedAt       DateTime?
+  syncVersion        Int              @default(1)
 
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
@@ -668,13 +714,17 @@ enum AuditActionType {
   EXPORT
   GENERATE_REPORT
   SYNC
+  SYNC_CONFLICT
+  SYNC_RESOLVED
+  GOOGLE_CONNECT
+  GOOGLE_DISCONNECT
 }
 
 model AuditLog {
   id                String          @id @default(cuid())
   userId            String?
   action            AuditActionType
-  module            String          // "PATIENTS", "TRIPS", "EXPENSES", "FUNDING", "FLEET", "CMS", "SYSTEM"
+  module            String          // "PATIENTS", "TRIPS", "EXPENSES", "FUNDING", "FLEET", "CMS", "SYSTEM", "GOOGLE_SYNC"
   recordId          String
   timestamp         DateTime        @default(now())
   metadataJson      String?         @db.Text
@@ -688,27 +738,192 @@ model AuditLog {
 }
 
 // ------------------------------------------------------------------------------
-// 10. GOOGLE INTEGRATION FOUNDATION (Section 32)
+// 10. GOOGLE INTEGRATION & TWO-WAY SYNCHRONIZATION ARCHITECTURE (Part 7)
 // ------------------------------------------------------------------------------
 enum IntegrationStatus {
   ACTIVE
   PAUSED
   ERROR
   CONFIGURING
+  NEEDS_REAUTH
+}
+
+enum SyncDirection {
+  OUTBOUND // Website / DB -> Google Sheets / Drive
+  INBOUND  // Google Sheets / Drive -> Website / DB
+  BIDIRECTIONAL
+}
+
+enum SyncJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  PARTIAL
+  CANCELLED
+}
+
+enum SyncLogStatus {
+  SYNCED
+  SKIPPED
+  CONFLICT
+  FAILED
+  DUPLICATE_DETECTED
+  REVIEW_REQUIRED
+}
+
+enum ConflictStatus {
+  OPEN
+  RESOLVED_KEEP_DB
+  RESOLVED_KEEP_SHEET
+  RESOLVED_MERGED
+  DISMISSED
+}
+
+enum SyncRecordType {
+  PATIENT
+  TRIP
+  EXPENSE
+  FUNDING
+  FUEL
+  MAINTENANCE
+  AMBULANCE
+  DOCUMENT
 }
 
 model GoogleIntegration {
-  id                   String            @id @default(cuid())
-  provider             String            @default("GOOGLE_SHEETS") // GOOGLE_SHEETS, GOOGLE_DRIVE
-  integrationType      String            // "PATIENT_SYNC", "TRIP_SYNC", "DOCUMENT_BACKUP"
-  status               IntegrationStatus @default(CONFIGURING)
-  externalReference    String?           // Google Spreadsheet ID / Drive Folder ID
-  lastSyncAt           DateTime?
-  lastSuccessfulSyncAt DateTime?
-  syncStatus           String?
-  errorMetadata        String?           @db.Text
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
+  id                    String            @id @default(cuid())
+  provider              String            @default("GOOGLE_SHEETS") // GOOGLE_SHEETS, GOOGLE_DRIVE
+  integrationType       String            @default("TWO_WAY_SYNC")  // "TWO_WAY_SYNC", "DOCUMENT_BACKUP"
+  status                IntegrationStatus @default(CONFIGURING)
+  accountEmail          String?
+  authType              String            @default("SERVICE_ACCOUNT") // "SERVICE_ACCOUNT" | "OAUTH2"
+  encryptedAccessToken  String?           @db.Text
+  encryptedRefreshToken String?           @db.Text
+  tokenExpiresAt        DateTime?
+  driveRootFolderId     String?
+  driveRootFolderName   String            @default("Junglan Community Development Foundation")
+  spreadsheetId         String?
+  syncHealth            String            @default("HEALTHY") // "HEALTHY" | "DEGRADED" | "ERROR"
+  failedSyncCount       Int               @default(0)
+  conflictCount         Int               @default(0)
+  lastSyncAt            DateTime?
+  lastSuccessfulSyncAt  DateTime?
+  syncStatus            String?
+  errorMetadata         String?           @db.Text
+  settingsJson          String?           @db.Text
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
 
   @@map("google_integrations")
 }
+
+model SyncJob {
+  id                 String         @id @default(cuid())
+  jobIdentifier      String         @unique // e.g. "SYNC-2026-000001"
+  direction          SyncDirection  @default(BIDIRECTIONAL)
+  scope              String         @default("ALL") // "ALL", "PATIENTS", "TRIPS", "EXPENSES", etc.
+  status             SyncJobStatus  @default(PENDING)
+  yearPeriodId       String?
+  isLocked           Boolean        @default(false)
+  recordsProcessed   Int            @default(0)
+  recordsCreated     Int            @default(0)
+  recordsUpdated     Int            @default(0)
+  duplicatesDetected Int            @default(0)
+  conflictsDetected  Int            @default(0)
+  failuresCount      Int            @default(0)
+  skippedCount       Int            @default(0)
+  startedAt          DateTime?
+  completedAt        DateTime?
+  triggeredByUserId  String?
+  errorDetails       String?        @db.Text
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  logs               SyncLog[]
+  conflicts          SyncConflict[]
+
+  @@index([status])
+  @@index([direction])
+  @@index([createdAt])
+  @@map("sync_jobs")
+}
+
+model SyncLog {
+  id                String         @id @default(cuid())
+  syncJobId         String?
+  recordType        SyncRecordType
+  recordId          String
+  stableIdentifier  String?        // e.g. "PAT-000011", "TRP-2026-000001", "EXP-2026-000015"
+  externalReference String?        // Google Sheet row index, tab, or Drive file ID
+  direction         SyncDirection
+  status            SyncLogStatus
+  errorCode         String?
+  errorMessage      String?        @db.Text
+  retryCount        Int            @default(0)
+  maxRetries        Int            @default(3)
+  nextRetryAt       DateTime?
+  payloadSnapshot   String?        @db.Text // Sanitized JSON (NO credentials/passwords)
+  createdAt         DateTime       @default(now())
+
+  syncJob           SyncJob?       @relation(fields: [syncJobId], references: [id], onDelete: SetNull)
+
+  @@index([syncJobId])
+  @@index([recordType, recordId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("sync_logs")
+}
+
+model SyncConflict {
+  id                 String         @id @default(cuid())
+  conflictIdentifier String         @unique // e.g. "CNF-2026-000001"
+  syncJobId          String?
+  recordType         SyncRecordType
+  recordId           String
+  stableIdentifier   String         // e.g. "EXP-2026-000015"
+  sheetRowReference  String?
+  databaseValueJson  String         @db.Text
+  sheetValueJson     String         @db.Text
+  lastDatabaseUpdate DateTime
+  lastSheetUpdate    DateTime?
+  conflictReason     String         @db.Text
+  status             ConflictStatus @default(OPEN)
+  resolvedByUserId   String?
+  resolvedAt         DateTime?
+  resolutionNotes    String?        @db.Text
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  syncJob            SyncJob?       @relation(fields: [syncJobId], references: [id], onDelete: SetNull)
+
+  @@index([syncJobId])
+  @@index([recordType, recordId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("sync_conflicts")
+}
+
+model ExternalRecordMapping {
+  id               String         @id @default(cuid())
+  recordType       SyncRecordType
+  internalRecordId String
+  stableIdentifier String         // e.g. "PAT-000011"
+  yearPeriodId     String         // e.g. "2026"
+  spreadsheetId    String
+  sheetTabName     String         // e.g. "Ambulance Service Patient Reco"
+  sheetTabGid      String         // e.g. "0"
+  lastRowIndex     Int?           // Cached row position (never used as primary identity)
+  lastSyncedHash   String?        // SHA-256 hash of synced fields
+  version          Int            @default(1)
+  lastSyncedAt     DateTime       @default(now())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@unique([recordType, internalRecordId])
+  @@unique([spreadsheetId, sheetTabName, stableIdentifier])
+  @@index([yearPeriodId])
+  @@index([stableIdentifier])
+  @@map("external_record_mappings")
+}
+

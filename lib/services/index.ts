@@ -14,3 +14,4 @@ export * from "./news.service";
 export * from "./report.service";
 export * from "./settings.service";
 export * from "./db-helper";
+export * from "./sync-db.service";

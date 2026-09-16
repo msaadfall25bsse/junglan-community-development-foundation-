@@ -203,9 +203,19 @@ export interface FoundationStoreData {
     createdAt: string;
     updatedAt: string;
   }>;
+  googleIntegrations?: Array<any>;
+  syncJobs?: Array<any>;
+  syncLogs?: Array<any>;
+  syncConflicts?: Array<any>;
+  externalRecordMappings?: Array<any>;
 }
 
 const DEFAULT_STORE: FoundationStoreData = {
+  googleIntegrations: [],
+  syncJobs: [],
+  syncLogs: [],
+  syncConflicts: [],
+  externalRecordMappings: [],
   yearPeriods: [
     {
       id: "2026",
