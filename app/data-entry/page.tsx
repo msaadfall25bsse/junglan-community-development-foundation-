@@ -38,6 +38,7 @@ import {
   GoogleSheetExpense,
   GoogleSheetAnalytics,
   filterByMonthWindow,
+  filterExpensesByDateRange,
 } from "@/types/google-sheets";
 
 export default function DataEntryDeskPage() {
@@ -53,6 +54,11 @@ export default function DataEntryDeskPage() {
   // 1-Month / Date Window Filter (Default: CURRENT_MONTH)
   const [monthFilter, setMonthFilter] = useState<"CURRENT_MONTH" | "LAST_MONTH" | "ALL">("CURRENT_MONTH");
 
+  // Tab 2 Date Range Filter States
+  const [expenseFromDate, setExpenseFromDate] = useState<string>("");
+  const [expenseToDate, setExpenseToDate] = useState<string>("");
+  const [expenseSearchQuery, setExpenseSearchQuery] = useState<string>("");
+
   // Google Drive Connection Config State
   const [driveConfig, setDriveConfig] = useState<{ configured: boolean; webhookUrl: string | null }>({
     configured: false,
@@ -63,7 +69,7 @@ export default function DataEntryDeskPage() {
   const [isTestingWebhook, setIsTestingWebhook] = useState(false);
   const [webhookTestFeedback, setWebhookTestFeedback] = useState<{ success: boolean; message: string } | null>(null);
 
-  // Search & Filter (Privacy on demand)
+  // Search & Filter for Tab 1
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<GoogleSheetTrip[] | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -89,12 +95,12 @@ export default function DataEntryDeskPage() {
   // Expense tab category filter
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>("ALL");
 
-  // FORM 1: Patient & Ambulance Trip Form Data (14 Fields)
+  // FORM 1: Patient & Ambulance Trip Form Data (13 Fields matching Sheet Tab 1 gid=0)
   const [tripForm, setTripForm] = useState({
-    sNo: "758",
+    no: "595",
+    sNo: "595",
     date: new Date().toISOString().split("T")[0],
-    day: new Date().toLocaleDateString("en-US", { weekday: "long" }),
-    time: "10:00 AM",
+    time: "10:00",
     patientName: "",
     pickup: "Gali",
     drop: "Mansehra",
@@ -103,17 +109,17 @@ export default function DataEntryDeskPage() {
     distance: "",
     petrol: "",
     received: "",
-    reason: "",
+    remark: "",
     otherExpense: "",
   });
 
-  // FORM 2: General Expense Form Data (7 Fields)
+  // FORM 2: General Expense Form Data (7 Fields matching Sheet Tab 2 gid=223912461)
   const [expenseForm, setExpenseForm] = useState({
     date: new Date().toISOString().split("T")[0],
     name: "",
     received: "",
     expense: "",
-    reason: "Documentation",
+    reason: "Used Service",
     jcdfReceipt: "",
     remark: "",
   });
@@ -150,9 +156,10 @@ export default function DataEntryDeskPage() {
       }
       if (analyticsRes.success && analyticsRes.data) {
         setAnalytics(analyticsRes.data);
-        const nextNum = (analyticsRes.data.lastSNo || 757) + 1;
+        const nextNum = (analyticsRes.data.lastSNo || 594) + 1;
         setTripForm((prev) => ({
           ...prev,
+          no: String(nextNum),
           sNo: String(nextNum),
         }));
       }
@@ -193,26 +200,95 @@ export default function DataEntryDeskPage() {
     };
   }, [expenses, trips]);
 
-  // Filtered lists for the 1-Month Window
+  // Filtered trips for Tab 1
   const monthFilteredTrips = useMemo(() => {
     return filterByMonthWindow(trips, monthFilter);
   }, [trips, monthFilter]);
 
-  const monthFilteredExpenses = useMemo(() => {
-    const timeFiltered = filterByMonthWindow(expenses, monthFilter);
-    if (expenseCategoryFilter === "ALL") return timeFiltered;
-    return timeFiltered.filter((e) => e.reason?.toLowerCase().trim() === expenseCategoryFilter.toLowerCase().trim());
-  }, [expenses, monthFilter, expenseCategoryFilter]);
+  // Filtered expenses for Tab 2 (with Date Range, Category, and Live Search)
+  const filteredExpenses = useMemo(() => {
+    let result = expenses;
 
-  // Live Auto-Calculation for Trip Form (Distance = kmDrop - kmPick, Day from Date)
+    // 1. Date filter (custom date range has highest priority)
+    if (expenseFromDate || expenseToDate) {
+      result = filterExpensesByDateRange(result, expenseFromDate, expenseToDate);
+    } else {
+      result = filterByMonthWindow(result, monthFilter);
+    }
+
+    // 2. Category filter
+    if (expenseCategoryFilter !== "ALL") {
+      result = result.filter(
+        (e) => e.reason?.toLowerCase().trim() === expenseCategoryFilter.toLowerCase().trim()
+      );
+    }
+
+    // 3. Search query filter
+    if (expenseSearchQuery.trim()) {
+      const q = expenseSearchQuery.toLowerCase().trim();
+      result = result.filter(
+        (e) =>
+          e.name?.toLowerCase().includes(q) ||
+          e.reason?.toLowerCase().includes(q) ||
+          e.jcdfReceipt?.toLowerCase().includes(q) ||
+          e.remark?.toLowerCase().includes(q) ||
+          e.date?.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }, [expenses, expenseFromDate, expenseToDate, monthFilter, expenseCategoryFilter, expenseSearchQuery]);
+
+  // Live Period Summary Calculation for Tab 2
+  const periodSummary = useMemo(() => {
+    let expSum = 0;
+    let recvSum = 0;
+
+    filteredExpenses.forEach((e) => {
+      const expVal = parseFloat(e.expense);
+      if (!isNaN(expVal)) expSum += expVal;
+      const recvVal = parseFloat(e.received);
+      if (!isNaN(recvVal)) recvSum += recvVal;
+    });
+
+    return {
+      periodExpense: expSum,
+      periodReceived: recvSum,
+      periodNet: recvSum - expSum,
+      periodCount: filteredExpenses.length,
+    };
+  }, [filteredExpenses]);
+
+  // Quick Preset Helper for Tab 2 Date Range
+  const setQuickDateRange = (preset: "TODAY" | "LAST_7_DAYS" | "THIS_MONTH" | "ALL") => {
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+
+    if (preset === "TODAY") {
+      setExpenseFromDate(todayStr);
+      setExpenseToDate(todayStr);
+    } else if (preset === "LAST_7_DAYS") {
+      const d = new Date();
+      d.setDate(d.getDate() - 7);
+      setExpenseFromDate(d.toISOString().split("T")[0]);
+      setExpenseToDate(todayStr);
+    } else if (preset === "THIS_MONTH") {
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      setExpenseFromDate(firstDay.toISOString().split("T")[0]);
+      setExpenseToDate(todayStr);
+    } else if (preset === "ALL") {
+      setExpenseFromDate("");
+      setExpenseToDate("");
+      setMonthFilter("ALL");
+    }
+  };
+
+  // Live Auto-Calculation for Trip Form (Distance = kmDrop - kmPick)
   const handleTripFormChange = (field: string, value: string) => {
     setTripForm((prev) => {
       const updated = { ...prev, [field]: value };
-      if (field === "date") {
-        const parsed = new Date(value);
-        if (!isNaN(parsed.getTime())) {
-          updated.day = parsed.toLocaleDateString("en-US", { weekday: "long" });
-        }
+      if (field === "no") {
+        updated.sNo = value;
       }
       if (field === "kmPick" || field === "kmDrop") {
         const pick = parseFloat(field === "kmPick" ? value : prev.kmPick);
@@ -233,11 +309,8 @@ export default function DataEntryDeskPage() {
     setEditingTrip((prev) => {
       if (!prev) return null;
       const updated = { ...prev, [field]: value };
-      if (field === "date") {
-        const parsed = new Date(value);
-        if (!isNaN(parsed.getTime())) {
-          updated.day = parsed.toLocaleDateString("en-US", { weekday: "long" });
-        }
+      if (field === "no") {
+        updated.sNo = value;
       }
       if (field === "kmPick" || field === "kmDrop") {
         const pick = parseFloat(field === "kmPick" ? value : prev.kmPick);
@@ -317,10 +390,17 @@ export default function DataEntryDeskPage() {
         throw new Error("Please provide patient name.");
       }
 
+      const tripNumber = tripForm.no || tripForm.sNo;
       const res = await fetch("/api/google-sheets/trips", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tripForm),
+        body: JSON.stringify({
+          ...tripForm,
+          no: tripNumber,
+          sNo: tripNumber,
+          remark: tripForm.remark,
+          reason: tripForm.remark,
+        }),
       });
 
       const json = await res.json();
@@ -329,19 +409,19 @@ export default function DataEntryDeskPage() {
       }
 
       setModalSuccess(
-        `Trip S.No #${tripForm.sNo} registered! Auto-split financial rows (Used Service, Petrol, Maintenance) saved to ledger.`
+        `Trip #${tripNumber} registered! Auto-split financial rows (Used Service, Petrol, Maintenance) saved to ledger.`
       );
 
       setTimeout(() => {
         setModalSuccess(null);
         setActiveModal(null);
         loadSheetData();
-        const nextNum = parseInt(tripForm.sNo, 10) + 1;
+        const nextNum = parseInt(tripNumber, 10) + 1;
         setTripForm({
+          no: isNaN(nextNum) ? "" : String(nextNum),
           sNo: isNaN(nextNum) ? "" : String(nextNum),
           date: new Date().toISOString().split("T")[0],
-          day: new Date().toLocaleDateString("en-US", { weekday: "long" }),
-          time: "10:00 AM",
+          time: "10:00",
           patientName: "",
           pickup: "Gali",
           drop: "Mansehra",
@@ -350,7 +430,7 @@ export default function DataEntryDeskPage() {
           distance: "",
           petrol: "",
           received: "",
-          reason: "",
+          remark: "",
           otherExpense: "",
         });
       }, 1200);
@@ -369,10 +449,17 @@ export default function DataEntryDeskPage() {
     setFormError(null);
 
     try {
+      const tripNumber = editingTrip.no || editingTrip.sNo;
       const res = await fetch("/api/google-sheets/trips", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingTrip),
+        body: JSON.stringify({
+          ...editingTrip,
+          no: tripNumber,
+          sNo: tripNumber,
+          remark: editingTrip.remark || editingTrip.reason || "",
+          reason: editingTrip.remark || editingTrip.reason || "",
+        }),
       });
 
       const json = await res.json();
@@ -380,7 +467,7 @@ export default function DataEntryDeskPage() {
         throw new Error(json.error || "Failed to update trip");
       }
 
-      setModalSuccess(`Trip #${editingTrip.sNo} updated successfully!`);
+      setModalSuccess(`Trip #${tripNumber} updated successfully!`);
       setTimeout(() => {
         setModalSuccess(null);
         setEditingTrip(null);
@@ -426,7 +513,7 @@ export default function DataEntryDeskPage() {
           name: "",
           received: "",
           expense: "",
-          reason: "Documentation",
+          reason: "Used Service",
           jcdfReceipt: "",
           remark: "",
         });
@@ -478,7 +565,7 @@ export default function DataEntryDeskPage() {
 
     try {
       if (deletingItem.type === "TRIP") {
-        const res = await fetch(`/api/google-sheets/trips?sNo=${encodeURIComponent(deletingItem.idOrSNo)}`, {
+        const res = await fetch(`/api/google-sheets/trips?no=${encodeURIComponent(deletingItem.idOrSNo)}`, {
           method: "DELETE",
         });
         const json = await res.json();
@@ -507,14 +594,16 @@ export default function DataEntryDeskPage() {
   const downloadCSV = (type: "TRIPS" | "EXPENSES") => {
     let csvContent = "data:text/csv;charset=utf-8,";
     if (type === "TRIPS") {
-      csvContent += "S.No,Date,Day,Time,Patient name,Pick up,Drop,KM at Pick up,KM at Drop,Distance cover in one trip KM,Petrol,Received,Reason,Other Expanse\n";
+      csvContent += "No,Date,Time,Patient Name,Pick up,Drop,Km at Pickup,Km at Drop,Distance Coverd in One Trip KM,Petrol,Received,Remark,Other Expanse\n";
       trips.forEach((t) => {
-        csvContent += `"${t.sNo}","${t.date}","${t.day}","${t.time}","${t.patientName.replace(/"/g, '""')}","${t.pickup}","${t.drop}","${t.kmPick}","${t.kmDrop}","${t.distance}","${t.petrol}","${t.received}","${t.reason}","${t.otherExpense}"\n`;
+        const tripNum = t.no || t.sNo || "";
+        const remarkVal = t.remark || t.reason || "";
+        csvContent += `"${tripNum}","${t.date}","${t.time}","${(t.patientName || "").replace(/"/g, '""')}","${t.pickup}","${t.drop}","${t.kmPick}","${t.kmDrop}","${t.distance}","${t.petrol}","${t.received}","${remarkVal.replace(/"/g, '""')}","${t.otherExpense}"\n`;
       });
     } else {
       csvContent += "Date,Name,Received,Expense,Reason,JCDF Receipt,Remark\n";
       expenses.forEach((e) => {
-        csvContent += `"${e.date}","${e.name.replace(/"/g, '""')}","${e.received}","${e.expense}","${e.reason}","${e.jcdfReceipt}","${e.remark.replace(/"/g, '""')}"\n`;
+        csvContent += `"${e.date}","${(e.name || "").replace(/"/g, '""')}","${e.received}","${e.expense}","${e.reason}","${e.jcdfReceipt}","${(e.remark || "").replace(/"/g, '""')}"\n`;
       });
     }
     const encodedUri = encodeURI(csvContent);
@@ -742,14 +831,16 @@ export default function DataEntryDeskPage() {
                   <table className="w-full text-left text-xs">
                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
                       <tr>
-                        <th className="p-2.5">S.No</th>
-                        <th className="p-2.5">Date & Day</th>
+                        <th className="p-2.5">No</th>
+                        <th className="p-2.5">Date</th>
+                        <th className="p-2.5">Time</th>
                         <th className="p-2.5">Patient Name</th>
                         <th className="p-2.5">Route</th>
                         <th className="p-2.5">Odometer (KM)</th>
                         <th className="p-2.5">Distance</th>
-                        <th className="p-2.5">Fare Received</th>
                         <th className="p-2.5">Petrol</th>
+                        <th className="p-2.5">Received</th>
+                        <th className="p-2.5">Remark</th>
                         <th className="p-2.5">Other Exp</th>
                         <th className="p-2.5 text-center">Actions</th>
                       </tr>
@@ -757,15 +848,17 @@ export default function DataEntryDeskPage() {
                     <tbody className="divide-y divide-slate-100 bg-white">
                       {searchResults.map((r, i) => (
                         <tr key={i} className="hover:bg-sky-50/50 transition-colors">
-                          <td className="p-2.5 font-bold text-sky-700">#{r.sNo}</td>
-                          <td className="p-2.5 text-slate-600">{r.date} ({r.day})</td>
+                          <td className="p-2.5 font-bold text-sky-700">#{r.no || r.sNo}</td>
+                          <td className="p-2.5 text-slate-600">{r.date}</td>
+                          <td className="p-2.5 text-slate-500">{r.time}</td>
                           <td className="p-2.5 font-semibold text-slate-900">{r.patientName}</td>
                           <td className="p-2.5 text-slate-700">{r.pickup} &rarr; {r.drop}</td>
                           <td className="p-2.5 text-slate-500">{r.kmPick} - {r.kmDrop}</td>
                           <td className="p-2.5 font-semibold text-slate-800">{r.distance} KM</td>
-                          <td className="p-2.5 text-emerald-700 font-bold">{r.received ? `PKR ${r.received}` : "-"}</td>
                           <td className="p-2.5 text-amber-700">{r.petrol ? `PKR ${r.petrol}` : "-"}</td>
-                          <td className="p-2.5 text-rose-700">{r.otherExpense ? `PKR ${r.otherExpense} (${r.reason})` : "-"}</td>
+                          <td className="p-2.5 text-emerald-700 font-bold">{r.received ? `PKR ${r.received}` : "-"}</td>
+                          <td className="p-2.5 text-slate-600">{r.remark || r.reason || "-"}</td>
+                          <td className="p-2.5 text-rose-700">{r.otherExpense ? `PKR ${r.otherExpense}` : "-"}</td>
                           <td className="p-2.5 text-center whitespace-nowrap">
                             <button
                               onClick={() => {
@@ -782,8 +875,8 @@ export default function DataEntryDeskPage() {
                               onClick={() =>
                                 setDeletingItem({
                                   type: "TRIP",
-                                  idOrSNo: r.sNo,
-                                  label: `Trip #${r.sNo} (${r.patientName})`,
+                                  idOrSNo: r.no || r.sNo || "",
+                                  label: `Trip #${r.no || r.sNo} (${r.patientName})`,
                                 })
                               }
                               className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors ml-1"
@@ -815,7 +908,7 @@ export default function DataEntryDeskPage() {
                 }`}
               >
                 <Truck className="w-4 h-4" />
-                Ambulance Record Complete ({monthFilteredTrips.length})
+                Ambulance Service Patient Record ({monthFilteredTrips.length})
               </button>
               <button
                 onClick={() => setActiveTab("EXPENSES")}
@@ -826,7 +919,7 @@ export default function DataEntryDeskPage() {
                 }`}
               >
                 <Receipt className="w-4 h-4" />
-                Financial Expense Ledger ({monthFilteredExpenses.length})
+                Financial Expense Ledger ({filteredExpenses.length})
               </button>
               <button
                 onClick={() => setActiveTab("ANALYTICS")}
@@ -849,19 +942,27 @@ export default function DataEntryDeskPage() {
                     <Filter className="w-3 h-3" /> Window:
                   </span>
                   <button
-                    onClick={() => setMonthFilter("CURRENT_MONTH")}
+                    onClick={() => {
+                      setMonthFilter("CURRENT_MONTH");
+                      setExpenseFromDate("");
+                      setExpenseToDate("");
+                    }}
                     className={`px-2.5 py-1 rounded-lg transition-all ${
-                      monthFilter === "CURRENT_MONTH"
+                      monthFilter === "CURRENT_MONTH" && !expenseFromDate && !expenseToDate
                         ? "bg-white text-slate-900 shadow-2xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    Current Month (30 Days)
+                    Current Month
                   </button>
                   <button
-                    onClick={() => setMonthFilter("LAST_MONTH")}
+                    onClick={() => {
+                      setMonthFilter("LAST_MONTH");
+                      setExpenseFromDate("");
+                      setExpenseToDate("");
+                    }}
                     className={`px-2.5 py-1 rounded-lg transition-all ${
-                      monthFilter === "LAST_MONTH"
+                      monthFilter === "LAST_MONTH" && !expenseFromDate && !expenseToDate
                         ? "bg-white text-slate-900 shadow-2xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
@@ -869,14 +970,18 @@ export default function DataEntryDeskPage() {
                     Last Month
                   </button>
                   <button
-                    onClick={() => setMonthFilter("ALL")}
+                    onClick={() => {
+                      setMonthFilter("ALL");
+                      setExpenseFromDate("");
+                      setExpenseToDate("");
+                    }}
                     className={`px-2.5 py-1 rounded-lg transition-all ${
-                      monthFilter === "ALL"
+                      monthFilter === "ALL" && !expenseFromDate && !expenseToDate
                         ? "bg-white text-slate-900 shadow-2xs font-bold"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    All ({trips.length})
+                    All ({activeTab === "TRIPS" ? trips.length : expenses.length})
                   </button>
                 </div>
               )}
@@ -893,16 +998,16 @@ export default function DataEntryDeskPage() {
           </div>
         </div>
 
-        {/* TAB 1: 2026 AMBULANCE RECORD COMPLETE (14 COLUMNS + EDIT / DELETE) */}
+        {/* TAB 1: AMBULANCE SERVICE PATIENT RECORD (13 COLUMNS + EDIT / DELETE) */}
         {activeTab === "TRIPS" && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">
-                  Ambulance Trip Register (Tab 1: 2026 ambulance record complete )
+                  Ambulance Service Patient Record (Tab 1: gid=0)
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Displaying {monthFilter === "CURRENT_MONTH" ? "current operational month" : monthFilter} in exact 14-column sequence.
+                  Displaying {monthFilter === "CURRENT_MONTH" ? "current operational month" : monthFilter} in exact 13-column sequence.
                 </p>
               </div>
               <span className="text-xs text-slate-500 font-medium">
@@ -914,9 +1019,8 @@ export default function DataEntryDeskPage() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider">
                   <tr>
-                    <th className="p-3">S.No</th>
+                    <th className="p-3">No</th>
                     <th className="p-3">Date</th>
-                    <th className="p-3">Day</th>
                     <th className="p-3">Time</th>
                     <th className="p-3">Patient Name</th>
                     <th className="p-3">Pick Up</th>
@@ -926,7 +1030,7 @@ export default function DataEntryDeskPage() {
                     <th className="p-3">Distance</th>
                     <th className="p-3">Petrol (PKR)</th>
                     <th className="p-3">Received (PKR)</th>
-                    <th className="p-3">Reason</th>
+                    <th className="p-3">Remark</th>
                     <th className="p-3">Other Exp</th>
                     <th className="p-3 text-center">Actions</th>
                   </tr>
@@ -934,7 +1038,7 @@ export default function DataEntryDeskPage() {
                 <tbody className="divide-y divide-slate-100">
                   {monthFilteredTrips.length === 0 ? (
                     <tr>
-                      <td colSpan={15} className="p-8 text-center text-slate-400">
+                      <td colSpan={14} className="p-8 text-center text-slate-400">
                         No trips found in this month filter. Click &quot;All&quot; to view historical records or add a new trip.
                       </td>
                     </tr>
@@ -950,10 +1054,9 @@ export default function DataEntryDeskPage() {
                           {t.isLiveAdded && (
                             <span className="mr-1.5 inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                           )}
-                          #{t.sNo}
+                          #{t.no || t.sNo}
                         </td>
                         <td className="p-3 text-slate-600 whitespace-nowrap">{t.date}</td>
-                        <td className="p-3 text-slate-500">{t.day}</td>
                         <td className="p-3 text-slate-500 whitespace-nowrap">{t.time}</td>
                         <td className="p-3 font-semibold text-slate-900">{t.patientName}</td>
                         <td className="p-3 text-slate-700">{t.pickup}</td>
@@ -969,7 +1072,7 @@ export default function DataEntryDeskPage() {
                         <td className="p-3 text-emerald-700 font-bold">
                           {t.received ? `PKR ${t.received}` : "-"}
                         </td>
-                        <td className="p-3 text-slate-600">{t.reason || "-"}</td>
+                        <td className="p-3 text-slate-600">{t.remark || t.reason || "-"}</td>
                         <td className="p-3 text-rose-700 font-medium">
                           {t.otherExpense ? `PKR ${t.otherExpense}` : "-"}
                         </td>
@@ -989,8 +1092,8 @@ export default function DataEntryDeskPage() {
                             onClick={() =>
                               setDeletingItem({
                                 type: "TRIP",
-                                idOrSNo: t.sNo,
-                                label: `Trip #${t.sNo} (${t.patientName})`,
+                                idOrSNo: t.no || t.sNo || "",
+                                label: `Trip #${t.no || t.sNo} (${t.patientName})`,
                               })
                             }
                             className="p-1 text-slate-400 hover:text-rose-600 rounded transition-colors ml-1"
@@ -1008,16 +1111,16 @@ export default function DataEntryDeskPage() {
           </div>
         )}
 
-        {/* TAB 2: FINANCIAL EXPENSE LEDGER (7 COLUMNS + EDIT / DELETE) */}
+        {/* TAB 2: FINANCIAL EXPENSE LEDGER (7 COLUMNS + DATE RANGE FILTER & LIVE PERIOD SUMMARY) */}
         {activeTab === "EXPENSES" && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">
-                  Financial Accounting General Ledger (Tab 2: Expanse)
+                  Financial Accounting General Ledger (Tab 2: Expanses - gid=223912461)
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Chronological Date order. Displaying {monthFilter === "CURRENT_MONTH" ? "current operational month" : monthFilter}.
+                  Chronological Date order. Use Date Range Filter or presets below to inspect dynamic financial summaries.
                 </p>
               </div>
 
@@ -1029,9 +1132,10 @@ export default function DataEntryDeskPage() {
                   "Petrol",
                   "Maintenance",
                   "Salary",
-                  "Documentation",
-                  "Ambulance Insurance",
+                  "Documentation Expanse",
+                  "Ambulance Installment",
                   "Fund",
+                  "Other",
                 ].map((reason) => (
                   <button
                     key={reason}
@@ -1045,6 +1149,118 @@ export default function DataEntryDeskPage() {
                     {reason}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* NEW: Date Range Filter Bar & Quick Preset Chips */}
+            <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-amber-800" />
+                  <span className="text-xs font-bold text-amber-950">Filter by Date Range:</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-2xs font-semibold text-slate-500 mr-1">Quick Presets:</span>
+                  <button
+                    onClick={() => setQuickDateRange("ALL")}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                      !expenseFromDate && !expenseToDate
+                        ? "bg-amber-800 text-white shadow-xs"
+                        : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    All History
+                  </button>
+                  <button
+                    onClick={() => setQuickDateRange("TODAY")}
+                    className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all"
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={() => setQuickDateRange("LAST_7_DAYS")}
+                    className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all"
+                  >
+                    Last 7 Days
+                  </button>
+                  <button
+                    onClick={() => setQuickDateRange("THIS_MONTH")}
+                    className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition-all"
+                  >
+                    This Month
+                  </button>
+                  {(expenseFromDate || expenseToDate) && (
+                    <button
+                      onClick={() => {
+                        setExpenseFromDate("");
+                        setExpenseToDate("");
+                      }}
+                      className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-all ml-1"
+                    >
+                      Clear Range
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 mb-1">From Date:</label>
+                  <input
+                    type="date"
+                    value={expenseFromDate}
+                    onChange={(e) => setExpenseFromDate(e.target.value)}
+                    className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 mb-1">To Date:</label>
+                  <input
+                    type="date"
+                    value={expenseToDate}
+                    onChange={(e) => setExpenseToDate(e.target.value)}
+                    className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-2xs font-bold text-slate-600 mb-1">Instant Ledger Search:</label>
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <input
+                      type="text"
+                      value={expenseSearchQuery}
+                      onChange={(e) => setExpenseSearchQuery(e.target.value)}
+                      placeholder="Payee, Reason, Receipt #, Note..."
+                      className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* NEW: Live Period Expense Summary Card */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 p-4 rounded-2xl bg-gradient-to-r from-amber-50/80 via-white to-sky-50/60 border border-amber-200/90 shadow-2xs">
+              <div className="p-3 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                <span className="text-2xs font-bold uppercase tracking-wider text-rose-600 block">Period Total Expense</span>
+                <span className="text-base font-black text-rose-700">PKR {periodSummary.periodExpense.toLocaleString()}</span>
+                <span className="text-2xs text-slate-400 block mt-0.5">Outflows in selected scope</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                <span className="text-2xs font-bold uppercase tracking-wider text-emerald-600 block">Period Total Received</span>
+                <span className="text-base font-black text-emerald-700">PKR {periodSummary.periodReceived.toLocaleString()}</span>
+                <span className="text-2xs text-slate-400 block mt-0.5">Inflows in selected scope</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                <span className="text-2xs font-bold uppercase tracking-wider text-slate-600 block">Net Period Balance</span>
+                <span className={`text-base font-black ${periodSummary.periodNet >= 0 ? "text-emerald-700" : "text-rose-700"}`}>
+                  {periodSummary.periodNet >= 0 ? `+PKR ${periodSummary.periodNet.toLocaleString()}` : `-PKR ${Math.abs(periodSummary.periodNet).toLocaleString()}`}
+                </span>
+                <span className="text-2xs text-slate-400 block mt-0.5">Balance for period</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white border border-slate-100 shadow-2xs">
+                <span className="text-2xs font-bold uppercase tracking-wider text-sky-600 block">Vouchers in Scope</span>
+                <span className="text-base font-black text-sky-700">{periodSummary.periodCount} records</span>
+                <span className="text-2xs text-slate-400 block mt-0.5">Matching active filters</span>
               </div>
             </div>
 
@@ -1063,14 +1279,14 @@ export default function DataEntryDeskPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {monthFilteredExpenses.length === 0 ? (
+                  {filteredExpenses.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="p-8 text-center text-slate-400">
-                        No expense records found in this month filter. Click &quot;All&quot; to view historical vouchers or add a new expense.
+                        No expense records match the selected date range or category filters. Click &quot;All History&quot; or clear the search.
                       </td>
                     </tr>
                   ) : (
-                    monthFilteredExpenses.map((e, idx) => (
+                    filteredExpenses.map((e, idx) => (
                       <tr
                         key={e.id || idx}
                         className={`hover:bg-slate-50/70 transition-colors ${
@@ -1103,10 +1319,12 @@ export default function DataEntryDeskPage() {
                                 ? "bg-purple-100 text-purple-800"
                                 : e.reason === "Salary"
                                 ? "bg-sky-100 text-sky-800"
-                                : e.reason === "Documentation"
+                                : e.reason === "Documentation Expanse" || e.reason === "Documentation"
                                 ? "bg-blue-100 text-blue-800"
+                                : e.reason === "Ambulance Installment"
+                                ? "bg-indigo-100 text-indigo-800"
                                 : e.reason === "Fund"
-                                ? "bg-emerald-100 text-emerald-800"
+                                ? "bg-teal-100 text-teal-800"
                                 : "bg-slate-100 text-slate-700"
                             }`}
                           >
@@ -1166,7 +1384,7 @@ export default function DataEntryDeskPage() {
                   Full-Year Analytics & Service Intelligence (Tab 3: Analysis)
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Aggregated from all 163+ historical trips and 220+ ledger vouchers.
+                  Aggregated from all trips and ledger vouchers.
                 </p>
               </div>
             </div>
@@ -1262,7 +1480,7 @@ export default function DataEntryDeskPage() {
             if (!isSubmitting) setActiveModal(null);
           }}
           title="New Patient & Ambulance Trip Form"
-          description="Exact 14-field order matching Google Sheet Tab 1. Submitting auto-splits Used Service, Petrol, and Maintenance rows into the financial ledger."
+          description="Exact 13-field order matching Google Sheet Tab 1 (gid=0). Submitting auto-splits Used Service, Petrol, and Maintenance rows into the financial ledger."
           size="xl"
         >
           {modalSuccess ? (
@@ -1283,14 +1501,14 @@ export default function DataEntryDeskPage() {
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
-                {/* 1. S.No */}
+                {/* 1. No */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">1. S.No (Receipt / Serial)</label>
+                  <label className="block font-bold text-slate-700 mb-1">1. No (Trip Serial Number)</label>
                   <input
                     type="text"
                     required
-                    value={tripForm.sNo}
-                    onChange={(e) => handleTripFormChange("sNo", e.target.value)}
+                    value={tripForm.no}
+                    onChange={(e) => handleTripFormChange("no", e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-bold text-sky-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
@@ -1307,49 +1525,36 @@ export default function DataEntryDeskPage() {
                   />
                 </div>
 
-                {/* 3. Day */}
+                {/* 3. Time */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    3. Day <span className="text-sky-600 font-normal">(Auto)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={tripForm.day}
-                    onChange={(e) => handleTripFormChange("day", e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg font-medium text-slate-700"
-                  />
-                </div>
-
-                {/* 4. Time */}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">4. Time</label>
+                  <label className="block font-bold text-slate-700 mb-1">3. Time</label>
                   <input
                     type="text"
                     value={tripForm.time}
                     onChange={(e) => handleTripFormChange("time", e.target.value)}
-                    placeholder="e.g. 10:00 AM"
+                    placeholder="e.g. 10:00 AM or 16:00"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
-                {/* 5. Patient Name */}
+                {/* 4. Patient Name */}
                 <div className="sm:col-span-2">
                   <label className="block font-bold text-slate-700 mb-1">
-                    5. Patient Name <span className="text-rose-500">*</span>
+                    4. Patient Name <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={tripForm.patientName}
                     onChange={(e) => handleTripFormChange("patientName", e.target.value)}
-                    placeholder="e.g. Abdul Hameed, Idrees's wife..."
+                    placeholder="e.g. Basat Shah Daughter, Kabir Shah Wife..."
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
-                {/* 6. Pick up */}
+                {/* 5. Pick up */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">6. Pick Up (Origin)</label>
+                  <label className="block font-bold text-slate-700 mb-1">5. Pick Up (Origin)</label>
                   <input
                     type="text"
                     list="pickup-list"
@@ -1365,13 +1570,15 @@ export default function DataEntryDeskPage() {
                     <option value="Junglan" />
                     <option value="Barwala" />
                     <option value="Batangi" />
-                    <option value="Batian" />
+                    <option value="Bhatian" />
+                    <option value="Mehmodha" />
+                    <option value="Sunder" />
                   </datalist>
                 </div>
 
-                {/* 7. Drop */}
+                {/* 6. Drop */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">7. Drop (Destination)</label>
+                  <label className="block font-bold text-slate-700 mb-1">6. Drop (Destination)</label>
                   <input
                     type="text"
                     list="drop-list"
@@ -1384,13 +1591,13 @@ export default function DataEntryDeskPage() {
                     <option value="Abbottabad" />
                     <option value="Takia" />
                     <option value="Narbeer" />
-                    <option value="Chikia" />
+                    <option value="Chakiyah" />
                   </datalist>
                 </div>
 
-                {/* 8. KM Pick */}
+                {/* 7. KM Pick */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">8. KM at Pick up</label>
+                  <label className="block font-bold text-slate-700 mb-1">7. Km at Pickup</label>
                   <input
                     type="number"
                     value={tripForm.kmPick}
@@ -1399,9 +1606,9 @@ export default function DataEntryDeskPage() {
                   />
                 </div>
 
-                {/* 9. KM Drop */}
+                {/* 8. KM Drop */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">9. KM at Drop</label>
+                  <label className="block font-bold text-slate-700 mb-1">8. Km at Drop</label>
                   <input
                     type="number"
                     value={tripForm.kmDrop}
@@ -1410,10 +1617,10 @@ export default function DataEntryDeskPage() {
                   />
                 </div>
 
-                {/* 10. Distance */}
+                {/* 9. Distance */}
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    10. Distance (KM) <span className="text-emerald-600 font-normal">(Auto)</span>
+                    9. Distance Coverd (KM) <span className="text-emerald-600 font-normal">(Auto)</span>
                   </label>
                   <input
                     type="text"
@@ -1423,21 +1630,21 @@ export default function DataEntryDeskPage() {
                   />
                 </div>
 
-                {/* 11. Petrol */}
+                {/* 10. Petrol */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">11. Petrol (PKR)</label>
+                  <label className="block font-bold text-slate-700 mb-1">10. Petrol (PKR)</label>
                   <input
                     type="number"
                     value={tripForm.petrol}
                     onChange={(e) => handleTripFormChange("petrol", e.target.value)}
-                    placeholder="e.g. 3400"
+                    placeholder="e.g. 3000"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
-                {/* 12. Received */}
+                {/* 11. Received */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">12. Received / Fare (PKR)</label>
+                  <label className="block font-bold text-slate-700 mb-1">11. Received / Fare (PKR)</label>
                   <input
                     type="number"
                     value={tripForm.received}
@@ -1447,26 +1654,26 @@ export default function DataEntryDeskPage() {
                   />
                 </div>
 
-                {/* 13. Reason */}
+                {/* 12. Remark */}
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">13. Reason</label>
+                  <label className="block font-bold text-slate-700 mb-1">12. Remark</label>
                   <input
                     type="text"
-                    value={tripForm.reason}
-                    onChange={(e) => handleTripFormChange("reason", e.target.value)}
-                    placeholder="e.g. Maintenance, Routine..."
+                    value={tripForm.remark}
+                    onChange={(e) => handleTripFormChange("remark", e.target.value)}
+                    placeholder="e.g. Janaza, Routine, Emergency..."
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
-                {/* 14. Other Expanse */}
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">14. Other Expanse (PKR)</label>
+                {/* 13. Other Expanse */}
+                <div className="sm:col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1">13. Other Expanse (PKR)</label>
                   <input
                     type="number"
                     value={tripForm.otherExpense}
                     onChange={(e) => handleTripFormChange("otherExpense", e.target.value)}
-                    placeholder="e.g. 25000"
+                    placeholder="e.g. 2500"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
@@ -1475,7 +1682,7 @@ export default function DataEntryDeskPage() {
               <div className="p-3 rounded-xl bg-sky-50/70 border border-sky-200 text-xs text-sky-900 flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-sky-600 mt-0.5 flex-shrink-0" />
                 <span>
-                  <strong>Automatic 3-Way Split:</strong> Submitting will record the trip in Tab 1, and automatically create matching rows in Tab 2 (Expanse) for Used Service (PKR {tripForm.received || "0"}), Petrol (PKR {tripForm.petrol || "0"}), and Maintenance (PKR {tripForm.otherExpense || "0"}).
+                  <strong>Automatic 3-Way Split:</strong> Submitting will record the trip in Tab 1, and automatically create matching rows in Tab 2 (Expanses) for Used Service (PKR {tripForm.received || "0"}), Petrol (PKR {tripForm.petrol || "0"}), and Maintenance (PKR {tripForm.otherExpense || "0"}).
                 </span>
               </div>
 
@@ -1512,7 +1719,7 @@ export default function DataEntryDeskPage() {
             if (!isSubmitting) setActiveModal(null);
           }}
           title="Record Expense / Documentary Voucher"
-          description="Exact 7-field order matching Google Sheet Tab 2. Automatically sorted chronologically by Date in the official ledger."
+          description="Exact 7-field order matching Google Sheet Tab 2 (gid=223912461). Automatically sorted chronologically by Date in the official ledger."
           size="lg"
         >
           {modalSuccess ? (
@@ -1546,13 +1753,13 @@ export default function DataEntryDeskPage() {
 
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    2. Payee / Name <span className="text-slate-400 font-normal">(Staff/Vendor)</span>
+                    2. Payee / Name <span className="text-slate-400 font-normal">(Staff/Vendor/Donor)</span>
                   </label>
                   <input
                     type="text"
                     value={expenseForm.name}
                     onChange={(e) => setExpenseForm({ ...expenseForm, name: e.target.value })}
-                    placeholder="e.g. Habeeb Sahib, Excise Dept..."
+                    placeholder="e.g. Angelika Katarzyna, Habeeb Sahib..."
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
@@ -1565,7 +1772,7 @@ export default function DataEntryDeskPage() {
                     type="number"
                     value={expenseForm.received}
                     onChange={(e) => setExpenseForm({ ...expenseForm, received: e.target.value })}
-                    placeholder="e.g. 2200"
+                    placeholder="e.g. 14400"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-emerald-700 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
@@ -1578,7 +1785,7 @@ export default function DataEntryDeskPage() {
                     type="number"
                     value={expenseForm.expense}
                     onChange={(e) => setExpenseForm({ ...expenseForm, expense: e.target.value })}
-                    placeholder="e.g. 20000, 51800"
+                    placeholder="e.g. 20000, 15000"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-rose-700 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
@@ -1590,13 +1797,13 @@ export default function DataEntryDeskPage() {
                     onChange={(e) => setExpenseForm({ ...expenseForm, reason: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold"
                   >
-                    <option value="Documentation">Documentation (Excise / Paperwork)</option>
-                    <option value="Salary">Salary (Staff / Drivers)</option>
-                    <option value="Ambulance Insurance">Ambulance Insurance</option>
-                    <option value="Maintenance">Maintenance / Repairs</option>
+                    <option value="Used Service">Used Service (Ambulance Fare)</option>
                     <option value="Petrol">Petrol / Fuel</option>
-                    <option value="Fund">Fund (Inflow / Donation)</option>
-                    <option value="Used Service">Used Service</option>
+                    <option value="Maintenance">Maintenance / Workshop Repairs</option>
+                    <option value="Salary">Salary (Staff / Drivers)</option>
+                    <option value="Documentation Expanse">Documentation Expanse (Excise / Paperwork)</option>
+                    <option value="Ambulance Installment">Ambulance Installment</option>
+                    <option value="Fund">Fund (Donation / Grant Inflow)</option>
                     <option value="Other">Other Operational</option>
                   </select>
                 </div>
@@ -1620,7 +1827,7 @@ export default function DataEntryDeskPage() {
                     type="text"
                     value={expenseForm.remark}
                     onChange={(e) => setExpenseForm({ ...expenseForm, remark: e.target.value })}
-                    placeholder="e.g. For Jan Salary, Vehicle registration, Routine maintenance..."
+                    placeholder="e.g. For Jan, Vehicle registration, Routine maintenance..."
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
@@ -1666,7 +1873,7 @@ export default function DataEntryDeskPage() {
           onClose={() => {
             if (!isSubmitting) setEditingTrip(null);
           }}
-          title={`Edit Trip #${editingTrip?.sNo || ""}`}
+          title={`Edit Trip #${editingTrip?.no || editingTrip?.sNo || ""}`}
           description="Update trip details directly in Google Sheet. Changes are saved live to the cloud."
           size="xl"
         >
@@ -1690,11 +1897,11 @@ export default function DataEntryDeskPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">1. S.No</label>
+                    <label className="block font-bold text-slate-700 mb-1">1. No</label>
                     <input
                       type="text"
                       readOnly
-                      value={editingTrip.sNo}
+                      value={editingTrip.no || editingTrip.sNo}
                       className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg font-mono font-bold text-sky-700"
                     />
                   </div>
@@ -1711,17 +1918,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">3. Day</label>
-                    <input
-                      type="text"
-                      value={editingTrip.day}
-                      onChange={(e) => handleEditTripChange("day", e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg font-medium text-slate-700"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">4. Time</label>
+                    <label className="block font-bold text-slate-700 mb-1">3. Time</label>
                     <input
                       type="text"
                       value={editingTrip.time}
@@ -1731,7 +1928,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block font-bold text-slate-700 mb-1">5. Patient Name</label>
+                    <label className="block font-bold text-slate-700 mb-1">4. Patient Name</label>
                     <input
                       type="text"
                       required
@@ -1742,7 +1939,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">6. Pick Up</label>
+                    <label className="block font-bold text-slate-700 mb-1">5. Pick Up</label>
                     <input
                       type="text"
                       value={editingTrip.pickup}
@@ -1752,7 +1949,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">7. Drop</label>
+                    <label className="block font-bold text-slate-700 mb-1">6. Drop</label>
                     <input
                       type="text"
                       value={editingTrip.drop}
@@ -1762,7 +1959,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">8. KM at Pick up</label>
+                    <label className="block font-bold text-slate-700 mb-1">7. KM at Pick up</label>
                     <input
                       type="number"
                       value={editingTrip.kmPick}
@@ -1772,7 +1969,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">9. KM at Drop</label>
+                    <label className="block font-bold text-slate-700 mb-1">8. KM at Drop</label>
                     <input
                       type="number"
                       value={editingTrip.kmDrop}
@@ -1782,7 +1979,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">10. Distance (KM)</label>
+                    <label className="block font-bold text-slate-700 mb-1">9. Distance (KM)</label>
                     <input
                       type="text"
                       readOnly
@@ -1792,7 +1989,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">11. Petrol (PKR)</label>
+                    <label className="block font-bold text-slate-700 mb-1">10. Petrol (PKR)</label>
                     <input
                       type="number"
                       value={editingTrip.petrol}
@@ -1802,7 +1999,7 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">12. Received (PKR)</label>
+                    <label className="block font-bold text-slate-700 mb-1">11. Received (PKR)</label>
                     <input
                       type="number"
                       value={editingTrip.received}
@@ -1812,17 +2009,17 @@ export default function DataEntryDeskPage() {
                   </div>
 
                   <div>
-                    <label className="block font-bold text-slate-700 mb-1">13. Reason</label>
+                    <label className="block font-bold text-slate-700 mb-1">12. Remark</label>
                     <input
                       type="text"
-                      value={editingTrip.reason}
-                      onChange={(e) => handleEditTripChange("reason", e.target.value)}
+                      value={editingTrip.remark || editingTrip.reason || ""}
+                      onChange={(e) => handleEditTripChange("remark", e.target.value)}
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                     />
                   </div>
 
-                  <div>
-                    <label className="block font-bold text-slate-700 mb-1">14. Other Expanse (PKR)</label>
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 mb-1">13. Other Expanse (PKR)</label>
                     <input
                       type="number"
                       value={editingTrip.otherExpense}
@@ -1936,13 +2133,13 @@ export default function DataEntryDeskPage() {
                       onChange={(e) => setEditingExpense({ ...editingExpense, reason: e.target.value })}
                       className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 font-semibold"
                     >
-                      <option value="Documentation">Documentation (Excise / Paperwork)</option>
-                      <option value="Salary">Salary (Staff / Drivers)</option>
-                      <option value="Ambulance Insurance">Ambulance Insurance</option>
-                      <option value="Maintenance">Maintenance / Repairs</option>
+                      <option value="Used Service">Used Service (Ambulance Fare)</option>
                       <option value="Petrol">Petrol / Fuel</option>
-                      <option value="Fund">Fund (Inflow / Donation)</option>
-                      <option value="Used Service">Used Service</option>
+                      <option value="Maintenance">Maintenance / Workshop Repairs</option>
+                      <option value="Salary">Salary (Staff / Drivers)</option>
+                      <option value="Documentation Expanse">Documentation Expanse (Excise / Paperwork)</option>
+                      <option value="Ambulance Installment">Ambulance Installment</option>
+                      <option value="Fund">Fund (Donation / Grant Inflow)</option>
                       <option value="Other">Other Operational</option>
                     </select>
                   </div>

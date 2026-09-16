@@ -14,10 +14,10 @@ import {
 
 export * from "@/types/google-sheets";
 
-export const GOOGLE_SHEET_ID = "1wz6o0xu8dSbtpuGvNKQvjUHXeU4epUFwvis5DdCO63s";
+export const GOOGLE_SHEET_ID = "15uC_XxXwQ9LUgKfHX9r6-p0ZC87ODhn26iX2Yfr2-GU";
 export const GID_TRIPS = "0";
-export const GID_EXPENSES = "1858430792";
-export const GID_ANALYSIS = "1369064426";
+export const GID_EXPENSES = "223912461";
+export const GID_ANALYSIS = "0";
 
 // In-memory runtime store for serverless execution
 let runtimeTrips: GoogleSheetTrip[] = [];
@@ -75,7 +75,9 @@ export function parseCSV(text: string): string[][] {
 }
 
 /**
- * Fetches all Trip records from Tab 1 ('2026 ambulance record complete ')
+ * Fetches all Trip records from Tab 1 ('Ambulance Service Patient Reco' - gid=0)
+ * 13 Columns: No, Date, Time, Patient Name, Pick up, Drop, Km at Pickup, Km at Drop,
+ * Distance Coverd in One Trip KM, Petrol, Received, Remark, Other Expanse
  */
 export async function fetchGoogleSheetTrips(forceFresh = false): Promise<GoogleSheetTrip[]> {
   const now = Date.now();
@@ -97,31 +99,33 @@ export async function fetchGoogleSheetTrips(forceFresh = false): Promise<GoogleS
 
       for (let i = 1; i < rows.length; i++) {
         const r = rows[i];
-        if (!r || r.length < 5) continue;
-        const sNo = r[0]?.trim();
-        const patientName = r[4]?.trim();
-        if (!sNo && !patientName) continue;
+        if (!r || r.length < 4) continue;
+        const no = r[0]?.trim();
+        const patientName = r[3]?.trim();
+        // Skip header/empty rows or total summaries without serial numbers
+        if (!no || !patientName || isNaN(parseInt(no, 10))) continue;
 
         fetchedTrips.push({
-          sNo: sNo || "",
+          no,
+          sNo: no,
           date: r[1]?.trim() || "",
-          day: r[2]?.trim() || "",
-          time: r[3]?.trim() || "",
-          patientName: patientName || "",
-          pickup: r[5]?.trim() || "",
-          drop: r[6]?.trim() || "",
-          kmPick: r[7]?.trim() || "",
-          kmDrop: r[8]?.trim() || "",
-          distance: r[9]?.trim() || "",
-          petrol: r[10]?.trim() || "",
-          received: r[11]?.trim() || "",
-          reason: r[12]?.trim() || "",
-          otherExpense: r[13]?.trim() || "",
+          time: r[2]?.trim() || "",
+          patientName,
+          pickup: r[4]?.trim() || "",
+          drop: r[5]?.trim() || "",
+          kmPick: r[6]?.trim() || "",
+          kmDrop: r[7]?.trim() || "",
+          distance: r[8]?.trim() || "",
+          petrol: r[9]?.trim() || "",
+          received: r[10]?.trim() || "",
+          remark: r[11]?.trim() || "",
+          reason: r[11]?.trim() || "",
+          otherExpense: r[12]?.trim() || "",
         });
       }
 
-      const existingSNoMap = new Set(fetchedTrips.map((t) => t.sNo));
-      const newlyAdded = runtimeTrips.filter((t) => t.isLiveAdded && !existingSNoMap.has(t.sNo));
+      const existingNoMap = new Set(fetchedTrips.map((t) => t.no || t.sNo));
+      const newlyAdded = runtimeTrips.filter((t) => t.isLiveAdded && !existingNoMap.has(t.no || t.sNo));
 
       runtimeTrips = [...newlyAdded, ...fetchedTrips];
       tripsLoaded = true;
@@ -157,12 +161,13 @@ export async function fetchGoogleSheetExpenses(forceFresh = false): Promise<Goog
 
       for (let i = 1; i < rows.length; i++) {
         const r = rows[i];
-        if (!r || r.length < 5) continue;
+        if (!r || r.length < 4) continue;
         const date = r[0]?.trim();
         const reason = r[4]?.trim();
         const received = r[2]?.trim();
         const expense = r[3]?.trim();
         if (!date && !reason && !received && !expense) continue;
+        if (date.toLowerCase().includes("total")) continue;
 
         fetchedExpenses.push({
           id: `exp-${i + 1}`,
@@ -215,7 +220,7 @@ export async function getGoogleSheetAnalytics(): Promise<GoogleSheetAnalytics> {
   const dropMap = new Map<string, number>();
 
   for (const t of trips) {
-    const sNoNum = parseInt(t.sNo, 10);
+    const sNoNum = parseInt(t.no || t.sNo || "0", 10);
     if (!isNaN(sNoNum) && sNoNum > maxSNo) {
       maxSNo = sNoNum;
     }
@@ -268,7 +273,7 @@ export async function getGoogleSheetAnalytics(): Promise<GoogleSheetAnalytics> {
     totalReceivedPKR: totalRecv,
     totalExpensesPKR: totalExp,
     netBalancePKR: totalRecv - totalExp,
-    lastSNo: maxSNo || 757,
+    lastSNo: maxSNo || 594,
     pickupCounts,
     dropCounts,
     reasonBreakdown,
@@ -284,13 +289,20 @@ export async function searchGoogleSheetRecords(query: string): Promise<GoogleShe
   const trips = await fetchGoogleSheetTrips();
 
   return trips.filter((t) => {
+    const tripNo = (t.no || t.sNo || "").toLowerCase();
+    const pName = (t.patientName || "").toLowerCase();
+    const pickup = (t.pickup || "").toLowerCase();
+    const drop = (t.drop || "").toLowerCase();
+    const date = (t.date || "").toLowerCase();
+    const remark = (t.remark || t.reason || "").toLowerCase();
+
     return (
-      t.sNo.toLowerCase().includes(q) ||
-      t.patientName.toLowerCase().includes(q) ||
-      t.pickup.toLowerCase().includes(q) ||
-      t.drop.toLowerCase().includes(q) ||
-      t.date.toLowerCase().includes(q) ||
-      t.reason.toLowerCase().includes(q)
+      tripNo.includes(q) ||
+      pName.includes(q) ||
+      pickup.includes(q) ||
+      drop.includes(q) ||
+      date.includes(q) ||
+      remark.includes(q)
     );
   });
 }
@@ -348,9 +360,18 @@ export async function testGoogleSheetsWebhook(testUrl?: string): Promise<{ succe
  * Appends a new Trip to Google Sheets (with 3-way auto-split)
  */
 export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promise<{ success: boolean; message: string; sNo: string }> {
-  runtimeTrips.unshift({ ...tripData, isLiveAdded: true });
+  const tripNo = tripData.no || tripData.sNo || "";
+  const normalizedTrip: GoogleSheetTrip = {
+    ...tripData,
+    no: tripNo,
+    sNo: tripNo,
+    remark: tripData.remark || tripData.reason || "",
+    reason: tripData.remark || tripData.reason || "",
+    isLiveAdded: true,
+  };
 
-  const sNo = tripData.sNo;
+  runtimeTrips.unshift(normalizedTrip);
+
   const date = tripData.date;
   const recAmt = parseFloat(tripData.received);
   if (!isNaN(recAmt) && recAmt > 0) {
@@ -361,8 +382,8 @@ export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promis
       received: tripData.received,
       expense: "",
       reason: "Used Service",
-      jcdfReceipt: sNo,
-      remark: `Trip fare from ${tripData.patientName || "Patient"}`,
+      jcdfReceipt: tripNo,
+      remark: tripData.patientName ? `Trip fare from ${tripData.patientName}` : "Trip fare",
       isLiveAdded: true,
     });
   }
@@ -376,8 +397,8 @@ export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promis
       received: "",
       expense: tripData.petrol,
       reason: "Petrol",
-      jcdfReceipt: sNo,
-      remark: `Ambulance fuel refill for trip ${sNo}`,
+      jcdfReceipt: tripNo,
+      remark: `Ambulance fuel refill for trip #${tripNo}`,
       isLiveAdded: true,
     });
   }
@@ -390,16 +411,16 @@ export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promis
       name: "",
       received: "",
       expense: tripData.otherExpense,
-      reason: tripData.reason || "Maintenance",
-      jcdfReceipt: sNo,
-      remark: `Incident expense for trip ${sNo}`,
+      reason: tripData.remark || tripData.reason || "Maintenance",
+      jcdfReceipt: tripNo,
+      remark: `Incident expense for trip #${tripNo}`,
       isLiveAdded: true,
     });
   }
 
-  const hookRes = await callWebhook("addTrip", tripData);
+  const hookRes = await callWebhook("addTrip", normalizedTrip);
   if (hookRes.success) {
-    return { success: true, message: hookRes.message || "Trip and auto-split ledger rows saved to Google Sheet", sNo: tripData.sNo };
+    return { success: true, message: hookRes.message || "Trip and auto-split ledger rows saved to Google Sheet", sNo: tripNo };
   }
 
   return {
@@ -407,40 +428,51 @@ export async function appendTripToGoogleSheet(tripData: GoogleSheetTrip): Promis
     message: hookRes.error === "WEBHOOK_NOT_CONFIGURED"
       ? "Trip registered in local session. Connect Google Drive Webhook to sync directly."
       : `Trip registered locally (${hookRes.error})`,
-    sNo: tripData.sNo,
+    sNo: tripNo,
   };
 }
 
 /**
  * Updates an existing Trip in Google Sheets
  */
-export async function updateTripInGoogleSheet(sNo: string, tripData: GoogleSheetTrip): Promise<{ success: boolean; message: string }> {
-  const index = runtimeTrips.findIndex((t) => t.sNo === sNo);
+export async function updateTripInGoogleSheet(targetNo: string, tripData: GoogleSheetTrip): Promise<{ success: boolean; message: string }> {
+  const cleanNo = targetNo.trim();
+  const index = runtimeTrips.findIndex((t) => t.no === cleanNo || t.sNo === cleanNo);
+  const normalizedTrip: GoogleSheetTrip = {
+    ...tripData,
+    no: cleanNo,
+    sNo: cleanNo,
+    remark: tripData.remark || tripData.reason || "",
+    reason: tripData.remark || tripData.reason || "",
+    isLiveAdded: true,
+  };
+
   if (index !== -1) {
-    runtimeTrips[index] = { ...tripData, isLiveAdded: true };
+    runtimeTrips[index] = normalizedTrip;
   }
 
-  const hookRes = await callWebhook("editTrip", tripData);
+  const hookRes = await callWebhook("editTrip", normalizedTrip);
   if (hookRes.success) {
-    return { success: true, message: `Trip #${sNo} updated in Google Sheet` };
+    return { success: true, message: `Trip #${cleanNo} updated in Google Sheet` };
   }
 
-  return { success: true, message: `Trip #${sNo} updated successfully` };
+  return { success: true, message: `Trip #${cleanNo} updated successfully` };
 }
 
 /**
  * Deletes a Trip from Google Sheets
  */
-export async function deleteTripFromGoogleSheet(sNo: string): Promise<{ success: boolean; message: string }> {
-  runtimeTrips = runtimeTrips.filter((t) => t.sNo !== sNo);
-  runtimeExpenses = runtimeExpenses.filter((e) => e.jcdfReceipt !== sNo);
+export async function deleteTripFromGoogleSheet(targetNo: string): Promise<{ success: boolean; message: string }> {
+  const cleanNo = targetNo.trim();
+  runtimeTrips = runtimeTrips.filter((t) => t.no !== cleanNo && t.sNo !== cleanNo);
+  runtimeExpenses = runtimeExpenses.filter((e) => e.jcdfReceipt !== cleanNo);
 
-  const hookRes = await callWebhook("deleteTrip", { sNo });
+  const hookRes = await callWebhook("deleteTrip", { sNo: cleanNo, no: cleanNo });
   if (hookRes.success) {
-    return { success: true, message: `Trip #${sNo} and its ledger entries removed from Google Sheet` };
+    return { success: true, message: `Trip #${cleanNo} and its ledger entries removed from Google Sheet` };
   }
 
-  return { success: true, message: `Trip #${sNo} removed successfully` };
+  return { success: true, message: `Trip #${cleanNo} removed successfully` };
 }
 
 /**

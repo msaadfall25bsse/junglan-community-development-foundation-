@@ -31,10 +31,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const tripNo = body.no ? String(body.no).trim() : body.sNo ? String(body.sNo).trim() : "";
 
-    if (!body.patientName && !body.sNo) {
+    if (!body.patientName && !tripNo) {
       return NextResponse.json(
-        { success: false, error: "Patient name or S.No is required" },
+        { success: false, error: "Patient name or No is required" },
         { status: 400 }
       );
     }
@@ -57,7 +58,8 @@ export async function POST(request: NextRequest) {
     }
 
     const tripData: GoogleSheetTrip = {
-      sNo: body.sNo ? String(body.sNo).trim() : "",
+      no: tripNo,
+      sNo: tripNo,
       date: body.date ? String(body.date).trim() : new Date().toLocaleDateString("en-US"),
       day: day || "Monday",
       time: body.time ? String(body.time).trim() : "10:00 AM",
@@ -69,7 +71,8 @@ export async function POST(request: NextRequest) {
       distance: String(distance),
       petrol: body.petrol ? String(body.petrol).trim() : "",
       received: body.received ? String(body.received).trim() : "",
-      reason: body.reason ? String(body.reason).trim() : "",
+      remark: body.remark ? String(body.remark).trim() : body.reason ? String(body.reason).trim() : "",
+      reason: body.remark ? String(body.remark).trim() : body.reason ? String(body.reason).trim() : "",
       otherExpense: body.otherExpense ? String(body.otherExpense).trim() : "",
     };
 
@@ -90,11 +93,11 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const sNo = body.sNo ? String(body.sNo).trim() : "";
+    const tripNo = body.no ? String(body.no).trim() : body.sNo ? String(body.sNo).trim() : "";
 
-    if (!sNo) {
+    if (!tripNo) {
       return NextResponse.json(
-        { success: false, error: "S.No is required to update a trip" },
+        { success: false, error: "Trip No is required to update a trip" },
         { status: 400 }
       );
     }
@@ -117,7 +120,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const tripData: GoogleSheetTrip = {
-      sNo,
+      no: tripNo,
+      sNo: tripNo,
       date: body.date ? String(body.date).trim() : "",
       day: day || "Monday",
       time: body.time ? String(body.time).trim() : "",
@@ -129,11 +133,12 @@ export async function PUT(request: NextRequest) {
       distance: String(distance),
       petrol: body.petrol ? String(body.petrol).trim() : "",
       received: body.received ? String(body.received).trim() : "",
-      reason: body.reason ? String(body.reason).trim() : "",
+      remark: body.remark ? String(body.remark).trim() : body.reason ? String(body.reason).trim() : "",
+      reason: body.remark ? String(body.remark).trim() : body.reason ? String(body.reason).trim() : "",
       otherExpense: body.otherExpense ? String(body.otherExpense).trim() : "",
     };
 
-    const res = await updateTripInGoogleSheet(sNo, tripData);
+    const res = await updateTripInGoogleSheet(tripNo, tripData);
     return NextResponse.json({
       success: true,
       message: res.message,
@@ -150,16 +155,16 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const sNo = searchParams.get("sNo");
+    const tripNo = searchParams.get("no") || searchParams.get("sNo");
 
-    if (!sNo) {
+    if (!tripNo) {
       return NextResponse.json(
-        { success: false, error: "S.No is required to delete a trip" },
+        { success: false, error: "Trip No is required to delete a trip" },
         { status: 400 }
       );
     }
 
-    const res = await deleteTripFromGoogleSheet(sNo);
+    const res = await deleteTripFromGoogleSheet(tripNo);
     return NextResponse.json({
       success: true,
       message: res.message,

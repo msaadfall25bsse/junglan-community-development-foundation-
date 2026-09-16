@@ -28,8 +28,8 @@ function doPost(e) {
     var data = payload.data || {};
     var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-    var tripSheet = ss.getSheetByName("2026 ambulance record complete ") || ss.getSheets()[0];
-    var expenseSheet = ss.getSheetByName("Expanse") || ss.getSheets()[1];
+    var tripSheet = ss.getSheetByName("Ambulance Service Patient Reco") || ss.getSheetByName("2026 ambulance record complete ") || ss.getSheets()[0];
+    var expenseSheet = ss.getSheetByName("Expanses") || ss.getSheetByName("Expanse") || ss.getSheets()[1];
 
     // --------------------------------------------------------------------------
     // ACTION: testConnection
@@ -60,10 +60,10 @@ function doPost(e) {
         }
       }
 
+      var tripNo = data.no || data.sNo || "";
       var tripRow = [
-        data.sNo || "",
+        tripNo,
         data.date || "",
-        data.day || "",
         data.time || "",
         data.patientName || "",
         data.pickup || "",
@@ -71,43 +71,43 @@ function doPost(e) {
         data.kmPick || "",
         data.kmDrop || "",
         distance,
-        data.petrol || "",
-        data.received || "",
-        data.reason || "",
-        data.otherExpense || ""
+        data.petrol ? Number(data.petrol) : "",
+        data.received ? Number(data.received) : "",
+        data.remark || data.reason || "",
+        data.otherExpense ? Number(data.otherExpense) : ""
       ];
 
       tripSheet.appendRow(tripRow);
 
-      // Auto-Split into 'Expanse' sheet
-      var sNo = data.sNo || "";
+      // Auto-Split into 'Expanses' sheet
       var tripDate = data.date || "";
 
       // Row A: Used Service (if Received > 0)
       var receivedAmt = parseFloat(data.received);
       if (!isNaN(receivedAmt) && receivedAmt > 0) {
-        expenseSheet.appendRow([tripDate, "", receivedAmt, "", "Used Service", sNo, "Trip fare from " + (data.patientName || "Patient")]);
+        expenseSheet.appendRow([tripDate, "", receivedAmt, "", "Used Service", tripNo, "Trip fare from " + (data.patientName || "Patient")]);
       }
 
       // Row B: Petrol (if Petrol > 0)
       var petrolAmt = parseFloat(data.petrol);
       if (!isNaN(petrolAmt) && petrolAmt > 0) {
-        expenseSheet.appendRow([tripDate, "", "", petrolAmt, "Petrol", sNo, "Ambulance fuel refill for trip " + sNo]);
+        expenseSheet.appendRow([tripDate, "", "", petrolAmt, "Petrol", tripNo, "Ambulance fuel refill for trip #" + tripNo]);
       }
 
       // Row C: Maintenance/Other (if Other Expense > 0)
       var otherAmt = parseFloat(data.otherExpense);
       if (!isNaN(otherAmt) && otherAmt > 0) {
-        var reasonCategory = data.reason || "Maintenance";
-        expenseSheet.appendRow([tripDate, "", "", otherAmt, reasonCategory, sNo, "Incident expense for trip " + sNo]);
+        var reasonCategory = data.remark || data.reason || "Maintenance";
+        expenseSheet.appendRow([tripDate, "", "", otherAmt, reasonCategory, tripNo, "Incident expense for trip #" + tripNo]);
       }
 
       sortExpenseSheetByDate(expenseSheet);
 
       return sendJSON({
         success: true,
-        message: "Trip #" + data.sNo + " registered and auto-split into ledger",
-        sNo: data.sNo
+        message: "Trip #" + tripNo + " registered and auto-split into ledger",
+        sNo: tripNo,
+        no: tripNo
       });
     }
 
@@ -115,23 +115,23 @@ function doPost(e) {
     // ACTION: editTrip
     // --------------------------------------------------------------------------
     if (action === "editTrip") {
-      var targetSNo = String(data.sNo || "").trim();
-      if (!targetSNo) {
-        return sendJSON({ success: false, error: "S.No is required to edit trip" });
+      var targetNo = String(data.no || data.sNo || "").trim();
+      if (!targetNo) {
+        return sendJSON({ success: false, error: "Trip No is required to edit trip" });
       }
 
       var tripValues = tripSheet.getDataRange().getValues();
       var foundRowIndex = -1;
 
       for (var i = 1; i < tripValues.length; i++) {
-        if (String(tripValues[i][0]).trim() === targetSNo) {
+        if (String(tripValues[i][0]).trim() === targetNo) {
           foundRowIndex = i + 1; // 1-indexed for Sheet
           break;
         }
       }
 
       if (foundRowIndex === -1) {
-        return sendJSON({ success: false, error: "Trip with S.No " + targetSNo + " not found" });
+        return sendJSON({ success: false, error: "Trip with No #" + targetNo + " not found" });
       }
 
       var distance = "";
@@ -144,9 +144,8 @@ function doPost(e) {
       }
 
       var updatedRow = [
-        data.sNo || "",
+        targetNo,
         data.date || "",
-        data.day || "",
         data.time || "",
         data.patientName || "",
         data.pickup || "",
@@ -154,19 +153,19 @@ function doPost(e) {
         data.kmPick || "",
         data.kmDrop || "",
         distance,
-        data.petrol || "",
-        data.received || "",
-        data.reason || "",
-        data.otherExpense || ""
+        data.petrol ? Number(data.petrol) : "",
+        data.received ? Number(data.received) : "",
+        data.remark || data.reason || "",
+        data.otherExpense ? Number(data.otherExpense) : ""
       ];
 
-      tripSheet.getRange(foundRowIndex, 1, 1, 14).setValues([updatedRow]);
+      tripSheet.getRange(foundRowIndex, 1, 1, 13).setValues([updatedRow]);
 
-      // Update associated ledger entries in Expanse sheet if needed
       return sendJSON({
         success: true,
-        message: "Trip #" + targetSNo + " updated in Google Sheet",
-        sNo: targetSNo
+        message: "Trip #" + targetNo + " updated in Google Sheet",
+        sNo: targetNo,
+        no: targetNo
       });
     }
 
@@ -174,16 +173,16 @@ function doPost(e) {
     // ACTION: deleteTrip
     // --------------------------------------------------------------------------
     if (action === "deleteTrip") {
-      var targetSNo = String(data.sNo || "").trim();
-      if (!targetSNo) {
-        return sendJSON({ success: false, error: "S.No is required to delete trip" });
+      var targetNo = String(data.no || data.sNo || "").trim();
+      if (!targetNo) {
+        return sendJSON({ success: false, error: "Trip No is required to delete trip" });
       }
 
       var tripValues = tripSheet.getDataRange().getValues();
       var foundRowIndex = -1;
 
       for (var i = 1; i < tripValues.length; i++) {
-        if (String(tripValues[i][0]).trim() === targetSNo) {
+        if (String(tripValues[i][0]).trim() === targetNo) {
           foundRowIndex = i + 1;
           break;
         }
@@ -193,17 +192,17 @@ function doPost(e) {
         tripSheet.deleteRow(foundRowIndex);
       }
 
-      // Also remove associated split rows in Expanse sheet (where JCDF Receipt == targetSNo)
+      // Also remove associated split rows in Expanses sheet (where JCDF Receipt == targetNo)
       var expValues = expenseSheet.getDataRange().getValues();
       for (var j = expValues.length - 1; j >= 1; j--) {
-        if (String(expValues[j][5]).trim() === targetSNo) {
+        if (String(expValues[j][5]).trim() === targetNo) {
           expenseSheet.deleteRow(j + 1);
         }
       }
 
       return sendJSON({
         success: true,
-        message: "Trip #" + targetSNo + " and associated ledger entries deleted"
+        message: "Trip #" + targetNo + " and associated ledger entries deleted"
       });
     }
 

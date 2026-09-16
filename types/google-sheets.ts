@@ -6,9 +6,10 @@
  */
 
 export interface GoogleSheetTrip {
-  sNo: string;
+  no: string;
+  sNo?: string; // alias for backwards compatibility
   date: string;
-  day: string;
+  day?: string; // optional helper
   time: string;
   patientName: string;
   pickup: string;
@@ -18,7 +19,8 @@ export interface GoogleSheetTrip {
   distance: string;
   petrol: string;
   received: string;
-  reason: string;
+  remark: string;
+  reason?: string; // alias for backwards compatibility
   otherExpense: string;
   isLiveAdded?: boolean;
 }
@@ -76,5 +78,26 @@ export function filterByMonthWindow<T extends { date: string }>(
       return d.getMonth() === prevMonth && d.getFullYear() === targetYear;
     }
     return true;
+  });
+}
+
+/**
+ * Filters expenses by an arbitrary date range (From Date -> To Date)
+ */
+export function filterExpensesByDateRange(
+  expenses: GoogleSheetExpense[],
+  fromDate?: string,
+  toDate?: string
+): GoogleSheetExpense[] {
+  if (!fromDate && !toDate) return expenses;
+
+  const fromTime = fromDate ? new Date(`${fromDate}T00:00:00`).getTime() : -Infinity;
+  const toTime = toDate ? new Date(`${toDate}T23:59:59`).getTime() : Infinity;
+
+  return expenses.filter((e) => {
+    if (!e.date) return false;
+    const itemTime = new Date(e.date).getTime();
+    if (isNaN(itemTime)) return false;
+    return itemTime >= fromTime && itemTime <= toTime;
   });
 }
