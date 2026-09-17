@@ -693,6 +693,8 @@ export async function listConflicts(params?: {
   );
 }
 
+export const getSyncConflicts = listConflicts;
+
 // ------------------------------------------------------------------------------
 // 5. EXTERNAL RECORD MAPPING (Sections 13, 14, 45, 64)
 // ------------------------------------------------------------------------------

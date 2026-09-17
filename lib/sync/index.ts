@@ -7,3 +7,5 @@ export * from "./normalizer";
 export * from "./duplicate-detector";
 export * from "./conflict-detector";
 export * from "./sync-engine.service";
+export * from "./conflict-resolver.service";
+

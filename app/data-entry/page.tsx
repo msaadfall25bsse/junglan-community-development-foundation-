@@ -68,6 +68,8 @@ export default function DataEntryDeskPage() {
   const [webhookInput, setWebhookInput] = useState("");
   const [isTestingWebhook, setIsTestingWebhook] = useState(false);
   const [webhookTestFeedback, setWebhookTestFeedback] = useState<{ success: boolean; message: string } | null>(null);
+  const [isDeskSyncing, setIsDeskSyncing] = useState(false);
+  const [deskSyncFeedback, setDeskSyncFeedback] = useState<string | null>(null);
 
   // Search & Filter for Tab 1
   const [searchQuery, setSearchQuery] = useState("");
@@ -280,6 +282,31 @@ export default function DataEntryDeskPage() {
       setExpenseFromDate("");
       setExpenseToDate("");
       setMonthFilter("ALL");
+    }
+  };
+
+  // On-demand Quick Two-Way Sync from Data Entry Desk
+  const handleQuickSync = async () => {
+    setIsDeskSyncing(true);
+    setDeskSyncFeedback(null);
+    try {
+      const res = await fetch("/api/sync/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ direction: "TWO_WAY", scope: "ALL", yearPeriodId: "2026" }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setDeskSyncFeedback("Google Sheets & Database synchronized successfully.");
+        loadSheetData();
+      } else {
+        setDeskSyncFeedback(json.error || "Sync in progress or failed.");
+      }
+    } catch {
+      setDeskSyncFeedback("Failed to trigger synchronization.");
+    } finally {
+      setIsDeskSyncing(false);
+      setTimeout(() => setDeskSyncFeedback(null), 5000);
     }
   };
 
@@ -650,6 +677,16 @@ export default function DataEntryDeskPage() {
             Refresh
           </Button>
           <Button
+            variant="outline"
+            size="sm"
+            onClick={handleQuickSync}
+            disabled={isDeskSyncing}
+            className="border-sky-300 text-sky-700 hover:bg-sky-50"
+            leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${isDeskSyncing ? "animate-spin text-sky-600" : ""}`} />}
+          >
+            {isDeskSyncing ? "Syncing..." : "Sync Sheets"}
+          </Button>
+          <Button
             onClick={() => {
               setFormError(null);
               setModalSuccess(null);
@@ -665,6 +702,21 @@ export default function DataEntryDeskPage() {
       }
     >
       <div className="space-y-6">
+        {/* Quick Sync Feedback Pill */}
+        {deskSyncFeedback && (
+          <div className="p-3 bg-sky-50 border border-sky-200 text-sky-900 rounded-xl text-xs flex items-center justify-between shadow-2xs">
+            <span className="flex items-center gap-2 font-medium">
+              <CheckCircle2 className="w-4 h-4 text-sky-600" />
+              {deskSyncFeedback}
+            </span>
+            <button
+              onClick={() => setDeskSyncFeedback(null)}
+              className="text-slate-400 hover:text-slate-600 text-xs font-bold"
+            >
+              ✕
+            </button>
+          </div>
+        )}
         {/* Dynamic Telemetry KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           <DashboardStatCard

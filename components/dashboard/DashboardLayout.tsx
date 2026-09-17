@@ -24,6 +24,8 @@ import {
   Settings,
   CheckCircle,
   LogOut,
+  RefreshCw,
+  AlertTriangle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
@@ -44,6 +46,9 @@ const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Trip Dispatches", href: "/admin/trips", icon: Route },
   { label: "Expense Vouchers", href: "/admin/expenses", icon: Receipt },
   { label: "Foundation Settings", href: "/admin/settings", icon: Settings },
+  { label: "Google Integration", href: "/admin/integrations/google", icon: RefreshCw },
+  { label: "Conflict Workbench", href: "/admin/sync/conflicts", icon: AlertTriangle },
+  { label: "Sync Audit Logs", href: "/admin/sync/logs", icon: ShieldCheck },
   { label: "Security Audit Logs", href: "/admin/audit-logs", icon: ShieldCheck },
 ];
 
