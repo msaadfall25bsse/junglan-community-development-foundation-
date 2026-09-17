@@ -32,6 +32,7 @@ import {
   Filter,
   Check,
   ExternalLink,
+  FileText,
 } from "lucide-react";
 import {
   GoogleSheetTrip,
@@ -70,6 +71,11 @@ export default function DataEntryDeskPage() {
   const [webhookTestFeedback, setWebhookTestFeedback] = useState<{ success: boolean; message: string } | null>(null);
   const [isDeskSyncing, setIsDeskSyncing] = useState(false);
   const [deskSyncFeedback, setDeskSyncFeedback] = useState<string | null>(null);
+
+  // Google Drive Receipt Attachment States
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptUploading, setReceiptUploading] = useState(false);
+  const [receiptUploaded, setReceiptUploaded] = useState<{ fileName: string; webViewLink: string } | null>(null);
 
   // Search & Filter for Tab 1
   const [searchQuery, setSearchQuery] = useState("");
@@ -307,6 +313,53 @@ export default function DataEntryDeskPage() {
     } finally {
       setIsDeskSyncing(false);
       setTimeout(() => setDeskSyncFeedback(null), 5000);
+    }
+  };
+
+  // Google Drive Receipt File Upload Handler
+  const handleReceiptFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setReceiptFile(file);
+    setReceiptUploading(true);
+    setFormError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("module", "EXPENSE");
+      formData.append("identifier", expenseForm.jcdfReceipt || `EXP-${Date.now()}`);
+      formData.append("yearPeriodId", "2026");
+
+      const res = await fetch("/api/drive/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to upload receipt to Google Drive.");
+      }
+
+      setReceiptUploaded({
+        fileName: json.data.fileName,
+        webViewLink: json.data.webViewLink,
+      });
+
+      // Embed Google Drive preview link into the official remark cell for Sheet Tab 2
+      const currentRemark = expenseForm.remark.trim();
+      const updatedRemark = currentRemark
+        ? `${currentRemark} [Receipt: ${json.data.webViewLink}]`
+        : `[Receipt: ${json.data.webViewLink}]`;
+
+      setExpenseForm((prev) => ({
+        ...prev,
+        remark: updatedRemark,
+      }));
+    } catch (err: any) {
+      setFormError(err.message || "Receipt upload failed.");
+    } finally {
+      setReceiptUploading(false);
     }
   };
 
@@ -1390,7 +1443,23 @@ export default function DataEntryDeskPage() {
                             "-"
                           )}
                         </td>
-                        <td className="p-3 text-slate-500 max-w-xs truncate">{e.remark || "-"}</td>
+                        <td className="p-3 text-slate-500 max-w-xs truncate">
+                          {e.remark && e.remark.includes("https://drive.google.com") ? (
+                            <div className="flex items-center gap-1.5">
+                              <a
+                                href={e.remark.match(/https:\/\/drive\.google\.com[^\s\]]+/)?.[0] || "#"}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-medium hover:bg-emerald-100 text-2xs shrink-0"
+                              >
+                                <FileText className="w-3 h-3" /> Drive Slip
+                              </a>
+                              <span className="truncate">{e.remark.replace(/\[Receipt:\s*https:[^\]]+\]/, "")}</span>
+                            </div>
+                          ) : (
+                            e.remark || "-"
+                          )}
+                        </td>
                         <td className="p-3 text-center whitespace-nowrap">
                           <button
                             onClick={() => {
@@ -1882,6 +1951,51 @@ export default function DataEntryDeskPage() {
                     placeholder="e.g. For Jan, Vehicle registration, Routine maintenance..."
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
+                </div>
+
+                {/* 8. Google Drive Receipt Slip Upload */}
+                <div className="sm:col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Receipt className="w-3.5 h-3.5 text-amber-700" />
+                      8. Google Drive Receipt Slip (Optional)
+                    </span>
+                    <span className="text-[11px] font-normal text-slate-400">PDF, PNG, JPG (Max 15MB)</span>
+                  </label>
+
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+                    <input
+                      type="file"
+                      accept=".pdf,.png,.jpg,.jpeg,.webp"
+                      onChange={handleReceiptFileChange}
+                      disabled={receiptUploading}
+                      className="text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-800 hover:file:bg-amber-200 cursor-pointer"
+                    />
+
+                    {receiptUploading && (
+                      <div className="flex items-center gap-2 text-xs text-amber-700">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Uploading receipt to Google Drive (2026/Receipts)...</span>
+                      </div>
+                    )}
+
+                    {receiptUploaded && (
+                      <div className="flex items-center justify-between p-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-md text-xs">
+                        <span className="flex items-center gap-1.5 font-medium truncate max-w-xs">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          {receiptUploaded.fileName}
+                        </span>
+                        <a
+                          href={receiptUploaded.webViewLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sky-600 hover:underline flex items-center gap-1 font-semibold ml-2 shrink-0"
+                        >
+                          View in Drive <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

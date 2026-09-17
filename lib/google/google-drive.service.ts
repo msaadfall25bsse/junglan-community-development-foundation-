@@ -193,10 +193,11 @@ export async function uploadFileToDrive(params: {
   const tokenResult = await getValidAccessToken();
 
   if (tokenResult.authMode === "SIMULATION") {
+    const simId = `sim_file_${Date.now()}`;
     return {
-      fileId: `sim_file_${Date.now()}`,
+      fileId: simId,
       fileName: params.fileName,
-      webViewLink: `https://drive.google.com/file/d/sim_${Date.now()}/view`,
+      webViewLink: `https://drive.google.com/file/d/${simId}/view`,
     };
   }
 
