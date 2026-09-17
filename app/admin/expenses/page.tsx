@@ -674,10 +674,12 @@ export default function AdminExpensesPage() {
                             href={e.receiptDocumentRef}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-emerald-700 hover:underline"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-medium hover:bg-emerald-100 text-xs shrink-0 border border-emerald-200 transition-colors shadow-2xs"
+                            title={e.receiptDocumentRef}
                           >
-                            <FileText className="w-3.5 h-3.5" />
-                            View Slip
+                            <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>{e.receiptDocumentRef.includes("drive.google.com") ? "Drive Slip" : "View Slip"}</span>
+                            <ExternalLink className="w-3 h-3 opacity-60 ml-0.5" />
                           </a>
                         ) : (
                           <span className="text-xs text-slate-400 italic">No slip</span>
