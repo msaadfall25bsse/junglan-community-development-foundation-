@@ -1,190 +1,151 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import {
-  HeartHandshake,
-  PhoneCall,
-  Mail,
-  MapPin,
-  ShieldCheck,
-  ArrowUpRight,
-} from "lucide-react";
-import { Logo } from "@/components/common/Logo";
-import {
-  FOUNDATION_INFO,
-  FOOTER_QUICK_LINKS,
-  FOOTER_PROJECT_LINKS,
-} from "@/data/content";
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
-  const [info, setInfo] = useState(FOUNDATION_INFO);
-
-  useEffect(() => {
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.data) {
-          setInfo((prev) => ({
-            ...prev,
-            hotline: data.data.emergencyHotline || prev.hotline,
-            email: data.data.officialEmail || prev.email,
-            location: data.data.headOfficeAddress || prev.location,
-          }));
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   return (
-    <footer className="bg-slate-900 text-slate-300 border-t border-slate-800">
-      {/* Upper Pre-Footer Donation Strip */}
-      <div className="bg-gradient-to-r from-sky-900 via-slate-900 to-indigo-950 border-b border-slate-800 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-semibold mb-3 border border-sky-400/30">
-                <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
-                <span>100% Transparent Financial Stewardship</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                Support Community Healthcare & Agriculture Today
-              </h3>
-              <p className="text-slate-400 text-sm mt-1 max-w-xl">
-                Every contribution directly fuels emergency patient transportation and local farmer empowerment.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-              <Link
-                href="/donate"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-sm shadow-md transition-all active:scale-[0.98]"
-              >
-                <HeartHandshake className="w-4 h-4" />
-                <span>Make a Donation</span>
-              </Link>
-              <Link
-                href="/reports"
-                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm border border-slate-700 transition-colors"
-              >
-                <span>View Public Reports</span>
+    <footer className="bg-[#081A2D] text-white border-t border-white/10">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
+          {/* Foundation Brand & CUIN Registration Column */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="inline-block">
+              <Link href="/">
+                <img
+                  alt="Junglan Community Development Foundation Logo"
+                  className="h-14 w-auto max-w-[260px] object-contain"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlQqg-SoIPZbM-4ur-7V4Or5IX0kG183067aWfQ0hbKTbig2vPjgDV_y1hvmUqrWVkKqvFv2qxO6xTOiaIKtQiYXJcbNJq1roECkpu6ORlq1RUFQgOtSb9AhaoUH7mxLSPNlAlLI5__cG6DOvt6OeY1qXN69L2ftSuBmA-9YXy8ivDmhlcxhED3rPKRDJdoPGFi4Wy2ED7L5fsUBQ3eUSAXtYPBq9SUp_ooTv6-fKeTwsD2WnM6sa-fAMXVAx7At1lfA"
+                />
               </Link>
             </div>
+            <p className="text-slate-300 text-sm leading-relaxed max-w-sm">
+              Junglan Community Development Foundation is a non-profit registered under the laws of Pakistan with the Securities and Exchange Commission of Pakistan (SECP CUIN: 0348227).
+            </p>
+            <div className="pt-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f2b48] text-[#b1f0ce] border border-white/10 text-xs font-mono font-bold">
+                <span className="material-symbols-outlined text-sm">verified</span> SECP CUIN: 0348227
+              </span>
+            </div>
+          </div>
+
+          {/* OPERATIONAL PILLARS Column */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="text-xs uppercase font-bold text-[#b1f0ce] tracking-wider">
+              OPERATIONAL PILLARS
+            </div>
+            <ul className="space-y-2 text-sm text-slate-300 font-medium">
+              <li>
+                <Link
+                  className="hover:text-white transition-colors flex items-center gap-2"
+                  href="/healthcare"
+                >
+                  <span className="material-symbols-outlined text-xs text-[#b1f0ce]">arrow_forward</span>
+                  Emergency Dispatch
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="hover:text-white transition-colors flex items-center gap-2"
+                  href="/healthcare"
+                >
+                  <span className="material-symbols-outlined text-xs text-[#b1f0ce]">arrow_forward</span>
+                  Healthcare &amp; Ambulance
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="hover:text-white transition-colors flex items-center gap-2"
+                  href="/agriculture"
+                >
+                  <span className="material-symbols-outlined text-xs text-[#b1f0ce]">arrow_forward</span>
+                  Olive Agroforestry
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="hover:text-white transition-colors flex items-center gap-2"
+                  href="/future-projects"
+                >
+                  <span className="material-symbols-outlined text-xs text-[#b1f0ce]">arrow_forward</span>
+                  Planned Infrastructure
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* GOVERNANCE & CONTACT Column */}
+          <div className="lg:col-span-4 space-y-4">
+            <div className="text-xs uppercase font-bold text-[#b1f0ce] tracking-wider">
+              GOVERNANCE &amp; CONTACT
+            </div>
+            <ul className="space-y-2.5 text-sm text-slate-300">
+              <li>
+                <Link
+                  className="hover:text-white transition-colors flex items-center gap-2 text-xs"
+                  href="/impact"
+                >
+                  <span className="material-symbols-outlined text-xs text-[#b1f0ce]">description</span>
+                  Audit Pipeline &amp; Field Records
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="hover:text-white transition-colors flex items-center gap-2 text-xs"
+                  href="/about"
+                >
+                  <span className="material-symbols-outlined text-xs text-[#b1f0ce]">gavel</span>
+                  SECP Governance Framework
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="hover:text-white transition-colors flex items-center gap-2 text-xs"
+                  href="/reports"
+                >
+                  <span className="material-symbols-outlined text-xs text-[#b1f0ce]">verified_user</span>
+                  Financial Transparency Pledge
+                </Link>
+              </li>
+              <li className="pt-2 border-t border-white/10 text-xs text-slate-300 leading-relaxed">
+                <span className="block text-slate-400 uppercase text-[10px] tracking-wider mb-0.5">
+                  Valley Desk Location:
+                </span>
+                Junglan Base Camp, Tehsil Baffa Pakhal, Mansehra, KP, Pakistan
+              </li>
+              <li className="text-xs text-slate-300">
+                <span className="block text-slate-400 uppercase text-[10px] tracking-wider mb-0.5">
+                  Emergency Triage Line:
+                </span>
+                <a
+                  className="font-mono font-bold text-white hover:text-[#b1f0ce] transition-colors"
+                  href="tel:+923000000000"
+                >
+                  +92 300 0000000
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 
-      {/* Main Multi-Column Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
-          {/* Col 1 & 2: Organization Identity & Mission */}
-          <div className="lg:col-span-2">
-            <Logo variant="light" className="mb-4" />
-            <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
-              {FOUNDATION_INFO.description}
-            </p>
-
-            <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/60 max-w-sm">
-              <div className="text-xs font-semibold uppercase tracking-wider text-sky-400 mb-1">
-                Emergency Ambulance Hotline
-              </div>
-              <a
-                href={`tel:${info.hotline}`}
-                className="text-lg font-bold text-white hover:text-sky-300 transition-colors inline-flex items-center gap-2"
-              >
-                <PhoneCall className="w-4 h-4 text-red-400" />
-                <span>{info.hotline}</span>
-              </a>
-              <div className="text-[11px] text-slate-400 mt-1">
-                Free 24/7 service for urgent and critical patient transfers.
-              </div>
-            </div>
+      {/* Bottom Legal Bar */}
+      <div className="border-t border-white/10 py-6 bg-[#081A2D]/80 text-xs text-slate-400">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="text-center md:text-left leading-relaxed">
+            © 2026 Junglan Community Development Foundation (JCDF). All rights reserved. Registered under SECP CUIN 0348227.
           </div>
-
-          {/* Col 3: Quick Links */}
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
-              Quick Links
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              {FOOTER_QUICK_LINKS.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group"
-                  >
-                    <span>{item.label}</span>
-                    <ArrowUpRight className="w-3 h-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Col 4: Community Projects */}
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
-              Our Projects
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              {FOOTER_PROJECT_LINKS.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group"
-                  >
-                    <span>{item.label}</span>
-                    <ArrowUpRight className="w-3 h-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Col 5: Contact Information */}
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
-              Contact Foundation
-            </h4>
-            <ul className="space-y-3 text-sm text-slate-400">
-              <li className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-1" />
-                <span className="leading-snug">{info.location}</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-sky-400 shrink-0" />
-                <a
-                  href={`mailto:${info.email}`}
-                  className="hover:text-white transition-colors"
-                >
-                  {info.email}
-                </a>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <PhoneCall className="w-4 h-4 text-sky-400 shrink-0" />
-                <a
-                  href={`tel:${info.hotline}`}
-                  className="hover:text-white transition-colors"
-                >
-                  {info.hotline}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom Legal & Copyright Bar */}
-        <div className="mt-16 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div>
-            © {currentYear} {FOUNDATION_INFO.name}. All rights reserved.
-          </div>
-          <div className="flex items-center gap-6">
-            <span>Non-Profit Foundation</span>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
+            <Link className="hover:text-white transition-colors" href="/about">
+              Privacy Policy
+            </Link>
             <span>•</span>
-            <span>Audited & Verified</span>
+            <Link className="hover:text-white transition-colors" href="/about">
+              Terms of Operations
+            </Link>
             <span>•</span>
-            <Link href="/reports" className="hover:text-slate-400 transition-colors">
-              Transparency Pledge
+            <Link className="hover:text-white transition-colors" href="/reports">
+              SECP Filings
             </Link>
           </div>
         </div>

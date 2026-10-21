@@ -1,239 +1,260 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, PhoneCall, HeartHandshake, ArrowRight } from "lucide-react";
-import { Logo } from "@/components/common/Logo";
-import { Button } from "@/components/ui/Button";
-import { MAIN_NAV_LINKS, FOUNDATION_INFO } from "@/data/content";
-import { cn } from "@/lib/utils";
 
 export function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [hotline, setHotline] = useState(FOUNDATION_INFO.hotline);
   const pathname = usePathname();
 
-  useEffect(() => {
-    fetch("/api/settings")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.data?.emergencyHotline) {
-          setHotline(data.data.emergencyHotline);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Lock body scroll when mobile menu is open
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [mobileMenuOpen]);
+  const isActive = (path: string) => {
+    if (path === "/") return pathname === "/";
+    return pathname.startsWith(path);
+  };
 
   return (
-    <header className="sticky top-0 z-50 w-full transition-all duration-200">
-      {/* Top Emergency Ambulance Hotline Strip */}
-      <div className="bg-slate-900 text-white text-xs py-1.5 px-4 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 font-semibold text-[11px] border border-red-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-              24/7 Emergency Ambulance
+    <header className="sticky top-0 z-50 transition-all bg-white shadow-sm border-b border-[#E2E8F0]">
+      {/* Utility Bar: Dark Slate/Navy with Standby Status and Direct Field Audits */}
+      <div className="bg-[#081A2D] text-white text-xs py-2 px-4 sm:px-6 lg:px-8 border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-y-2 gap-x-4">
+          <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-[#b1f0ce] border border-emerald-400/30 text-[11px] font-mono font-medium">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+              </span>
+              AMB-01 STANDBY
             </span>
-            <span className="hidden sm:inline text-slate-300">
-              Free Emergency Transport in Junglan & Surrounding Regions
+            <span className="text-slate-300 font-mono text-[11px] hidden sm:inline-flex items-center gap-1">
+              <span className="material-symbols-outlined text-xs text-[#b1f0ce]">location_on</span>{" "}
+              Base Camp Junglan (Elev. 1,520m)
+            </span>
+            <span className="text-slate-300 font-mono text-[11px] inline-flex items-center gap-1">
+              <span className="material-symbols-outlined text-xs text-[#b1f0ce]">verified</span>{" "}
+              SECP CUIN: 0348227
             </span>
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
+          <div className="flex items-center gap-4 text-xs font-mono ml-auto">
+            <span className="text-slate-300 hidden md:inline-flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 100% Direct Field Audits
+            </span>
             <a
-              href={`tel:${hotline}`}
-              className="inline-flex items-center gap-1.5 font-semibold text-sky-300 hover:text-white transition-colors"
+              className="text-slate-200 hover:text-white transition-colors flex items-center gap-1.5 font-bold"
+              href="tel:+923000000000"
             >
-              <PhoneCall className="w-3 h-3 text-red-400" />
-              <span>Helpline: {hotline}</span>
+              <span className="material-symbols-outlined text-xs text-[#ff545c]">emergency</span>{" "}
+              Valley Hotline: <span className="text-white font-mono">+92 300 0000000</span>
             </a>
           </div>
         </div>
       </div>
 
-      {/* Main Navigation Bar */}
-      <nav
-        className={cn(
-          "w-full transition-all duration-200 border-b",
-          isScrolled
-            ? "bg-white/95 backdrop-blur-md border-slate-200/80 shadow-xs py-3"
-            : "bg-white border-slate-100 py-4"
-        )}
-        aria-label="Main Navigation"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Logo */}
-          <Logo />
+      {/* Main Header Bar */}
+      <div className="bg-white border-b border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+          <Link
+            aria-label="Junglan Community Development Foundation Home"
+            className="flex items-center group shrink-0"
+            href="/"
+          >
+            <img
+              alt="Junglan Community Development Foundation (JCDF) Official Logo"
+              className="h-12 sm:h-14 w-auto max-w-[240px] sm:max-w-[300px] object-contain cursor-pointer transition-transform group-hover:scale-[1.01]"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfLIhBDEF3RoiI1s2zpVRFpNKOApn3SiSFIrx0Nn4nMcKtZ8OVhg2pCB6pcQW45Jzua3AlgGxOUaeSJjJ_MoZDirEs8Vl9gozc9fMCDdMpm6JoBdHe3VvQ2bUWgLgz83PIzp5gDuC5BeWfC4IJU5Nuo6HDoQp59oFgU1expxOO2pRiP-ByGLeX4DPK5BMiwBHEBLyCz_v-ivg8RUcx3jp4d8cfSed4VpKd81yebyM0pvSB2Sa-NDy6mnvNJ59944DNxQ"
+            />
+          </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1">
-            {MAIN_NAV_LINKS.map((link) => {
-              const isActive =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
-
-              return (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className={cn(
-                    "px-3.5 py-2 rounded-lg text-sm font-medium transition-colors duration-150",
-                    isActive
-                      ? "text-sky-700 bg-sky-50 font-semibold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Desktop Right CTA: Donate Now */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Button
-              href="/donate"
-              variant="primary"
-              size="md"
-              leftIcon={<HeartHandshake className="w-4 h-4" />}
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-700">
+            <Link
+              className={`pb-1 pt-1 transition-colors ${
+                isActive("/")
+                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
+                  : "text-slate-600 hover:text-[#00162d]"
+              }`}
+              href="/"
             >
-              Donate Now
-            </Button>
-          </div>
-
-          {/* Mobile Hamburger Button */}
-          <div className="flex lg:hidden items-center gap-2">
-            <Button
-              href="/donate"
-              variant="primary"
-              size="sm"
-              className="sm:hidden"
+              Home
+            </Link>
+            <Link
+              className={`py-1 transition-colors ${
+                isActive("/about")
+                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
+                  : "text-slate-600 hover:text-[#00162d]"
+              }`}
+              href="/about"
             >
-              Donate
-            </Button>
+              About Us
+            </Link>
+            <Link
+              className={`py-1 transition-colors ${
+                isActive("/projects")
+                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
+                  : "text-slate-600 hover:text-[#00162d]"
+              }`}
+              href="/projects"
+            >
+              Our Work
+            </Link>
+            <Link
+              className={`py-1 transition-colors ${
+                isActive("/healthcare")
+                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
+                  : "text-slate-600 hover:text-[#00162d]"
+              }`}
+              href="/healthcare"
+            >
+              Healthcare &amp; Ambulance
+            </Link>
+            <Link
+              className={`py-1 transition-colors ${
+                isActive("/agriculture")
+                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
+                  : "text-slate-600 hover:text-[#00162d]"
+              }`}
+              href="/agriculture"
+            >
+              Agriculture
+            </Link>
+            <Link
+              className={`py-1 flex items-center gap-1 transition-colors ${
+                isActive("/impact")
+                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
+                  : "text-slate-600 hover:text-[#00162d]"
+              }`}
+              href="/impact"
+            >
+              <span className="material-symbols-outlined text-sm text-[#2c694e]">verified</span>
+              Impact &amp; Audits
+            </Link>
+          </nav>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-3">
+            <a
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E2E8F0] bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-colors shadow-sm"
+              href="tel:+923000000000"
+            >
+              <span className="material-symbols-outlined text-sm text-[#2c694e]">support_agent</span>{" "}
+              Valley Desk
+            </a>
+            <Link
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#00162d] hover:bg-[#081A2D] text-white rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 duration-150"
+              href="/donate"
+            >
+              <span>Support Our Work</span>
+              <span className="material-symbols-outlined text-sm text-[#b1f0ce]">arrow_forward</span>
+            </Link>
             <button
+              aria-label="Toggle navigation menu"
+              className="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 border border-[#E2E8F0]"
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500"
-              aria-expanded={mobileMenuOpen}
-              aria-label="Toggle mobile menu"
             >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6 text-slate-900" />
-              ) : (
-                <Menu className="w-6 h-6 text-slate-900" />
-              )}
+              <span className="material-symbols-outlined text-2xl">
+                {mobileMenuOpen ? "close" : "menu"}
+              </span>
             </button>
           </div>
         </div>
-      </nav>
 
-      {/* Mobile Drawer Overlay & Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 top-[76px] sm:top-[85px] z-50 lg:hidden">
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
-
-          {/* Drawer Panel */}
-          <div className="relative bg-white border-b border-slate-200 shadow-2xl px-4 sm:px-6 py-4 sm:py-5 max-h-[calc(100dvh-76px)] sm:max-h-[calc(100dvh-85px)] overflow-y-auto overscroll-contain">
-            {/* Top Quick Emergency Hotline Banner (Immediately visible without scrolling on iPhone) */}
-            <div className="mb-4 p-3 sm:p-3.5 rounded-xl bg-gradient-to-r from-red-500/10 via-red-50 to-sky-50 border border-red-200/90 flex items-center justify-between gap-2 shadow-2xs">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                  <PhoneCall className="w-4 h-4 animate-pulse" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-red-700">
-                    24/7 Free Ambulance Hotline
-                  </div>
-                  <div className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight truncate">
-                    {hotline}
-                  </div>
-                </div>
-              </div>
+        {/* Mobile Nav Dropdown */}
+        {mobileMenuOpen && (
+          <nav className="lg:hidden flex flex-col gap-1 px-4 py-3 border-t border-slate-200 bg-white">
+            <Link
+              className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive("/")
+                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
+                  : "text-slate-700 hover:bg-[#f1f4f8]"
+              }`}
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive("/about")
+                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
+                  : "text-slate-700 hover:bg-[#f1f4f8]"
+              }`}
+              href="/about"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About Us
+            </Link>
+            <Link
+              className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive("/projects")
+                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
+                  : "text-slate-700 hover:bg-[#f1f4f8]"
+              }`}
+              href="/projects"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Our Work
+            </Link>
+            <Link
+              className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive("/healthcare")
+                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
+                  : "text-slate-700 hover:bg-[#f1f4f8]"
+              }`}
+              href="/healthcare"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Healthcare &amp; Ambulance
+            </Link>
+            <Link
+              className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive("/agriculture")
+                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
+                  : "text-slate-700 hover:bg-[#f1f4f8]"
+              }`}
+              href="/agriculture"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Agriculture
+            </Link>
+            <Link
+              className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-between ${
+                isActive("/impact")
+                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
+                  : "text-slate-700 hover:bg-[#f1f4f8]"
+              }`}
+              href="/impact"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span>Impact &amp; Audits</span>
+              <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono">
+                100% Audited
+              </span>
+            </Link>
+            <div className="pt-2 flex flex-col gap-2">
               <a
-                href={`tel:${hotline}`}
-                className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all shrink-0"
+                className="inline-flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-[#E2E8F0] bg-slate-50 text-slate-800 font-semibold text-xs"
+                href="tel:+923000000000"
               >
-                Call Now
+                <span className="material-symbols-outlined text-sm text-[#2c694e]">
+                  support_agent
+                </span>{" "}
+                Valley Desk: +92 300 0000000
               </a>
-            </div>
-
-            {/* Mobile Navigation Links */}
-            <div className="flex flex-col gap-1">
-              {MAIN_NAV_LINKS.map((link) => {
-                const isActive =
-                  link.href === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(link.href);
-
-                return (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "px-3.5 py-2 sm:py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-between",
-                      isActive
-                        ? "bg-sky-50 text-sky-700 font-semibold"
-                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900 active:bg-slate-100"
-                    )}
-                  >
-                    <span>{link.label}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Mobile Actions Bottom Section with Safe-Area padding */}
-            <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-2.5 pb-6 sm:pb-4">
-              <Button
+              <Link
+                className="w-full text-center bg-[#00162d] hover:bg-[#081A2D] text-white px-4 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center justify-center gap-2"
                 href="/donate"
-                variant="primary"
-                size="md"
-                className="w-full justify-center shadow-sm"
-                leftIcon={<HeartHandshake className="w-4 h-4" />}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Donate to Foundation
-              </Button>
-
-              <div className="text-center">
-                <span className="text-[11px] text-slate-500 font-medium">
-                  Junglan Community Development Foundation • Mansehra, KP
+                <span>Support Our Work</span>
+                <span className="material-symbols-outlined text-sm text-[#b1f0ce]">
+                  arrow_forward
                 </span>
-              </div>
+              </Link>
             </div>
-          </div>
-        </div>
-      )}
+          </nav>
+        )}
+      </div>
     </header>
   );
 }
