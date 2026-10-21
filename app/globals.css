@@ -194,6 +194,37 @@
 .text-on-error-container { color: #93000a !important; }
 .text-error { color: #ba1a1a !important; }
 
+.bg-stone-white { background-color: #F8F9FA !important; }
+.text-stone-white { color: #F8F9FA !important; }
+
+.px-margin {
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+.px-margin-sm {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+.py-space-xl {
+  padding-top: 2.5rem !important;
+  padding-bottom: 2.5rem !important;
+}
+
+.py-space-xs {
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+}
+
+.gap-gutter {
+  gap: 1.5rem !important;
+}
+
+.gap-gutter-sm {
+  gap: 1rem !important;
+}
+
 body {
   background-color: var(--color-surface-bg);
   color: var(--color-charcoal);
