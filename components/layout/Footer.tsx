@@ -36,18 +36,18 @@ export function Footer() {
             </div>
             <ul className="space-y-2 text-sm text-slate-300 font-medium">
               <li>
-                <Link
+                <a
                   className="hover:text-white transition-colors flex items-center gap-2"
-                  href="/healthcare"
+                  href="tel:+923000000000"
                 >
                   <span className="material-symbols-outlined text-xs text-[#b1f0ce]">arrow_forward</span>
                   Emergency Dispatch
-                </Link>
+                </a>
               </li>
               <li>
                 <Link
                   className="hover:text-white transition-colors flex items-center gap-2"
-                  href="/healthcare"
+                  href="/our-work#ambulance"
                 >
                   <span className="material-symbols-outlined text-xs text-[#b1f0ce]">arrow_forward</span>
                   Healthcare &amp; Ambulance
@@ -56,7 +56,7 @@ export function Footer() {
               <li>
                 <Link
                   className="hover:text-white transition-colors flex items-center gap-2"
-                  href="/agriculture"
+                  href="/our-work#agriculture"
                 >
                   <span className="material-symbols-outlined text-xs text-[#b1f0ce]">arrow_forward</span>
                   Olive Agroforestry
@@ -65,7 +65,7 @@ export function Footer() {
               <li>
                 <Link
                   className="hover:text-white transition-colors flex items-center gap-2"
-                  href="/future-projects"
+                  href="/our-work#future-initiatives"
                 >
                   <span className="material-symbols-outlined text-xs text-[#b1f0ce]">arrow_forward</span>
                   Planned Infrastructure
@@ -83,7 +83,7 @@ export function Footer() {
               <li>
                 <Link
                   className="hover:text-white transition-colors flex items-center gap-2 text-xs"
-                  href="/impact"
+                  href="/#audit-pipeline"
                 >
                   <span className="material-symbols-outlined text-xs text-[#b1f0ce]">description</span>
                   Audit Pipeline &amp; Field Records
@@ -92,7 +92,7 @@ export function Footer() {
               <li>
                 <Link
                   className="hover:text-white transition-colors flex items-center gap-2 text-xs"
-                  href="/about"
+                  href="/about#approach"
                 >
                   <span className="material-symbols-outlined text-xs text-[#b1f0ce]">gavel</span>
                   SECP Governance Framework
@@ -101,7 +101,7 @@ export function Footer() {
               <li>
                 <Link
                   className="hover:text-white transition-colors flex items-center gap-2 text-xs"
-                  href="/reports"
+                  href="/about#support"
                 >
                   <span className="material-symbols-outlined text-xs text-[#b1f0ce]">verified_user</span>
                   Financial Transparency Pledge

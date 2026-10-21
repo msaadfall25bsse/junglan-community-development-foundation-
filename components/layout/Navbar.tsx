@@ -98,32 +98,20 @@ export function Navbar() {
               Our Work
             </Link>
             <Link
-              className={`py-1 transition-colors ${
-                isActive("/healthcare")
-                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
-                  : "text-slate-600 hover:text-[#00162d]"
-              }`}
-              href="/healthcare"
+              className="py-1 text-slate-600 hover:text-[#00162d] transition-colors"
+              href="/our-work#ambulance"
             >
               Healthcare &amp; Ambulance
             </Link>
             <Link
-              className={`py-1 transition-colors ${
-                isActive("/agriculture")
-                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
-                  : "text-slate-600 hover:text-[#00162d]"
-              }`}
-              href="/agriculture"
+              className="py-1 text-slate-600 hover:text-[#00162d] transition-colors"
+              href="/our-work#agriculture"
             >
               Agriculture
             </Link>
             <Link
-              className={`py-1 flex items-center gap-1 transition-colors ${
-                isActive("/impact")
-                  ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
-                  : "text-slate-600 hover:text-[#00162d]"
-              }`}
-              href="/impact"
+              className="py-1 flex items-center gap-1 text-slate-600 hover:text-[#00162d] transition-colors"
+              href="/#audit-pipeline"
             >
               <span className="material-symbols-outlined text-sm text-[#2c694e]">verified</span>
               Impact &amp; Audits
@@ -141,7 +129,7 @@ export function Navbar() {
             </a>
             <Link
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#00162d] hover:bg-[#081A2D] text-white rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 duration-150"
-              href="/donate"
+              href="/#support-section"
             >
               <span>Support Our Work</span>
               <span className="material-symbols-outlined text-sm text-[#b1f0ce]">arrow_forward</span>
@@ -196,34 +184,22 @@ export function Navbar() {
               Our Work
             </Link>
             <Link
-              className={`px-3 py-2 rounded-lg text-sm font-medium ${
-                isActive("/healthcare")
-                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
-                  : "text-slate-700 hover:bg-[#f1f4f8]"
-              }`}
-              href="/healthcare"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-[#f1f4f8]"
+              href="/our-work#ambulance"
               onClick={() => setMobileMenuOpen(false)}
             >
               Healthcare &amp; Ambulance
             </Link>
             <Link
-              className={`px-3 py-2 rounded-lg text-sm font-medium ${
-                isActive("/agriculture")
-                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
-                  : "text-slate-700 hover:bg-[#f1f4f8]"
-              }`}
-              href="/agriculture"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-[#f1f4f8]"
+              href="/our-work#agriculture"
               onClick={() => setMobileMenuOpen(false)}
             >
               Agriculture
             </Link>
             <Link
-              className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-between ${
-                isActive("/impact")
-                  ? "bg-[#f1f4f8] text-[#00162d] font-bold"
-                  : "text-slate-700 hover:bg-[#f1f4f8]"
-              }`}
-              href="/impact"
+              className="px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-between text-slate-700 hover:bg-[#f1f4f8]"
+              href="/#audit-pipeline"
               onClick={() => setMobileMenuOpen(false)}
             >
               <span>Impact &amp; Audits</span>
@@ -243,7 +219,7 @@ export function Navbar() {
               </a>
               <Link
                 className="w-full text-center bg-[#00162d] hover:bg-[#081A2D] text-white px-4 py-2.5 rounded-lg text-sm font-bold shadow-sm flex items-center justify-center gap-2"
-                href="/donate"
+                href="/#support-section"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <span>Support Our Work</span>
