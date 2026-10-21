@@ -30,6 +30,170 @@
   --color-accent-emergency-bg: #fef2f2;
 }
 
+/* JCDF Editorial Mountain Stewardship Typography Tokens */
+.font-stat-display {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-size: 40px;
+  line-height: 44px;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.text-stat-display {
+  font-size: 40px;
+  line-height: 44px;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.font-headline-xl {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+}
+
+.text-headline-xl {
+  font-size: 48px;
+  line-height: 56px;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+.font-headline-lg {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+}
+
+.text-headline-lg {
+  font-size: 36px;
+  line-height: 44px;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+.font-headline-md {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+}
+
+.text-headline-md {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+.font-headline-sm {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+}
+
+.text-headline-sm {
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.font-body-lg {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+.text-body-lg {
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+}
+
+.font-body-md {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+.text-body-md {
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.font-body-sm {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  font-weight: 400;
+}
+
+.text-body-sm {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.font-label-uppercase {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  font-weight: 700;
+}
+
+.text-label-uppercase {
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.font-label-md {
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  font-weight: 600;
+}
+
+.text-label-md {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+/* JCDF Precise Palette Utility Classes matching Editorial Theme */
+.text-primary { color: #00162d !important; }
+.bg-primary { background-color: #00162d !important; }
+.border-primary { border-color: #00162d !important; }
+
+.text-secondary { color: #2c694e !important; }
+.bg-secondary { background-color: #2c694e !important; }
+.border-secondary { border-color: #2c694e !important; }
+
+.text-secondary-fixed { color: #b1f0ce !important; }
+.bg-secondary-fixed { background-color: #b1f0ce !important; }
+
+.text-on-secondary-fixed { color: #002114 !important; }
+
+.text-navy-deep { color: #081A2D !important; }
+.bg-navy-deep { background-color: #081A2D !important; }
+
+.border-stone-border { border-color: #E2E8F0 !important; }
+
+.bg-surface-container-low { background-color: #f1f4f8 !important; }
+.bg-surface-container-lowest { background-color: #ffffff !important; }
+.bg-surface-container-high { background-color: #e5e8ec !important; }
+.bg-surface { background-color: #f7fafe !important; }
+
+.text-on-surface-variant { color: #43474d !important; }
+.text-on-surface { color: #181c1f !important; }
+.text-surface { color: #f7fafe !important; }
+
+.text-status-planned { color: #D97706 !important; }
+.border-status-planned { border-color: #D97706 !important; }
+
+.text-status-active { color: #166534 !important; }
+
+.bg-primary-container { background-color: #0f2b48 !important; }
+.text-on-primary-container { color: #7a93b5 !important; }
+
+.bg-tertiary-container { background-color: #5c000e !important; }
+.hover\:bg-tertiary:hover { background-color: #350005 !important; }
+.text-on-tertiary-container { color: #ff545c !important; }
+
+.bg-error-container { background-color: #ffdad6 !important; }
+.text-on-error-container { color: #93000a !important; }
+.text-error { color: #ba1a1a !important; }
+
 body {
   background-color: var(--color-surface-bg);
   color: var(--color-charcoal);
