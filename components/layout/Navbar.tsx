@@ -89,11 +89,11 @@ export function Navbar() {
             </Link>
             <Link
               className={`py-1 transition-colors ${
-                isActive("/projects")
+                isActive("/our-work")
                   ? "font-bold text-[#00162d] border-b-2 border-[#00162d]"
                   : "text-slate-600 hover:text-[#00162d]"
               }`}
-              href="/projects"
+              href="/our-work"
             >
               Our Work
             </Link>
@@ -186,11 +186,11 @@ export function Navbar() {
             </Link>
             <Link
               className={`px-3 py-2 rounded-lg text-sm font-medium ${
-                isActive("/projects")
+                isActive("/our-work")
                   ? "bg-[#f1f4f8] text-[#00162d] font-bold"
                   : "text-slate-700 hover:bg-[#f1f4f8]"
               }`}
-              href="/projects"
+              href="/our-work"
               onClick={() => setMobileMenuOpen(false)}
             >
               Our Work
