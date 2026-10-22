@@ -1,4 +1,9 @@
 {
+  "googleIntegrations": [],
+  "syncJobs": [],
+  "syncLogs": [],
+  "syncConflicts": [],
+  "externalRecordMappings": [],
   "yearPeriods": [
     {
       "id": "2026",
@@ -636,6 +641,24 @@
     }
   ],
   "auditLogs": [
+    {
+      "id": "aud-1792647647010",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-10-22T05:40:47.011Z",
+      "metadataJson": "{\"result\":\"SUCCESS\",\"ip\":\"::1\"}"
+    },
+    {
+      "id": "aud-1792591418916",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-10-21T14:03:38.916Z",
+      "metadataJson": "{\"result\":\"SUCCESS\",\"ip\":\"::1\"}"
+    },
     {
       "id": "aud-1789372168821",
       "userId": "usr-data_entry-1789080313173",
@@ -1431,7 +1454,7 @@
       "isActive": true,
       "createdAt": "2026-09-10T22:45:13.173Z",
       "updatedAt": "2026-09-10T22:45:13.173Z",
-      "lastLoginAt": "2026-09-14T07:49:24.689Z"
+      "lastLoginAt": "2026-10-22T05:40:46.971Z"
     }
   ]
 }
