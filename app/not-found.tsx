@@ -1,5 +1,5 @@
 import React from "react";
-import { PublicLayout } from "@/components/layout/PublicLayout";
+import { PublicLayout } from "@/components/ui/layout/PublicLayout";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { Compass, Home, PhoneCall, FolderGit2 } from "lucide-react";

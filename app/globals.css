@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: var(--font-inter), "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-headline-xl: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
   --font-headline-lg: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
   --font-headline-md: var(--font-jakarta), "Plus Jakarta Sans", sans-serif;
@@ -220,6 +221,7 @@
 .bg-navy-deep { background-color: #081A2D !important; }
 
 .border-stone-border { border-color: #E2E8F0 !important; }
+.border-stone-border\/20 { border-color: rgba(226, 232, 240, 0.2) !important; }
 
 .bg-surface-container-low { background-color: #f1f4f8 !important; }
 .bg-surface-container-lowest { background-color: #ffffff !important; }
@@ -236,6 +238,7 @@
 .text-status-active { color: #166534 !important; }
 
 .bg-primary-container { background-color: #0f2b48 !important; }
+.bg-primary-container\/60 { background-color: rgba(15, 43, 72, 0.6) !important; }
 .text-on-primary-container { color: #7a93b5 !important; }
 
 .bg-tertiary-container { background-color: #5c000e !important; }
@@ -296,6 +299,7 @@ img, video {
 }
 
 body {
+  font-family: var(--font-inter), 'Inter', sans-serif;
   background-color: var(--color-surface-bg);
   color: var(--color-charcoal);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -340,3 +344,51 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Page-wide fixed background (Image remains stationary while content scrolls) */
+html {
+  background-color: #f8fafc;
+}
+
+body.custom-pattern-bg {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)), url('/images/community-pattern-bg.jpg');
+  background-attachment: fixed !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Dedicated section background with stationary/fixed image */
+.section-community-bg {
+  position: relative;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86)), url('/images/community-pattern-bg.jpg') !important;
+  background-attachment: fixed !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+.section-community-bg-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Continuous smooth infinite marquee ticker */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-infinite {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 24s linear infinite;
+  will-change: transform;
+}
+
+

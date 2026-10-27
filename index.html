@@ -1,0 +1,866 @@
+<!DOCTYPE html><html class="scroll-smooth" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport">
+<title>Junglan Community Development Foundation (JCDF) | Mountain Stewardship &amp; Field Relief</title>
+<!-- Google Fonts: Inter & Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-tertiary-fixed": "#410007",
+            "primary-fixed": "#d2e4ff",
+            "secondary-fixed-dim": "#95d4b3",
+            "surface-container": "#ebeef2",
+            "on-primary-fixed": "#001c37",
+            "primary-container": "#0f2b48",
+            "surface": "#f7fafe",
+            "tertiary": "#350005",
+            "status-active": "#166534",
+            "surface-container-low": "#f1f4f8",
+            "surface-container-high": "#e5e8ec",
+            "tertiary-fixed-dim": "#ffb3b1",
+            "on-secondary": "#ffffff",
+            "on-primary-container": "#7a93b5",
+            "outline": "#74777e",
+            "secondary-fixed": "#b1f0ce",
+            "secondary": "#2c694e",
+            "surface-dim": "#d7dade",
+            "error": "#ba1a1a",
+            "tertiary-fixed": "#ffdad8",
+            "on-error-container": "#93000a",
+            "inverse-on-surface": "#eef1f5",
+            "on-background": "#181c1f",
+            "on-secondary-fixed": "#002114",
+            "surface-tint": "#476080",
+            "outline-variant": "#c4c6ce",
+            "stone-white": "#F8F9FA",
+            "surface-bright": "#f7fafe",
+            "on-surface-variant": "#43474d",
+            "tertiary-container": "#5c000e",
+            "inverse-primary": "#afc8ed",
+            "primary": "#00162d",
+            "on-tertiary": "#ffffff",
+            "on-error": "#ffffff",
+            "primary-fixed-dim": "#afc8ed",
+            "navy-deep": "#081A2D",
+            "status-planned": "#D97706",
+            "on-tertiary-fixed-variant": "#92001c",
+            "stone-border": "#E2E8F0",
+            "on-primary-fixed-variant": "#2f4867",
+            "background": "#f7fafe",
+            "error-container": "#ffdad6",
+            "on-primary": "#ffffff",
+            "surface-container-highest": "#e0e3e7",
+            "on-secondary-container": "#316e52",
+            "on-surface": "#181c1f",
+            "olive-deep": "#1E4620",
+            "on-secondary-fixed-variant": "#0e5138",
+            "surface-container-lowest": "#ffffff",
+            "inverse-surface": "#2d3134",
+            "surface-variant": "#e0e3e7",
+            "on-tertiary-container": "#ff545c",
+            "secondary-container": "#aeeecb"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "margin": "2rem",
+            "space-md": "1rem",
+            "space-xl": "2.5rem",
+            "space-xs": "0.25rem",
+            "space-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "gutter": "1.5rem",
+            "gutter-sm": "1rem",
+            "margin-sm": "1rem"
+          },
+          "fontFamily": {
+            "stat-display": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "body-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "body-lg": ["Inter"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "label-uppercase": ["Inter"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "label-md": ["Inter"]
+          },
+          "fontSize": {
+            "stat-display": ["40px", { "lineHeight": "44px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "headline-xl-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "label-uppercase": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "700" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.03em", "fontWeight": "800" }],
+            "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background antialiased font-body-md text-body-md selection:bg-secondary-container selection:text-on-secondary-fixed overflow-x-hidden">
+<svg aria-hidden="true" class="inline-defs-container" style="position:absolute;width:0;height:0;overflow:hidden"></svg>
+<!-- 1. RESPONSIVE HEADER & NAVIGATION -->
+<header class="relative z-50 bg-white shadow-sm border-b border-stone-border">
+<!-- Utility Top Bar: Desktop full bar + Mobile continuous smooth infinite ticker (Height reduced by 5px) -->
+<div class="bg-navy-deep text-surface text-xs border-b border-white/10 py-[3px] overflow-hidden">
+  <!-- Desktop/Tablet Layout (Screen >= md) -->
+  <div class="hidden md:flex max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 items-center justify-between gap-4">
+    <div class="flex items-center gap-3 lg:gap-4 text-[11px] sm:text-xs font-medium">
+      <span class="inline-flex items-center gap-1.5 text-secondary-fixed">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        SECP Registered CUIN: 0348227
+      </span>
+      <span class="inline text-white/30">|</span>
+      <span class="inline-flex items-center gap-1 text-slate-300">
+        <span class="material-symbols-outlined text-xs text-[#b1f0ce]">verified</span>
+        100% Direct Allocation to Mountain Relief
+      </span>
+    </div>
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <a class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white text-[11px] sm:text-xs font-semibold transition-colors border border-white/15" href="tel:+923016541825" style="border-color: rgb(11, 79, 140); background: rgba(11, 79, 140, 0.4);">
+        <span class="material-symbols-outlined text-xs text-secondary-fixed">phone</span>
+        <span>Valley Desk: +92 301 6541825</span>
+      </a>
+      <a class="inline-flex items-center gap-1.5 px-3.5 py-0.5 rounded-full text-white font-bold text-[11px] sm:text-xs transition-all shadow-sm active:scale-95 border border-white/30" href="#donation-action-card" style="background-color: rgb(229, 37, 42);">
+        <span class="material-symbols-outlined text-xs text-secondary-fixed">volunteer_activism</span>
+        <span>Donate / Support Fund</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Mobile Continuous Infinite Marquee (Screens < md) - Never stops, constant linear speed -->
+  <div class="md:hidden flex items-center overflow-hidden whitespace-nowrap w-full">
+    <div class="animate-marquee-infinite flex items-center gap-6 py-0 text-[11px] font-medium">
+      {/* Group 1 */}
+      <div class="flex items-center gap-6 shrink-0">
+        <span class="inline-flex items-center gap-1.5 text-secondary-fixed">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          SECP CUIN: 0348227
+        </span>
+        <span class="text-white/30">•</span>
+        <span class="inline-flex items-center gap-1 text-slate-300">
+          <span class="material-symbols-outlined text-xs text-[#b1f0ce]">verified</span>
+          100% Direct Allocation to Mountain Relief
+        </span>
+        <span class="text-white/30">•</span>
+        <a class="inline-flex items-center gap-1 text-white hover:text-emerald-300 transition-colors" href="tel:+923016541825">
+          <span class="material-symbols-outlined text-xs text-secondary-fixed">phone</span>
+          <span>Valley Desk: +92 301 6541825</span>
+        </a>
+        <span class="text-white/30">•</span>
+        <a class="inline-flex items-center gap-1 text-[#ffdad8] font-bold" href="#support-section">
+          <span class="material-symbols-outlined text-xs">volunteer_activism</span>
+          <span>Donate / Support Fund</span>
+        </a>
+        <span class="text-white/30">•</span>
+      </div>
+
+      {/* Group 2 (Duplicate for seamless continuous infinite loop) */}
+      <div class="flex items-center gap-6 shrink-0" aria-hidden="true">
+        <span class="inline-flex items-center gap-1.5 text-secondary-fixed">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          SECP CUIN: 0348227
+        </span>
+        <span class="text-white/30">•</span>
+        <span class="inline-flex items-center gap-1 text-slate-300">
+          <span class="material-symbols-outlined text-xs text-[#b1f0ce]">verified</span>
+          100% Direct Allocation to Mountain Relief
+        </span>
+        <span class="text-white/30">•</span>
+        <a class="inline-flex items-center gap-1 text-white hover:text-emerald-300 transition-colors" href="tel:+923016541825">
+          <span class="material-symbols-outlined text-xs text-secondary-fixed">phone</span>
+          <span>Valley Desk: +92 301 6541825</span>
+        </a>
+        <span class="text-white/30">•</span>
+        <a class="inline-flex items-center gap-1 text-[#ffdad8] font-bold" href="#support-section">
+          <span class="material-symbols-outlined text-xs">volunteer_activism</span>
+          <span>Donate / Support Fund</span>
+        </a>
+        <span class="text-white/30">•</span>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Main Navigation Bar -->
+<div class="bg-white relative overflow-hidden">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between gap-3 relative z-10 py-1 sm:py-1.5">
+<!-- Logo: dynamically scaled for mobile/tablet/desktop -->
+<a aria-label="Junglan Community Development Foundation Home" class="flex items-center group shrink-0" href="#">
+<img alt="Junglan Community Development Foundation (JCDF) Official Logo" class="w-auto object-contain cursor-pointer transition-transform group-hover:scale-105" style="height: 6.5rem; max-height: 110px; min-height: 84px;" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMX1-WZBJbEpkM_8-kzUx_tbNTPkRZA2eHJ1daLWgkxQPnPNC9NXP-zYD-JfRk9Ue7MT43Mg1bm5T-ETgF9lPvxWvsfFpwXhZMhuV5dDirJUN7LwL0Y34TZgdR8cgfZvs6zBYlcVz_N-NfEd8fZ-5NEpryjqWjSlwahqP1QUHU2O0HBVIpzFNh8-wsAf03GqczK4nbTwkjr7q42e8kJkc8SK0VF90z1b73DggAOWYboYtHnFznpFQWdrTTnVmrvHlO8w">
+</a>
+<!-- Desktop/Tablet Nav -->
+<nav class="hidden xl:flex items-center gap-5 font-medium text-slate-700"><a class="font-bold text-primary border-b-2 border-primary pb-1 pt-1 transition-colors text-base" href="#" style="color: rgb(30, 86, 49) !important; border-bottom-color: rgb(30, 86, 49) !important;">Home</a>
+<a class="font-semibold text-slate-700 hover:text-primary transition-colors py-1 text-base" href="#about-origin">About Us</a>
+<a class="font-semibold text-slate-700 hover:text-primary transition-colors py-1 text-base" href="#work-pillars">Our Work</a>
+<a class="font-semibold text-slate-700 hover:text-primary transition-colors py-1 text-base" href="#healthcare-section">Healthcare &amp; Ambulance</a>
+<a class="font-semibold text-slate-700 hover:text-primary transition-colors py-1 text-base" href="#agriculture-section">Agriculture</a>
+<a class="font-semibold text-slate-700 hover:text-primary transition-colors py-1 flex items-center gap-1.5 text-base" href="#audit-pipeline">
+<span class="material-symbols-outlined text-base text-secondary">verified</span> Impact &amp; Audits
+</a></nav>
+<!-- Action Buttons & Hamburger -->
+<div class="flex items-center gap-2 sm:gap-3"><a class="hidden md:inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-[#0b4f8c]/30 bg-slate-50 hover:bg-slate-100 text-[#0b4f8c] text-xs sm:text-sm font-bold transition-colors shadow-sm" href="tel:+923016541825"><span class="material-symbols-outlined text-base text-[#1e5631]">support_agent</span> Valley Desk</a><a class="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-[#e5252a] hover:bg-[#c0171c] text-white rounded-lg text-xs sm:text-sm font-bold transition-all shadow-md active:scale-95 duration-150 whitespace-nowrap border border-white/20" href="#support-section"><span class="material-symbols-outlined text-base text-[#ffdad8]">volunteer_activism</span><span class="">Donate / Support Fund</span></a><button aria-label="Toggle navigation menu" class="xl:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100 border border-stone-border focus:outline-none focus:ring-2 focus:ring-primary/20" id="mobile-menu-btn" type="button"><span class="material-symbols-outlined text-2xl" id="menu-icon">menu</span></button></div>
+</div>
+<!-- Responsive Mobile Drawer / Dropdown -->
+<nav class="hidden xl:hidden flex-col gap-1 px-4 py-4 border-t border-slate-200 bg-surface-container-lowest transition-all" id="mobile-nav-menu">
+<a class="px-3 py-2.5 rounded-lg bg-surface-container-low text-primary font-bold text-sm" href="#">Home</a>
+<a class="px-3 py-2.5 rounded-lg text-slate-700 hover:bg-surface-container-low text-sm font-medium" href="#about-origin">About Us</a>
+<a class="px-3 py-2.5 rounded-lg text-slate-700 hover:bg-surface-container-low text-sm font-medium" href="#work-pillars">Our Work</a>
+<a class="px-3 py-2.5 rounded-lg text-slate-700 hover:bg-surface-container-low text-sm font-medium" href="#healthcare-section">Healthcare &amp; Ambulance</a>
+<a class="px-3 py-2.5 rounded-lg text-slate-700 hover:bg-surface-container-low text-sm font-medium" href="#agriculture-section">Agriculture</a>
+<a class="px-3 py-2.5 rounded-lg text-slate-700 hover:bg-surface-container-low text-sm font-medium flex items-center justify-between" href="#audit-pipeline">
+<span class="">Impact &amp; Audits</span>
+<span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-medium">100% Audited</span>
+</a>
+<div class="pt-3 mt-1 border-t border-stone-border flex flex-col gap-2">
+<a class="inline-flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-stone-border bg-slate-50 text-slate-800 font-semibold text-xs active:bg-slate-100" href="tel:+923000000000">
+<span class="material-symbols-outlined text-sm text-secondary">support_agent</span> Valley Desk: +92 300 0000000
+        </a>
+<a class="w-full text-center bg-primary hover:bg-navy-deep text-white px-4 py-3 rounded-lg text-sm font-bold shadow-sm flex items-center justify-center gap-2 active:scale-98 transition-all" href="#support-section">
+<span class="">Support Our Work</span>
+<span class="material-symbols-outlined text-sm text-secondary-fixed">arrow_forward</span>
+</a>
+</div>
+</nav>
+</div>
+</header>
+<!-- 2. CIVIC HERO SECTION (Broad Multi-Sector Mountain Stewardship) -->
+<section class="relative border-b border-stone-border overflow-hidden min-h-[500px] sm:min-h-[560px] md:min-h-[620px] flex items-center bg-[#FDFBF7] bg-cover bg-center sm:bg-right no-repeat" style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBkQ3bHoJIL3AnHWLMFcDf5DFgGJQrP3x-8VuwT5MIBQJ5CnVHbXtTlgUrEy_QtSADnBnrZxsmEC6xZ2i3VcbaOSLWURcNoIetNYW0JCi_fbWvG5RbhQCLw3kHWEC--9GG-Mnta25U08rHbT86Gzc8-Sn2NWhEyYVZaqAwjlhE9Ouw9UW-vzhSi_wXtkK8Udsny8hOHun9ESrjEtG7ohzwP-u8_7ZYYcJd5FryFYwCGmV5oSiQWd9KEBrWebnFLqu8MCA&quot;); background-position: center center; background-size: cover;">
+<!-- Subtle overlay on mobile to ensure immaculate readability while keeping transparent look -->
+<div class="absolute inset-0 bg-white/75 sm:bg-white/60 backdrop-blur-[1px] pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-10 sm:py-14 md:py-20 w-full relative z-10">
+<div class="max-w-4xl mx-auto text-center space-y-5 sm:space-y-6 flex flex-col items-center"><div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100/95 sm:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800 shadow-sm"><span class="material-symbols-outlined text-sm text-[#166534]">verified</span><span class="">SECP CUIN 0348227 · Non-Profit Organization</span></div><h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-[44px] font-extrabold tracking-tight leading-tight sm:leading-[1.2]"><span class="text-[#00162d]">Empowering </span><span style="color: rgb(30, 86, 49);" class="">Mountain Communities</span> <span class="text-[#00162d]">Through </span><span style="color: rgb(229, 37, 42);" class="">Resilient Healthcare</span><span class="text-[#00162d]">, </span><span style="color: rgb(30, 86, 49);" class="">Sustainable Agriculture</span> <span class="text-[#00162d]">&amp; </span><span style="color: rgb(11, 79, 140);" class="">Community Development</span></h1><p class="text-sm sm:text-base md:text-body-lg text-slate-700 leading-relaxed font-normal max-w-2xl mx-auto">Rooted in the steep valleys of District Mansehra, JCDF bridges critical life-safety gaps and builds permanent generational self-reliance for underserved rural families.</p><div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-2"><a class="inline-flex items-center justify-center gap-2 bg-[#1e5631] hover:bg-[#153e23] text-white font-bold text-xs sm:text-sm px-6 py-3.5 rounded-lg transition-all shadow-md active:scale-95 duration-150 text-center" href="#work-pillars"><span class="">Explore Our Work</span><span class="material-symbols-outlined text-sm text-[#b1f0ce]">arrow_forward</span></a><a class="inline-flex items-center justify-center gap-2 bg-white/95 sm:bg-white hover:bg-slate-50 text-slate-800 border border-[#0b4f8c]/40 font-bold text-xs sm:text-sm px-6 py-3.5 rounded-lg transition-all shadow-sm text-center hover:text-[#0b4f8c]" href="#audit-pipeline"><span class="material-symbols-outlined text-sm text-[#0b4f8c]">visibility</span><span class="">View Audit Reports</span></a></div><div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-4 text-xs font-semibold text-slate-700 border-t border-slate-200/80 mt-3"><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-[#1e5631]">check_circle</span><span class="">100% Direct Allocation Guarantee</span></div><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-[#1e5631]">check_circle</span><span class="">Zero Admin Diversion Policy</span></div><div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm text-[#0b4f8c]">verified_user</span><span class="">Public Operational Ledgers</span></div></div></div>
+</div>
+</section>
+<!-- 3. KEY METRICS OF VERIFIED FIELD DATA (Fluid 2-col on Mobile/Tablet, 4-col on Desktop) -->
+<section class="py-8 sm:py-12 bg-surface-container-lowest border-b border-stone-border">
+<div class="max-w-7xl mx-auto px-[10px]">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
+<div>
+<span class="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-[11px]">Field Operational Verification</span>
+<h2 class="text-xl sm:text-2xl md:text-headline-md font-headline-md text-primary mt-1">Measurable Progress Across Junglan Valley</h2>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface-variant max-w-md text-xs sm:text-sm">
+        Field data updated on monthly accounting cycle • 100% verified against bank receipts and emergency dispatch trip logs.
+      </div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+<!-- Metric 1 -->
+<div class="p-4 sm:p-5 md:p-6 rounded-lg bg-surface-container-low border border-stone-border flex flex-col justify-between"><div><div class="flex items-center justify-between text-on-surface-variant mb-2"><span class="text-[10px] sm:text-xs uppercase font-label-uppercase font-semibold tracking-wide text-[#e5252a]">Emergency Evacuations</span><span class="material-symbols-outlined text-[#e5252a] text-base sm:text-xl">ambulance</span></div><div class="text-2xl sm:text-3xl md:text-stat-display font-stat-display tracking-tight text-[#e5252a]">462</div><p class="text-[11px] sm:text-body-sm text-on-surface-variant mt-2 leading-snug">Critical patients safely transported in 2.5 years (maternity, trauma, cardiac).</p></div><div class="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-stone-border text-[10px] sm:text-xs text-[#e5252a] font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-xs">verified</span> Logged in Dispatch Register</div></div>
+<!-- Metric 2 -->
+<div class="p-4 sm:p-5 md:p-6 rounded-lg bg-surface-container-low border border-stone-border flex flex-col justify-between"><div><div class="flex items-center justify-between text-on-surface-variant mb-2"><span class="text-[10px] sm:text-xs uppercase font-label-uppercase font-semibold tracking-wide text-[#1e5631]">Core Settlements</span><span class="material-symbols-outlined text-[#1e5631] text-base sm:text-xl">location_city</span></div><div class="text-2xl sm:text-3xl md:text-stat-display font-stat-display tracking-tight text-[#1e5631]">4</div><p class="text-[11px] sm:text-body-sm text-on-surface-variant mt-2 leading-snug">Core mountain villages served continuously, plus 15+ surrounding isolated hamlets.</p></div><div class="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-stone-border text-[10px] sm:text-xs text-[#1e5631] font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-xs">terrain</span> Hazara High-Altitude</div></div>
+<!-- Metric 3 -->
+<div class="p-4 sm:p-5 md:p-6 rounded-lg bg-surface-container-low border border-stone-border flex flex-col justify-between"><div><div class="flex items-center justify-between text-on-surface-variant mb-2"><span class="text-[10px] sm:text-xs uppercase font-label-uppercase font-semibold tracking-wide text-[#0b4f8c]">Ambulance Unit</span><span class="material-symbols-outlined text-[#0b4f8c] text-base sm:text-xl">emergency</span></div><div class="text-2xl sm:text-3xl md:text-stat-display font-stat-display tracking-tight text-[#0b4f8c]">1</div><p class="text-[11px] sm:text-body-sm text-on-surface-variant mt-2 leading-snug">Dedicated mountain unit (AMB-01, oxygen-equipped, 24/7 mountain driver).</p></div><div class="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-stone-border text-[10px] sm:text-xs text-[#0b4f8c] font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-xs">check_circle</span> 100% Free for Needy</div></div>
+<!-- Metric 4 -->
+<div class="p-4 sm:p-5 md:p-6 rounded-lg bg-surface-container-low border border-stone-border flex flex-col justify-between"><div><div class="flex items-center justify-between text-on-surface-variant mb-2"><span class="text-[10px] sm:text-xs uppercase font-label-uppercase font-semibold tracking-wide text-[#1e5631]">Fiduciary Audit</span><span class="material-symbols-outlined text-[#1e5631] text-base sm:text-xl">receipt_long</span></div><div class="text-2xl sm:text-3xl md:text-stat-display font-stat-display tracking-tight text-[#1e5631]">100%</div><p class="text-[11px] sm:text-body-sm text-on-surface-variant mt-2 leading-snug">Transparent stewardship verified against bank receipts and field ledgers.</p></div><div class="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-stone-border text-[10px] sm:text-xs text-[#1e5631] font-semibold flex items-center gap-1"><span class="material-symbols-outlined text-xs">policy</span> SECP Reg. CUIN 0348227</div></div>
+</div>
+</div>
+</section>
+<!-- 4. FOUNDATION ORIGIN & SACRED MISSION (Stacked on mobile/tablet, Side-by-side on desktop) -->
+<section class="py-12 sm:py-16 bg-surface border-b border-stone-border" id="about-origin">
+<div class="max-w-7xl mx-auto px-[10px]">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+<!-- 3-Image Mosaic: Fluid and touch-friendly -->
+<div class="lg:col-span-5 space-y-3 sm:space-y-4">
+<div class="relative rounded-xl overflow-hidden border border-stone-border shadow-md bg-surface-container-lowest group">
+<div class="relative aspect-[16/10] overflow-hidden">
+<img alt="Community solidarity circle of hands" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4DGxNEXGTKVcDR5tVCck46VvsrIbVtzjqA0dC-3OOfD2uKrHX1PMAnPUt0P07AzZzv4eBPGYXjH8rBwEj_4aqidk5Az2l_soTKqUtAarmn2dqG3ZUAljjmA8KKO1A7hH7onu-5ht8escwKJL_Oam0YUYSbrmkW4jkrmI-H54NKAOAXNO6cIwn6eJWSYhVm7ZTyFjhYMC8nlP2G3FSmyx8nlac07U7qEWMAXhu3gszlZanznqbRI2DRHg5l8zToY8UQw">
+<div class="absolute inset-0 bg-gradient-to-t from-navy-deep/85 via-transparent to-black/10 pointer-events-none"></div>
+
+<div class="absolute bottom-3 left-3 right-3 text-white">
+<div class="text-[10px] sm:text-xs text-secondary-fixed uppercase font-label-uppercase tracking-wider font-bold">Grassroots Unity</div>
+<div class="text-xs sm:text-sm font-semibold text-surface">Building Resilience Shoulder-to-Shoulder</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+<div class="relative rounded-xl overflow-hidden border border-stone-border shadow-sm bg-surface-container-lowest group">
+<div class="relative aspect-[4/3] overflow-hidden">
+<img alt="Mountain summit sunrise celebrating community silhouettes" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3u78sDhaKgTF8OjDFgHyICzixyT_yFm2xOE1M4G20bqYJuJJHwdUVHSllUsfPfGll5IJyV3yGwSGeRmQWyfVxlkxglNcU3V2ZIXETAm8ki9-M-sg07bjHeuStrOkiUzjJotEtXB2oQYrr8hw_iJf6gVaRH9iHxcAqzWCthnp87UniDQkd0e9BsX3b9RnWi0ZBl8V7yz_mt9vldIHgecJM5Zn4wZN8ziLVMUOOdAbsDF6AwUYPzkDu7jZ7gS7ItaCFjg">
+<div class="absolute inset-0 bg-gradient-to-t from-navy-deep/80 via-transparent to-transparent pointer-events-none"></div>
+<div class="absolute inset-x-0 bottom-0 p-2 sm:p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center gap-1 text-white text-[10px] sm:text-xs font-semibold tracking-wide">
+<span class="material-symbols-outlined text-xs sm:text-sm text-secondary-fixed">wb_sunny</span>
+<span class="">Shared Hope &amp; Vision</span>
+</div>
+</div>
+</div>
+<div class="relative rounded-xl overflow-hidden border border-stone-border shadow-sm bg-surface-container-lowest group">
+<div class="relative aspect-[4/3] overflow-hidden">
+<img alt="Hazara mountain valley landscape around Junglan base camp" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG0wu9KK8XmJMR4Gn1QDN3fNhDdt4lr_7BOrMThRMNU92Gbqvv0dd4pBKVwF7Vxg2C-4yJu62XkRQ_Nb8Bv-L2HNDnbWtpb93Fkd75T-jYLNbXhFbCGY9skgJ5eL7gjCQLiKnoew1PjE3sYHCI2Lbw0tsAJRCJ67HW-pJB8P01cpBGf6KluxfNp4TgLYEKxp50g_8OxPNqMmz-zrEP0tbbU6Yhr7azVj1YTiaVYLAnhT8DP6IE25t6x8K37X02OhSDcg">
+<div class="absolute inset-0 bg-gradient-to-t from-navy-deep/80 via-transparent to-transparent pointer-events-none"></div>
+<div class="absolute inset-x-0 bottom-0 p-2 sm:p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center gap-1 text-white text-[10px] sm:text-xs font-semibold tracking-wide">
+<span class="material-symbols-outlined text-xs sm:text-sm text-secondary-fixed">landscape</span>
+<span class="">Junglan Valley Terrain</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Text Narrative -->
+<div class="lg:col-span-7 flex flex-col space-y-4 sm:space-y-5">
+<span class="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs">Foundation Introduction &amp; Origin</span>
+<h2 class="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight leading-tight">
+          Rooted in Community, Dedicated to Mountain Life
+        </h2>
+<div class="space-y-3 sm:space-y-4 text-on-surface-variant text-sm sm:text-body-md font-body-md leading-relaxed">
+<p class="">
+            Junglan Community Development Foundation was founded to bring tangible, transparent assistance to remote rural populations in Hazara Division, Khyber Pakhtunkhwa, where secondary clinical care and economic security remain beyond routine reach.
+          </p>
+<p class="border-l-2 border-tertiary-container pl-3 sm:pl-4 text-on-surface font-medium bg-surface-container-lowest py-1.5 rounded-r">
+            The foundation’s inception stems from heartbreak: the founder’s brother, a bright pre-medical student, tragically lost his life following an accident because emergency transport could not reach him in time over the rugged, unpaved mountain trails.
+          </p>
+<p class="">
+            From this irreplaceable loss arose an unwavering commitment: no family in Junglan Valley should ever bury a loved one simply because an ambulance was unavailable or unaffordable. Today, JCDF operates not only as a rapid emergency medical lifeline, but also as a civic engine establishing permanent agricultural wealth through commercial olive cultivation.
+          </p>
+</div>
+<!-- Institutional Values Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2">
+<div class="flex items-start gap-3 p-3 sm:p-3.5 bg-surface-container-lowest border border-stone-border rounded-lg">
+<span class="material-symbols-outlined text-secondary text-xl sm:text-2xl shrink-0">account_balance</span>
+<div>
+<h4 class="text-sm sm:text-base font-bold text-primary">Direct Grassroots Service</h4>
+<p class="text-xs sm:text-body-sm text-on-surface-variant mt-0.5">Working shoulder-to-shoulder with village jirgas and smallholders.</p>
+</div>
+</div>
+<div class="flex items-start gap-3 p-3 sm:p-3.5 bg-surface-container-lowest border border-stone-border rounded-lg">
+<span class="material-symbols-outlined text-secondary text-xl sm:text-2xl shrink-0">gavel</span>
+<div>
+<h4 class="text-sm sm:text-base font-bold text-primary">Audited Governance</h4>
+<p class="text-xs sm:text-body-sm text-on-surface-variant mt-0.5">Strict statutory compliance under SECP registration CUIN 0348227.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. CORE WORK PILLARS (1 col mobile, 2 col tablet, 3 col desktop) -->
+<section class="py-12 sm:py-16 bg-surface-container-lowest border-b border-stone-border" id="work-pillars">
+<div class="max-w-7xl mx-auto px-[10px]">
+<div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+<span class="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs">Strategic Domains</span>
+<h2 class="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight mt-1">Our Three Pillars of Mountain Transformation</h2>
+<p class="text-sm sm:text-body-md font-body-md text-on-surface-variant mt-2 sm:mt-3">
+        Our initiatives balance high-priority life-saving interventions today with generational agrarian self-reliance and civic infrastructure for tomorrow.
+      </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6"><!-- Pillar 1: Emergency Healthcare & Ambulance -->
+<article class="group relative rounded-2xl overflow-hidden border border-white/10 shadow-lg flex flex-col justify-between min-h-[460px] p-6 transition-all duration-300"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw4BkN-FvKCwKlRRua2XMaGjBOw_zYQAHyN7RuJDALBbE3l97_h3vp7dtUnlDA375DQ0pyn-rbofYsFX5s80SCxOhRgRsoyUmPsoQpc5d9Ut-RI1H7l3-4nKafOUhNOUWX399iQyJ0lUjSJPQhI8iOl4SZSS82Ckhr_Gx7FlWdA9KMwAKBMQMvprcp7N-yh5VLrnZLBlK2RQ0siAFNzf7fCV289n1oeoG6Qn050VS5ojSIjSJfoRzlad-GvrHhyZ4j1w" alt="24/7 Emergency Hospital and Ambulance Transit" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"><div class="absolute inset-0 bg-gradient-to-t from-black/90 via-[#081A2D]/80 to-black/40 pointer-events-none"></div><div class="relative z-10 flex flex-col h-full justify-between"><div><div class="flex items-center justify-between mb-4"><span class="px-2.5 py-1 rounded-full bg-[#e5252a] text-white text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm shadow-sm">Healthcare</span><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-500/20 text-[#ffb3b1] border border-red-400/30 text-xs font-semibold backdrop-blur-sm"><span class="w-1.5 h-1.5 rounded-full bg-[#e5252a] animate-pulse"></span> Active Field Service</span></div><div class="w-12 h-12 rounded-xl bg-[#e5252a]/20 backdrop-blur-sm border border-red-400/30 flex items-center justify-center text-white mb-4"><span class="material-symbols-outlined text-2xl text-[#ffdad8]">ambulance</span></div><h3 class="text-xl md:text-headline-md font-headline-md text-white tracking-tight mb-2">Emergency Ambulance &amp; Healthcare</h3><p class="text-xs sm:text-body-sm text-slate-200 mb-5 leading-relaxed">24/7 life-saving emergency transit from Junglan and isolated mountain hamlets to tertiary trauma centers (Ayub Teaching Hospital Abbottabad &amp; DHQ Mansehra).</p><ul class="space-y-2.5 text-xs sm:text-body-sm text-white/90 mb-6"><li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#e5252a]">check_circle</span> Continuous medical oxygen regulators</li><li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#e5252a]">check_circle</span> Foldable mountain stretcher &amp; trauma kit</li><li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#e5252a]">check_circle</span> 100% free for impoverished patients</li></ul></div><div class="pt-4 border-t border-white/15"><a href="#healthcare-section" class="inline-flex items-center gap-2 text-white font-semibold text-xs sm:text-body-sm hover:text-[#ffdad8] transition-colors group/link"><span class="">Explore Healthcare Operations</span><span class="transition-transform group-hover/link:translate-x-1">→</span></a></div></div></article>
+
+<!-- Pillar 2: Sustainable Olive Agriculture -->
+<article class="group relative rounded-2xl overflow-hidden border border-white/10 shadow-lg flex flex-col justify-between min-h-[460px] p-6 transition-all duration-300"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlSVq7IqIeD28W19H3fb5Lp9r4bltABS4FLWgIPSLEhzCZltYXVx2TNz3AEi6tMX8NNeF3oUQ2NhauhOc14PXCSbOPMtQWs0NE1lRN_O0BIPW2f8aj9b3ENyWbEC5doNMYSM5cCa5kgdb6FrYhnQOU26f0_5AFGc-cjazsJJRLo7PP5CwKMToYxg29epUIVxQIdHmreyPYzVBPw7sQMwKda_ARUhzRWiKuwAZ6DElTuFeVu13tQvYrUn9FctOvq_f1nQ" alt="Olive branches and olive oil in orchard" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"><div class="absolute inset-0 bg-gradient-to-t from-black/90 via-[#081A2D]/80 to-black/40 pointer-events-none"></div><div class="relative z-10 flex flex-col h-full justify-between"><div><div class="flex items-center justify-between mb-4"><span class="px-2.5 py-1 rounded-full bg-[#1e5631] text-white text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm border border-emerald-400/30 shadow-sm">Agriculture</span><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-[#b1f0ce] border border-emerald-400/30 text-xs font-semibold backdrop-blur-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active Cultivation</span></div><div class="w-12 h-12 rounded-xl bg-[#1e5631]/30 backdrop-blur-sm border border-emerald-400/30 flex items-center justify-center text-white mb-4"><span class="material-symbols-outlined text-2xl text-[#b1f0ce]">eco</span></div><h3 class="text-xl md:text-headline-md font-headline-md text-white tracking-tight mb-2">Sustainable Olive (Zaitoon) Agriculture</h3><p class="text-xs sm:text-body-sm text-slate-200 mb-5 leading-relaxed">Cultivating long-term economic independence. Distributing certified high-yield saplings suited for Hazara mountain microclimates, establishing drip irrigation and arresting soil erosion.</p><ul class="space-y-2.5 text-xs sm:text-body-sm text-white/90 mb-6"><li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#b1f0ce]">check_circle</span> 5,000+ saplings target for smallholders</li><li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#b1f0ce]">check_circle</span> Slope stabilization against mudslides</li><li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#b1f0ce]">check_circle</span> Generational recurring harvest revenue</li></ul></div><div class="pt-4 border-t border-white/15"><a href="#agriculture-section" class="inline-flex items-center gap-2 text-white font-semibold text-xs sm:text-body-sm hover:text-[#b1f0ce] transition-colors group/link"><span class="">View Agriculture Program</span><span class="transition-transform group-hover/link:translate-x-1">→</span></a></div></div></article>
+
+<!-- Pillar 3: Planned Infrastructure & Clean Water -->
+<article class="group relative rounded-2xl overflow-hidden border border-white/10 shadow-lg flex flex-col justify-between min-h-[460px] p-6 transition-all duration-300 md:col-span-2 lg:col-span-1"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvc_YuKJ65G7pKy-qn_igF8p82_-8MHe-ezP03QkVQ9oDzHSWa_rrDwgZqjRDtmR_uI3aDRT_u7NFfXkhJhnKsO-nLRkxw2AHiW2OVs40x_S8sYIfYFFDTZ-8glwVNFqEi3su8QJuUC9b-JHWm3Q091v6i2CQOyp5Wvz7jLnN8ChYzqAWW4Q1oPRqDAE_LkgIqJLpExqS8DdLFV1QFecUEfNhmQtbzoUj02d7hQQ7rSZRCwZnMtVKfQY1ZCsmHpifcSg" alt="Clean water and mountain irrigation cycle" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"><div class="absolute inset-0 bg-gradient-to-t from-black/90 via-[#081A2D]/80 to-black/40 pointer-events-none"></div><div class="relative z-10 flex flex-col h-full justify-between"><div><div class="flex items-center justify-between mb-4"><span class="px-2.5 py-1 rounded-full bg-[#0b4f8c] text-white text-[11px] font-bold uppercase tracking-wider backdrop-blur-sm border border-blue-400/30 shadow-sm">Community</span><span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-[#FEF3C7] border border-amber-400/30 text-xs font-semibold backdrop-blur-sm"><span class="w-1.5 h-1.5 rounded-full bg-[#f59e0b] animate-pulse"></span> PLANNED INITIATIVE</span></div><div class="w-12 h-12 rounded-xl bg-[#0b4f8c]/30 backdrop-blur-sm border border-blue-400/30 flex items-center justify-center text-white mb-4"><span class="material-symbols-outlined text-2xl text-[#afc8ed]">water_drop</span></div><h3 class="text-xl md:text-headline-md font-headline-md text-white tracking-tight mb-2">Community Infrastructure &amp; Clean Water</h3><p class="text-xs sm:text-body-sm text-slate-200 mb-4 leading-relaxed">Future civic initiatives focusing on clean drinking water filtration plants and mountain youth vocational training workshops.</p><div class="p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/15 text-[11px] sm:text-xs text-slate-200 font-mono mb-5">[Detailed engineering roadmap and community survey to be published upon validation]</div><ul class="space-y-2.5 text-xs sm:text-body-sm text-white/90 mb-6"><li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#f59e0b]">schedule</span> Hydrological water table survey in progress</li><li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-[#f59e0b]">schedule</span> Community hall &amp; skills workshop blueprint</li></ul></div><div class="pt-4 border-t border-white/15"><a href="#support-section" class="inline-flex items-center gap-2 text-white font-semibold text-xs sm:text-body-sm hover:text-[#afc8ed] transition-colors group/link"><span class="">View Project Roadmap</span><span class="transition-transform group-hover/link:translate-x-1">→</span></a></div></div></article></div>
+</div>
+</section>
+<!-- 6. TOPOGRAPHIC REALITY & THE GEOGRAPHIC CHALLENGE -->
+<section class="py-12 sm:py-16 bg-surface border-b border-stone-border">
+<div class="max-w-7xl mx-auto px-[10px]">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+<div class="lg:col-span-5 flex flex-col justify-center">
+<span class="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs">Geographic Challenge</span>
+<h2 class="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-navy-deep mt-1 leading-tight">Healthcare Access Challenges in Junglan Valley</h2>
+<p class="text-sm sm:text-body-md font-body-md text-on-surface-variant mt-3 sm:mt-4 leading-relaxed">
+          Junglan Valley sits at an altitude above 1,500 meters. The journey to tertiary medical facilities in Abbottabad or Mansehra traverses unpaved mountain roads frequently compromised by seasonal monsoons, rockslides, and winter snow.
+        </p>
+<div class="mt-5 sm:mt-6 space-y-3">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs shrink-0">
+              15+
+            </div>
+<p class="text-xs sm:text-body-sm font-body-sm text-on-surface">Kilometers of high-grade slope before reaching the paved Karakoram Highway artery.</p>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center text-primary font-bold text-xs shrink-0">3h
+            </div>
+<p class="text-xs sm:text-body-sm font-body-sm text-on-surface">Average transfer duration to reach Ayub Teaching Hospital for cardiac or major trauma triage.</p>
+</div>
+</div>
+</div>
+<!-- Visual Route Schematic Container -->
+<div class="lg:col-span-7 bg-surface-container-lowest border border-stone-border rounded-xl p-4 sm:p-6 shadow-sm">
+<div class="flex items-center justify-between pb-3 sm:pb-4 border-b border-stone-border mb-4 sm:mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg sm:text-xl">alt_route</span>
+<span class="font-bold text-primary text-sm sm:text-headline-sm">Emergency Evacuation Transit Corridor</span>
+</div>
+<span class="text-[10px] sm:text-xs bg-surface-container-high px-2 py-0.5 sm:py-1 rounded text-on-surface-variant font-mono">Hazara KP Route</span>
+</div>
+<div class="space-y-3 sm:space-y-4">
+<!-- Node 1: Junglan Valley -->
+<div class="flex items-center gap-3 sm:gap-4 p-3 rounded-lg bg-surface-container-low border border-stone-border">
+<div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">
+              A
+            </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between flex-wrap gap-1">
+<h4 class="font-bold text-primary text-xs sm:text-body-md truncate">Junglan Valley Base Station</h4>
+<span class="text-[10px] sm:text-xs font-semibold text-secondary">Elev: 1,520m</span>
+</div>
+<p class="text-[11px] sm:text-body-sm text-on-surface-variant mt-0.5">Primary fleet dispatch point; high-roof 4WD ambulance on immediate standby.</p>
+</div>
+</div>
+<!-- Route transit line -->
+<div class="pl-5 sm:pl-7 border-l-2 border-dashed border-stone-border ml-3.5 sm:ml-4 py-1 text-[11px] sm:text-xs text-on-surface-variant font-mono">
+            ↓ 16 km steep descent via unpaved hill pass (Avg: 1h 15 mins)
+          </div>
+<!-- Node 2: DHQ Mansehra -->
+<div class="flex items-center gap-3 sm:gap-4 p-3 rounded-lg bg-surface-container-lowest border border-stone-border">
+<div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container-high text-primary flex items-center justify-center text-xs font-bold shrink-0">
+              B
+            </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between flex-wrap gap-1">
+<h4 class="font-bold text-primary text-xs sm:text-body-md truncate">DHQ Hospital Mansehra</h4>
+<span class="text-[10px] sm:text-xs text-on-surface-variant">Secondary Care</span>
+</div>
+<p class="text-[11px] sm:text-body-sm text-on-surface-variant mt-0.5">Emergency stabilization, pediatric intervention, uncomplicated delivery.</p>
+</div>
+</div>
+<!-- Route transit line -->
+<div class="pl-5 sm:pl-7 border-l-2 border-dashed border-stone-border ml-3.5 sm:ml-4 py-1 text-[11px] sm:text-xs text-on-surface-variant font-mono">
+            ↓ 30 km highway transit towards Abbottabad (Avg: 40 mins)
+          </div>
+<!-- Node 3: Ayub Teaching Hospital -->
+<div class="flex items-center gap-3 sm:gap-4 p-3 rounded-lg bg-primary-container text-surface">
+<div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center text-xs font-bold shrink-0">
+              C
+            </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between flex-wrap gap-1">
+<h4 class="font-bold text-surface text-xs sm:text-body-md truncate">Ayub Teaching Hospital Abbottabad</h4>
+<span class="text-[10px] sm:text-xs font-semibold text-secondary-fixed">Tertiary Trauma Center</span>
+</div>
+<p class="text-[11px] sm:text-body-sm text-on-primary-container mt-0.5">Major surgical theater, intensive care unit (ICU), comprehensive neonatal care.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. TRANSPARENCY & 4-STEP AUDIT PIPELINE (1 col mobile, 2 col tablet, 4 col desktop) -->
+<section class="py-12 sm:py-16 bg-surface-container-lowest border-b border-stone-border" id="audit-pipeline">
+<div class="max-w-7xl mx-auto px-[10px]">
+<!-- Section Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-12 gap-4 sm:gap-6">
+<div>
+<span class="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs">Absolute Accountability</span>
+<h2 class="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight mt-1 leading-tight">How Your Support Directly Reaches the Field</h2>
+<p class="text-sm sm:text-body-md font-body-md text-on-surface-variant mt-2 max-w-xl leading-relaxed">
+          We operate under a strict fiduciary mandate: zero diversion, itemized disbursements, and monthly reconciliation against verifiable bank accounts.
+        </p>
+</div>
+<div class="bg-surface-container-low border border-stone-border p-3 sm:p-4 rounded-lg flex items-center gap-3 self-start md:self-auto">
+<span class="material-symbols-outlined text-secondary text-2xl sm:text-3xl shrink-0">verified_user</span>
+<div>
+<div class="text-xs font-bold text-primary uppercase">Direct Allocation Guarantee</div>
+<div class="text-[11px] sm:text-xs text-on-surface-variant">100% of public gifts fund fuel, oxygen &amp; saplings.</div>
+</div>
+</div>
+</div>
+<!-- 4-Step Verified Audit Pipeline Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+<!-- Step 01 -->
+<div class="bg-surface-container-low border border-stone-border rounded-lg p-4 sm:p-5 relative flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="font-stat-display text-2xl sm:text-headline-md text-secondary">01</span>
+<span class="text-[10px] sm:text-xs px-2 py-0.5 rounded bg-surface-container-lowest border border-stone-border text-on-surface-variant font-semibold">Verified Step</span>
+</div>
+<h4 class="text-base sm:text-headline-sm font-headline-sm text-primary mb-1">Your Donation</h4>
+<p class="text-xs sm:text-body-sm font-body-sm text-on-surface-variant leading-relaxed">
+            Direct bank transfer or online gift allocated to mountain ambulance fuel or certified olive saplings.
+          </p>
+</div>
+</div>
+<!-- Step 02 -->
+<div class="bg-surface-container-low border border-stone-border rounded-lg p-4 sm:p-5 relative flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="font-stat-display text-2xl sm:text-headline-md text-secondary">02</span>
+<span class="text-[10px] sm:text-xs px-2 py-0.5 rounded bg-surface-container-lowest border border-stone-border text-on-surface-variant font-semibold">Verified Step</span>
+</div>
+<h4 class="text-base sm:text-headline-sm font-headline-sm text-primary mb-1">Central Ledger Logging</h4>
+<p class="text-xs sm:text-body-sm font-body-sm text-on-surface-variant leading-relaxed">
+            Contribution logged into public audit ledger with formal receipt number under SECP guidelines.
+          </p>
+</div>
+</div>
+<!-- Step 03 -->
+<div class="bg-surface-container-low border border-stone-border rounded-lg p-4 sm:p-5 relative flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="font-stat-display text-2xl sm:text-headline-md text-secondary">03</span>
+<span class="text-[10px] sm:text-xs px-2 py-0.5 rounded bg-surface-container-lowest border border-stone-border text-on-surface-variant font-semibold">Verified Step</span>
+</div>
+<h4 class="text-base sm:text-headline-sm font-headline-sm text-primary mb-1">Field Execution</h4>
+<p class="text-xs sm:text-body-sm font-body-sm text-on-surface-variant leading-relaxed">
+            Disbursements purchase medical oxygen, vehicle maintenance, and certified saplings in Junglan.
+          </p>
+</div>
+</div>
+<!-- Step 04 -->
+<div class="bg-surface-container-low border border-stone-border rounded-lg p-4 sm:p-5 relative flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-3">
+<span class="font-stat-display text-2xl sm:text-headline-md text-secondary">04</span>
+<span class="text-[10px] sm:text-xs px-2 py-0.5 rounded bg-surface-container-lowest border border-stone-border text-on-surface-variant font-semibold">Verified Step</span>
+</div>
+<h4 class="text-base sm:text-headline-sm font-headline-sm text-primary mb-1">Saved Lives &amp; Orchards</h4>
+<p class="text-xs sm:text-body-sm font-body-sm text-on-surface-variant leading-relaxed">
+            Critical patients reach ICUs in time, and smallholders harvest commercial grade olives for decades.
+          </p>
+</div>
+</div>
+</div>
+<!-- Operational Gap Callout Card -->
+<div class="mt-6 sm:mt-8 bg-surface-container-low border-l-4 border-status-planned border-stone-border rounded-r-xl p-4 sm:p-6">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<div>
+<div class="inline-flex items-center gap-1.5 text-xs font-bold uppercase text-status-planned mb-1">
+<span class="material-symbols-outlined text-sm">warning</span> Critical Operational Reality
+          </div>
+<h4 class="text-base sm:text-headline-sm font-headline-sm text-primary">Closing the Single-Vehicle Mountain Risk</h4>
+<p class="text-xs sm:text-body-sm font-body-sm text-on-surface-variant max-w-3xl mt-1 leading-relaxed">
+            Currently, AMB-01 serves as the sole dedicated life-support unit for multiple isolated hamlets. When AMB-01 is en route to Abbottabad (a 3.5-hour round trip), a simultaneous medical emergency in Junglan must wait. Your donor partnership directly funds operational reserves to ensure uninterrupted field readiness.
+          </p>
+</div>
+<a class="w-full sm:w-auto text-center shrink-0 px-4 py-2.5 bg-primary hover:bg-navy-deep text-white rounded text-xs sm:text-label-md font-semibold transition-colors" href="#support-section">
+          Help Fund Reserve Ops
+        </a>
+</div>
+</div>
+</div>
+</section>
+<!-- 8. DETAILED SECTION: EMERGENCY HEALTHCARE & AMBULANCE FLEET (Stacked on mobile/tablet, side-by-side on desktop) -->
+<section class="py-12 sm:py-16 bg-surface border-b border-stone-border" id="healthcare-section">
+<div class="max-w-7xl mx-auto px-[10px]">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+<div class="lg:col-span-7 space-y-5">
+<span class="text-label-uppercase font-label-uppercase text-error uppercase tracking-wider font-bold text-xs">Healthcare &amp; Emergency Service</span>
+<h2 class="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight leading-tight">
+          High-Altitude Relief: Free 24/7 Mountain Patient Transit
+        </h2>
+<p class="text-sm sm:text-body-md font-body-md text-on-surface-variant leading-relaxed">
+          In the steep terrain of Junglan and surrounding valleys, delays in reaching secondary and tertiary healthcare facilities can be fatal. Our emergency ambulance operates 24 hours a day to evacuate critical patients to Ayub Teaching Hospital Abbottabad and DHQ Hospital Mansehra.
+        </p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+<div class="p-3.5 sm:p-4 bg-surface-container-lowest border border-stone-border rounded-lg">
+<div class="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-1">
+<span class="material-symbols-outlined text-secondary text-base sm:text-lg">ecg_heart</span>
+              24/7 Driver &amp; Paramedic
+            </div>
+<p class="text-xs sm:text-body-sm text-on-surface-variant">Dedicated local driver trained in high-altitude night transit and patient handling.</p>
+</div>
+<div class="p-3.5 sm:p-4 bg-surface-container-lowest border border-stone-border rounded-lg">
+<div class="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-1">
+<span class="material-symbols-outlined text-secondary text-base sm:text-lg">vital_signs</span>
+              Medical Oxygen Onboard
+            </div>
+<p class="text-xs sm:text-body-sm text-on-surface-variant">Equipped with continuous medical oxygen cylinders and pediatric masks.</p>
+</div>
+<div class="p-3.5 sm:p-4 bg-surface-container-lowest border border-stone-border rounded-lg">
+<div class="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-1">
+<span class="material-symbols-outlined text-secondary text-base sm:text-lg">airline_seat_flat</span>
+              Mountain Stretcher Kit
+            </div>
+<p class="text-xs sm:text-body-sm text-on-surface-variant">Reinforced suspension and cervical collar trauma kit for rugged rock paths.</p>
+</div>
+<div class="p-3.5 sm:p-4 bg-surface-container-lowest border border-stone-border rounded-lg">
+<div class="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-1">
+<span class="material-symbols-outlined text-secondary text-base sm:text-lg">money_off</span>
+              Zero Patient Cost
+            </div>
+<p class="text-xs sm:text-body-sm text-on-surface-variant">Strictly free of charge for impoverished mountain families, 100% donor subsidized.</p>
+</div>
+</div>
+<div class="pt-2">
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-tertiary-container hover:bg-tertiary text-white px-5 py-3 rounded-lg font-bold text-xs sm:text-label-md transition-colors text-center" href="tel:+923000000000" style="background-color: rgb(229, 37, 42) !important;">
+<span class="material-symbols-outlined text-sm">call</span>
+<span class="">Emergency Dispatch Hotline (+92 301 6541825)</span>
+</a>
+</div>
+</div>
+<div class="lg:col-span-5">
+<div class="bg-surface-container-lowest border border-stone-border rounded-xl p-4 sm:p-5 shadow-md space-y-3 sm:space-y-4 relative group">
+<div class="relative rounded-lg overflow-hidden border-2 border-stone-border aspect-[4/3] shadow-sm ring-1 ring-black/5">
+<img alt="JCDF 4x4 Mountain Ambulance - 4 Villages. 3000 People. 1 Ambulance. No Backup." class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.01]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmr4hKb_HMqDutGRELVHRK7j89DaIvsEthZp5-fJdMBVwROwIgOuZYA5WEHlG41SF7mGafYqqzWDp4K0A7ktcaEA1nh_U8oMJ6Q26FRclxNUsW8wdq_zsHyI5XN-lTLKmqS7KuO4CBp_FuehuiRsRSOPVHsTfVrMKoWTck0cpCSJHGzdwAbOkoDrPtjpA5RYnerz704865uev-63yuMjC-1QmEVk9w1BmKvkgxzI896HR74RG34VKYhjGrP0YmboPDWQ">
+<div class="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-navy-deep/80 backdrop-blur-sm text-surface text-[10px] sm:text-[11px] font-mono border border-white/10">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+<span class="">AMB-01 Active Service</span>
+</div>
+<div class="absolute top-2.5 right-2.5 px-2 py-1 rounded bg-white/90 backdrop-blur-sm text-primary text-[10px] font-mono font-bold border border-stone-border shadow-sm">Junglan Corridor</div>
+<div class="absolute bottom-2.5 left-2.5 right-2.5 bg-navy-deep/90 backdrop-blur-sm text-surface p-2.5 sm:p-3 rounded-lg flex items-center justify-between border border-white/10 shadow-sm">
+<div>
+<div class="text-[10px] sm:text-xs text-on-primary-container uppercase font-label-uppercase tracking-wider">Headquarters</div>
+<div class="text-xs sm:text-sm font-bold text-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs text-secondary-fixed">pin_drop</span>Junglan Base Camp
+                </div>
+</div>
+<div class="text-right">
+<div class="text-[10px] sm:text-xs text-secondary-fixed font-semibold">Elev: 1,520m</div>
+<div class="text-[10px] sm:text-[11px] text-surface-container-high">District Mansehra</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-stone-border rounded-lg p-3 sm:p-3.5 flex items-center justify-between shadow-sm gap-2">
+<div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+<div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base sm:text-lg">medical_services</span>
+</div>
+<div class="min-w-0">
+<div class="text-[10px] sm:text-xs font-label-uppercase text-on-surface-variant uppercase tracking-wider truncate">Emergency Dispatch Desk</div>
+<div class="text-xs sm:text-sm font-bold text-primary truncate">AMB-01 Mountain Standby</div>
+</div>
+</div>
+<a class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 bg-tertiary-container hover:bg-tertiary text-white rounded text-xs font-bold transition-colors shadow-sm shrink-0" href="tel:+923000000000" style="background-color: #e5252a !important;">
+<span class="material-symbols-outlined text-xs sm:text-sm">phone_in_talk</span>
+<span class="">Dial</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 9. DETAILED SECTION: SUSTAINABLE OLIVE AGROFORESTRY (Stacked on mobile/tablet, Side-by-side on desktop) -->
+<section class="py-12 sm:py-16 bg-surface-container-lowest border-b border-stone-border" id="agriculture-section">
+<div class="max-w-7xl mx-auto px-[10px]">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+<div class="lg:col-span-5 order-2 lg:order-1"><div class="relative rounded-2xl overflow-hidden border border-stone-border shadow-lg min-h-[460px] sm:min-h-[500px] md:min-h-[520px] flex flex-col justify-end p-4 sm:p-6 group"><img alt="Hands harvesting and cultivating olive branches in mountain orchard" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo6qTjJQ2mlEmfbLnavFaqpwfD3UMmMNNybnxGlvsg_iF-qz74cQ3ZHdjhzlubkGLd1fNplsS9777GGtWoZGQjBqmv3z2l7q1T2C5L9LN3CF3XrOlFIspCip7U26vRGFsjeJsXI1I7nMQR9D6fmTp9XljovIXeXmrMnJDbzafZ2sXJw6A_piJX6YztLZgFpfqwBylDPqM84bnJPyvsfHJuY5cS_iJwdFT73GH7bh_tI0ig6QUqOqxnWhObOfpMbSPxDQ"><div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none"></div><div class="relative z-10 grid grid-cols-2 gap-3 sm:gap-4 text-center"><div class="p-4 rounded-xl backdrop-blur-md bg-white/20 border border-white/30 shadow-lg text-white"><div class="text-2xl sm:text-3xl md:text-stat-display font-stat-display font-bold text-white tracking-tight drop-shadow-sm">5,000+</div><div class="text-[10px] sm:text-xs text-white/90 uppercase font-label-uppercase font-semibold tracking-wide mt-1 drop-shadow-sm">Saplings Targeted</div></div><div class="p-4 rounded-xl backdrop-blur-md bg-white/20 border border-white/30 shadow-lg text-white"><div class="text-2xl sm:text-3xl md:text-stat-display font-stat-display font-bold text-white tracking-tight drop-shadow-sm">50+</div><div class="text-[10px] sm:text-xs text-white/90 uppercase font-label-uppercase font-semibold tracking-wide mt-1 drop-shadow-sm">Farmers Enrolled</div></div></div></div></div>
+<div class="lg:col-span-7 space-y-4 sm:space-y-5 order-1 lg:order-2">
+<span class="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider font-bold text-xs">Sustainable Agroforestry</span>
+<h2 class="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight leading-tight">
+          Cultivating Generational Self-Reliance Through Olive Farming
+        </h2>
+<p class="text-sm sm:text-body-md font-body-md text-on-surface-variant leading-relaxed">
+          Pakistan possesses ideal soil and climate conditions for high-quality commercial olive cultivation. JCDF equips smallholder mountain farmers with certified saplings, modern drip irrigation training, and ongoing agronomic mentorship.
+        </p>
+<div class="space-y-3 sm:space-y-4">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg sm:text-xl shrink-0 mt-0.5">park</span>
+<div>
+<h4 class="font-bold text-primary text-sm sm:text-base">Commercial Variety Seedlings</h4>
+<p class="text-xs sm:text-body-sm text-on-surface-variant mt-0.5">Supplying certified, climate-resilient olive saplings specifically suited to the micro-climate and altitude of Hazara Division.</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg sm:text-xl shrink-0 mt-0.5">water_drop</span>
+<div>
+<h4 class="font-bold text-primary text-sm sm:text-base">Modern Drip Irrigation Training</h4>
+<p class="text-xs sm:text-body-sm text-on-surface-variant mt-0.5">Training local farmers in high-efficiency water management, mountain rain harvesting, and organic pest protection.</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-secondary text-lg sm:text-xl shrink-0 mt-0.5">landscape</span>
+<div>
+<h4 class="font-bold text-primary text-sm sm:text-base">Environmental Slope Stabilization</h4>
+<p class="text-xs sm:text-body-sm text-on-surface-variant mt-0.5">Deep-root olive root systems anchor fragile terraced hillsides against catastrophic monsoonal soil erosion and mudslides.</p>
+</div>
+</div>
+</div>
+<div class="pt-2">
+<a class="inline-flex items-center gap-2 text-primary font-bold text-xs sm:text-label-md hover:text-secondary transition-colors" href="#support-section" style="color: rgb(30, 86, 49) !important;">
+<span class="">Sponsor Certified Olive Saplings for Smallholders</span>
+<span class="">→</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 10. COMMUNITY ENGAGEMENT & DONATION INQUIRY CTA -->
+<section class="py-12 sm:py-16 bg-navy-deep text-surface relative overflow-hidden" id="support-section">
+<div class="max-w-7xl mx-auto px-[10px] relative z-10">
+<div class="max-w-3xl mx-auto text-center space-y-5 sm:space-y-6">
+<div class="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 bg-primary-container rounded-full text-secondary-fixed text-[11px] sm:text-xs font-semibold" style="background: rgba(11, 79, 140, 0.4); border: 1px solid rgba(177, 240, 206, 0.3); color: rgb(177, 240, 206);">
+<span class="material-symbols-outlined text-sm">verified</span>
+<span class="">100% Transparent Financial Stewardship • SECP CUIN 0348227</span>
+</div>
+<h2 class="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-surface tracking-tight leading-tight">
+        Join Us in Building a Healthier, More Resilient Mountain Community
+      </h2>
+<p class="text-sm sm:text-base md:text-body-lg text-on-primary-container leading-relaxed">
+        Your generous partnership fuels emergency ambulance runs across mountain passes and sponsors certified olive saplings that break the cycle of rural poverty permanently.
+      </p>
+<!-- Direct Channel Contact Cards: Stack on mobile, 2-col on tablet/desktop -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-left my-6 sm:my-8">
+<div class="p-3.5 sm:p-4 rounded-lg bg-primary-container/60 border border-stone-border/20 backdrop-blur-sm">
+<div class="text-[10px] sm:text-xs text-secondary-fixed uppercase font-label-uppercase mb-1">Ambulance Operations &amp; Inquiries</div>
+<div class="font-bold text-surface text-sm sm:text-base">+92 301 6541825&nbsp;</div>
+<div class="text-[11px] sm:text-xs text-on-primary-container mt-1">Direct Field Desk • Junglan Base</div>
+</div>
+<div class="p-3.5 sm:p-4 rounded-lg bg-primary-container/60 border border-stone-border/20 backdrop-blur-sm">
+<div class="text-[10px] sm:text-xs text-secondary-fixed uppercase font-label-uppercase mb-1">International Donor Desk (WhatsApp)</div>
+<div class="font-bold text-surface text-sm sm:text-base">+49 171 5114247</div>
+<div class="text-[11px] sm:text-xs text-on-primary-container mt-1">Direct Accounting &amp; Transparency Verification</div>
+</div>
+</div>
+<!-- Action CTAs: full-width on mobile -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4"><a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#e5252a] text-white hover:bg-[#c0171c] px-5 sm:px-6 py-3 sm:py-3.5 rounded-lg text-xs sm:text-label-md font-semibold transition-all shadow-md active:scale-95 border border-white/20" href="mailto:info@junglanfoundation.org?subject=Support%20JCDF%20Initiative"><span class="material-symbols-outlined text-sm">send</span><span class="">Connect with Foundation Desk</span></a><a class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#1e5631] text-white hover:bg-[#153e23] border border-emerald-400/30 px-5 sm:px-6 py-3 sm:py-3.5 rounded-lg text-xs sm:text-label-md font-semibold transition-all shadow-md active:scale-95" href="#audit-pipeline"><span class="material-symbols-outlined text-sm text-[#b1f0ce]">receipt_long</span><span class="">Request Bank Transfer Details</span></a></div>
+<p class="text-[11px] sm:text-xs text-on-primary-container pt-1 sm:pt-2">
+        Every contribution is acknowledged with an official foundation receipt and entered into the central public ledger.
+      </p>
+</div>
+</div>
+</section>
+<!-- 11. FOOTER (Multi-column responsive grid: 1 col on mobile, 2 col on tablet, 4 col on desktop) -->
+<footer class="bg-navy-deep text-surface border-t border-white/10">
+<div class="max-w-7xl mx-auto px-[10px] py-10 sm:py-14">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
+<!-- Foundation Brand & CUIN Column -->
+<div class="sm:col-span-2 lg:col-span-4 space-y-3 sm:space-y-4">
+<div class="inline-block"><img alt="Junglan Community Development Foundation Logo" class="w-auto object-contain block" style="height: 8rem; max-height: 140px; min-height: 115px; width: auto;" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMX1-WZBJbEpkM_8-kzUx_tbNTPkRZA2eHJ1daLWgkxQPnPNC9NXP-zYD-JfRk9Ue7MT43Mg1bm5T-ETgF9lPvxWvsfFpwXhZMhuV5dDirJUN7LwL0Y34TZgdR8cgfZvs6zBYlcVz_N-NfEd8fZ-5NEpryjqWjSlwahqP1QUHU2O0HBVIpzFNh8-wsAf03GqczK4nbTwkjr7q42e8kJkc8SK0VF90z1b73DggAOWYboYtHnFznpFQWdrTTnVmrvHlO8w"></div>
+<p class="text-slate-300 text-xs sm:text-body-sm leading-relaxed max-w-sm">
+          Junglan Community Development Foundation is a non-profit registered under the laws of Pakistan with the Securities and Exchange Commission of Pakistan (SECP CUIN: 0348227).
+        </p>
+<div class="pt-1">
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-container text-secondary-fixed border border-white/10 text-xs font-mono font-bold" style="background: rgb(15, 43, 72); border-color: rgba(30, 86, 49, 0.5); color: rgb(177, 240, 206);">
+<span class="material-symbols-outlined text-sm">verified</span> SECP CUIN: 0348227
+          </span>
+</div>
+</div>
+<!-- OPERATIONAL PILLARS Column -->
+<div class="sm:col-span-1 lg:col-span-4 space-y-3 sm:space-y-4">
+<div class="text-[11px] sm:text-xs font-label-uppercase text-secondary-fixed uppercase tracking-wider font-bold">
+          OPERATIONAL PILLARS
+        </div>
+<ul class="space-y-2 text-xs sm:text-body-sm text-slate-300 font-medium">
+<li class="">
+<a class="hover:text-white transition-colors flex items-center gap-2 py-0.5" href="#healthcare-section">
+<span class="material-symbols-outlined text-xs text-secondary-fixed">arrow_forward</span> Emergency Dispatch
+            </a>
+</li>
+<li class="">
+<a class="hover:text-white transition-colors flex items-center gap-2 py-0.5" href="#healthcare-section">
+<span class="material-symbols-outlined text-xs text-secondary-fixed">arrow_forward</span> Healthcare &amp; Ambulance
+            </a>
+</li>
+<li class="">
+<a class="hover:text-white transition-colors flex items-center gap-2 py-0.5" href="#agriculture-section">
+<span class="material-symbols-outlined text-xs text-secondary-fixed">arrow_forward</span> Olive Agroforestry
+            </a>
+</li>
+<li class="">
+<a class="hover:text-white transition-colors flex items-center gap-2 py-0.5" href="#work-pillars">
+<span class="material-symbols-outlined text-xs text-secondary-fixed">arrow_forward</span> Planned Infrastructure
+            </a>
+</li>
+</ul>
+</div>
+<!-- GOVERNANCE & CONTACT Column -->
+<div class="sm:col-span-1 lg:col-span-4 space-y-3 sm:space-y-4">
+<div class="text-[11px] sm:text-xs font-label-uppercase text-secondary-fixed uppercase tracking-wider font-bold">
+          GOVERNANCE &amp; CONTACT
+        </div>
+<ul class="space-y-2 text-xs sm:text-body-sm text-slate-300">
+<li class="">
+<a class="hover:text-white transition-colors flex items-center gap-2 text-xs py-0.5" href="#audit-pipeline">
+<span class="material-symbols-outlined text-xs text-secondary-fixed">description</span> Audit Pipeline &amp; Field Records
+            </a>
+</li>
+<li class="">
+<a class="hover:text-white transition-colors flex items-center gap-2 text-xs py-0.5" href="#about-origin">
+<span class="material-symbols-outlined text-xs text-secondary-fixed">gavel</span> SECP Governance Framework
+            </a>
+</li>
+<li class="">
+<a class="hover:text-white transition-colors flex items-center gap-2 text-xs py-0.5" href="#audit-pipeline">
+<span class="material-symbols-outlined text-xs text-secondary-fixed">verified_user</span> Financial Transparency Pledge
+            </a>
+</li>
+<li class="pt-2 border-t border-white/10 text-xs text-slate-300 leading-relaxed">
+<span class="block text-slate-400 font-label-uppercase uppercase text-[10px] tracking-wider mb-0.5">Valley Desk Location:</span>
+            Junglan Base Camp, Tehsil Baffa Pakhal, Mansehra, KP, Pakistan
+          </li>
+<li class="text-xs text-slate-300"><br></li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Bottom Legal Bar -->
+<div class="border-t border-white/10 py-5 bg-navy-deep/80 text-[11px] sm:text-xs text-slate-400">
+<div class="max-w-7xl mx-auto px-[10px] flex flex-col gap-3 text-center md:text-left"><div class="flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left"><div class="leading-relaxed">© 2026 Junglan Community Development Foundation (JCDF). All rights reserved. Registered under SECP CUIN 0348227.</div><div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[11px] sm:text-xs"><a class="hover:text-white transition-colors" href="#">Privacy Policy</a><span class="">•</span><a class="hover:text-white transition-colors" href="#">Terms of Operations</a><span class="">•</span><a class="hover:text-white transition-colors" href="#">SECP Filings</a></div></div><div class="w-full border-t border-white/5 pt-3 flex items-center justify-center text-center text-[11px] sm:text-xs text-slate-400 font-normal"><span class="inline-flex flex-wrap items-center justify-center gap-1.5">Developed by: <span class="font-medium text-slate-300">Muhammad Saad</span> <span class="text-slate-600">·</span> Contact: <a href="tel:+923158960026" class="text-slate-300 hover:text-white transition-colors underline decoration-slate-600 hover:decoration-slate-300 underline-offset-2 font-mono">+92 315 8960026</a></span></div></div>
+</div>
+</footer>
+<!-- Light Vanilla Script for Mobile Navigation Interaction -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const mobileNav = document.getElementById('mobile-nav-menu');
+    const menuIcon = document.getElementById('menu-icon');
+
+    if (menuBtn && mobileNav) {
+      menuBtn.addEventListener('click', function () {
+        const isHidden = mobileNav.classList.contains('hidden');
+        if (isHidden) {
+          mobileNav.classList.remove('hidden');
+          mobileNav.classList.add('flex');
+          if (menuIcon) menuIcon.textContent = 'close';
+        } else {
+          mobileNav.classList.add('hidden');
+          mobileNav.classList.remove('flex');
+          if (menuIcon) menuIcon.textContent = 'menu';
+        }
+      });
+
+      // Close mobile nav when clicking internal anchor links
+      mobileNav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileNav.classList.add('hidden');
+          mobileNav.classList.remove('flex');
+          if (menuIcon) menuIcon.textContent = 'menu';
+        });
+      });
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>

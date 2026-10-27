@@ -1,172 +1,141 @@
 import React from "react";
-import { Container } from "@/components/ui/Container";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import {
-  Truck,
-  PhoneCall,
-  CheckCircle2,
-  HeartPulse,
-  Activity,
-  Clock,
-  ArrowRight,
-} from "lucide-react";
-import { FOUNDATION_INFO } from "@/data/content";
 
 export function HealthcareSection() {
-  const ambulanceSpecs = [
-    "24/7 round-the-clock emergency driver & paramedic on standby",
-    "Equipped with continuous medical oxygen cylinders and regulators",
-    "Foldable emergency stretcher and cervical collar trauma kit",
-    "All-terrain suspension engineered for high-altitude unpaved mountain roads",
-    "Zero transportation fee charged to impoverished families",
-  ];
-
   return (
-    <section id="healthcare" className="py-16 sm:py-24 bg-white border-b border-slate-100">
-      <Container>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column: Mission Narrative & Specs */}
-          <div className="lg:col-span-7 text-left">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <Badge variant="danger" dot size="md">
-                Healthcare & Emergency Service
-              </Badge>
-              <span className="text-xs font-semibold text-slate-500">
-                High-Altitude Relief
-              </span>
-            </div>
-
-            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight mb-6">
-              Free Emergency Ambulance Transportation for Rural Mountain Communities
+    <section className="py-12 sm:py-16 bg-surface border-b border-stone-border" id="healthcare-section">
+      <div className="max-w-7xl mx-auto px-[10px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          {/* Left Narrative Column */}
+          <div className="lg:col-span-7 space-y-5">
+            <span className="text-label-uppercase font-label-uppercase text-error uppercase tracking-wider font-bold text-xs">
+              Healthcare &amp; Emergency Service
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight leading-tight">
+              High-Altitude Relief: Free 24/7 Mountain Patient Transit
             </h2>
-
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed mb-6 font-normal">
+            <p className="text-sm sm:text-body-md font-body-md text-on-surface-variant leading-relaxed">
               In the steep terrain of Junglan and surrounding valleys, delays in reaching secondary and tertiary healthcare facilities can be fatal. Our emergency ambulance operates 24 hours a day to evacuate critical patients to Ayub Teaching Hospital Abbottabad and DHQ Hospital Mansehra.
             </p>
 
-            {/* Checklist of Features */}
-            <div className="space-y-3 mb-8">
-              {ambulanceSpecs.map((spec) => (
-                <div key={spec} className="flex items-start gap-3">
-                  <div className="p-1 rounded-full bg-emerald-100 text-emerald-700 shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-4 h-4" />
-                  </div>
-                  <span className="text-sm font-medium text-slate-700 leading-snug">
-                    {spec}
-                  </span>
+            {/* 4 Feature Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="p-3.5 sm:p-4 bg-surface-container-lowest border border-stone-border rounded-lg">
+                <div className="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-1">
+                  <span className="material-symbols-outlined text-secondary text-base sm:text-lg">ecg_heart</span>
+                  24/7 Driver &amp; Paramedic
                 </div>
-              ))}
-            </div>
-
-            {/* Emergency Hotline Action Trigger */}
-            <div className="p-5 rounded-2xl bg-red-50/80 border border-red-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <div className="text-xs font-bold text-red-700 uppercase tracking-wider flex items-center gap-1.5 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
-                  Emergency Medical Hotline
-                </div>
-                <div className="text-lg sm:text-xl font-black text-slate-900">
-                  {FOUNDATION_INFO.hotline}
-                </div>
-                <div className="text-xs text-slate-500">
-                  Free dispatch for acute emergencies, maternal labor, and trauma cases.
-                </div>
+                <p className="text-xs sm:text-body-sm text-on-surface-variant">
+                  Dedicated local driver trained in high-altitude night transit and patient handling.
+                </p>
               </div>
 
+              <div className="p-3.5 sm:p-4 bg-surface-container-lowest border border-stone-border rounded-lg">
+                <div className="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-1">
+                  <span className="material-symbols-outlined text-secondary text-base sm:text-lg">vital_signs</span>
+                  Medical Oxygen Onboard
+                </div>
+                <p className="text-xs sm:text-body-sm text-on-surface-variant">
+                  Equipped with continuous medical oxygen cylinders and pediatric masks.
+                </p>
+              </div>
+
+              <div className="p-3.5 sm:p-4 bg-surface-container-lowest border border-stone-border rounded-lg">
+                <div className="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-1">
+                  <span className="material-symbols-outlined text-secondary text-base sm:text-lg">airline_seat_flat</span>
+                  Mountain Stretcher Kit
+                </div>
+                <p className="text-xs sm:text-body-sm text-on-surface-variant">
+                  Reinforced suspension and cervical collar trauma kit for rugged rock paths.
+                </p>
+              </div>
+
+              <div className="p-3.5 sm:p-4 bg-surface-container-lowest border border-stone-border rounded-lg">
+                <div className="flex items-center gap-2 text-primary font-bold text-xs sm:text-sm mb-1">
+                  <span className="material-symbols-outlined text-secondary text-base sm:text-lg">money_off</span>
+                  Zero Patient Cost
+                </div>
+                <p className="text-xs sm:text-body-sm text-on-surface-variant">
+                  Strictly free of charge for impoverished mountain families, 100% donor subsidized.
+                </p>
+              </div>
+            </div>
+
+            {/* Emergency Hotline Button */}
+            <div className="pt-2">
               <a
-                href={`tel:${FOUNDATION_INFO.hotline}`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-md transition-all shrink-0"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-white px-5 py-3 rounded-lg font-bold text-xs sm:text-label-md transition-colors text-center"
+                href="tel:+923016541825"
+                style={{ backgroundColor: "#e5252a" }}
               >
-                <PhoneCall className="w-4 h-4" />
-                <span>Call Hotline</span>
+                <span className="material-symbols-outlined text-sm">call</span>
+                <span>Emergency Dispatch Hotline (+92 301 6541825)</span>
               </a>
             </div>
           </div>
 
-          {/* Right Column: High-Grade Visual Feature Card */}
+          {/* Right Ambulance Visual Card (100% exact from index.html) */}
           <div className="lg:col-span-5">
-            <div className="rounded-2xl bg-slate-900 text-white p-6 sm:p-8 border border-slate-800 shadow-xl relative overflow-hidden">
-              {/* Subtle visual badge */}
-              <div className="flex items-center justify-between pb-6 border-b border-slate-800 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-xl bg-red-600/20 border border-red-500/30 text-red-400">
-                    <Truck className="w-6 h-6" />
-                  </div>
+            <div className="bg-surface-container-lowest border border-stone-border rounded-xl p-4 sm:p-5 shadow-md space-y-3 sm:space-y-4 relative group">
+              <div className="relative rounded-lg overflow-hidden border-2 border-stone-border aspect-[4/3] shadow-sm ring-1 ring-black/5">
+                <img
+                  alt="JCDF 4x4 Mountain Ambulance - 4 Villages. 3000 People. 1 Ambulance. No Backup."
+                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.01]"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmr4hKb_HMqDutGRELVHRK7j89DaIvsEthZp5-fJdMBVwROwIgOuZYA5WEHlG41SF7mGafYqqzWDp4K0A7ktcaEA1nh_U8oMJ6Q26FRclxNUsW8wdq_zsHyI5XN-lTLKmqS7KuO4CBp_FuehuiRsRSOPVHsTfVrMKoWTck0cpCSJHGzdwAbOkoDrPtjpA5RYnerz704865uev-63yuMjC-1QmEVk9w1BmKvkgxzI896HR74RG34VKYhjGrP0YmboPDWQ"
+                />
+                <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-navy-deep/80 backdrop-blur-sm text-surface text-[10px] sm:text-[11px] font-mono border border-white/10">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>AMB-01 Active Service</span>
+                </div>
+                <div className="absolute top-2.5 right-2.5 px-2 py-1 rounded bg-white/90 backdrop-blur-sm text-primary text-[10px] font-mono font-bold border border-stone-border shadow-sm">
+                  Junglan Corridor
+                </div>
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-navy-deep/90 backdrop-blur-sm text-surface p-2.5 sm:p-3 rounded-lg flex items-center justify-between border border-white/10 shadow-sm">
                   <div>
-                    <h3 className="font-bold text-base text-white">
-                      Ambulance Fleet Status
-                    </h3>
-                    <p className="text-xs text-slate-400">
-                      Primary Response Vehicle AMB-01
-                    </p>
+                    <div className="text-[10px] sm:text-xs text-on-primary-container uppercase font-label-uppercase tracking-wider">
+                      Headquarters
+                    </div>
+                    <div className="text-xs sm:text-sm font-bold text-surface flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-xs text-secondary-fixed">pin_drop</span>
+                      <span>Junglan Base Camp</span>
+                    </div>
                   </div>
-                </div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  On-Call Ready
-                </span>
-              </div>
-
-              {/* Service Capabilities Stats Grid */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                  <div className="text-xs text-slate-400 mb-1 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-sky-400" />
-                    <span>Availability</span>
-                  </div>
-                  <div className="text-xl font-bold text-white">24/7 Hours</div>
-                  <div className="text-[11px] text-slate-500 mt-1">
-                    Continuous standby
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700/60">
-                  <div className="text-xs text-slate-400 mb-1 flex items-center gap-1.5">
-                    <HeartPulse className="w-3.5 h-3.5 text-red-400" />
-                    <span>Patient Cost</span>
-                  </div>
-                  <div className="text-xl font-bold text-emerald-400">100% Free</div>
-                  <div className="text-[11px] text-slate-500 mt-1">
-                    Donor supported
+                  <div className="text-right">
+                    <div className="text-[10px] sm:text-xs text-secondary-fixed font-semibold">Elev: 1,520m</div>
+                    <div className="text-[10px] sm:text-[11px] text-surface-container-high">District Mansehra</div>
                   </div>
                 </div>
               </div>
 
-              {/* Destination Hospitals */}
-              <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/40 text-xs text-slate-300 space-y-2 mb-6">
-                <div className="font-semibold text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-sky-400" />
-                  <span>Transfer Destinations</span>
+              {/* Bottom Quick Dispatch Banner */}
+              <div className="bg-surface-container-low border border-stone-border rounded-lg p-3 sm:p-3.5 flex items-center justify-between shadow-sm gap-2">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-base sm:text-lg">medical_services</span>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] sm:text-xs font-label-uppercase text-on-surface-variant uppercase tracking-wider truncate">
+                      Emergency Dispatch Desk
+                    </div>
+                    <div className="text-xs sm:text-sm font-bold text-primary truncate">
+                      AMB-01 Mountain Standby
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-700/40 pb-1.5">
-                  <span>Ayub Teaching Hospital Abbottabad</span>
-                  <span className="text-sky-400 font-medium">Tertiary Trauma</span>
-                </div>
-                <div className="flex items-center justify-between border-b border-slate-700/40 pb-1.5">
-                  <span>DHQ Hospital Mansehra</span>
-                  <span className="text-sky-400 font-medium">Secondary Care</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>King Abdullah Hospital Mansehra</span>
-                  <span className="text-sky-400 font-medium">General / Pediatric</span>
-                </div>
+                <a
+                  className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-white rounded text-xs font-bold transition-colors shadow-sm shrink-0"
+                  href="tel:+923016541825"
+                  style={{ backgroundColor: "#e5252a" }}
+                >
+                  <span className="material-symbols-outlined text-xs sm:text-sm">phone_in_talk</span>
+                  <span>Dial</span>
+                </a>
               </div>
-
-              {/* Footer action link */}
-              <Button
-                href="/projects/healthcare-ambulance"
-                variant="outline"
-                size="sm"
-                className="w-full justify-center bg-slate-800 text-white hover:bg-slate-700 border-slate-700"
-                rightIcon={<ArrowRight className="w-4 h-4" />}
-              >
-                View Full Healthcare Project Details
-              </Button>
             </div>
           </div>
         </div>
-      </Container>
+      </div>
     </section>
   );
 }
+
+export default HealthcareSection;
