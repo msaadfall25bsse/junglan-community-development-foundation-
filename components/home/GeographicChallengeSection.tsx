@@ -3,17 +3,17 @@ import React from "react";
 export function GeographicChallengeSection() {
   return (
     <section className="py-12 sm:py-16 bg-surface border-b border-stone-border">
-      <div className="max-w-7xl mx-auto px-[10px]">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 xl:gap-24 items-center">
           <div className="lg:col-span-5 flex flex-col justify-center">
             <span className="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs">
               Geographic Challenge
             </span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-navy-deep mt-1 leading-tight">
-              Healthcare Access Challenges in Junglan Valley
+              Ambulance Service Access Challenges in Janglan Valley
             </h2>
             <p className="text-sm sm:text-body-md font-body-md text-on-surface-variant mt-3 sm:mt-4 leading-relaxed">
-              Junglan Valley sits at an altitude above 1,500 meters. The journey to tertiary medical facilities in Abbottabad or Mansehra traverses unpaved mountain roads frequently compromised by seasonal monsoons, rockslides, and winter snow.
+              Janglan Valley sits at an altitude above 1,500 meters. The journey to tertiary medical facilities in Abbottabad or Mansehra traverses unpaved mountain roads frequently compromised by seasonal monsoons, rockslides, and winter snow.
             </p>
             <div className="mt-5 sm:mt-6 space-y-3">
               <div className="flex items-start gap-3">
@@ -49,7 +49,7 @@ export function GeographicChallengeSection() {
               </span>
             </div>
             <div className="space-y-3 sm:space-y-4">
-              {/* Node 1: Junglan Valley */}
+              {/* Node 1: Janglan Valley */}
               <div className="flex items-center gap-3 sm:gap-4 p-3 rounded-lg bg-surface-container-low border border-stone-border">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">
                   A
@@ -57,7 +57,7 @@ export function GeographicChallengeSection() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between flex-wrap gap-1">
                     <h4 className="font-bold text-primary text-xs sm:text-body-md truncate">
-                      Junglan Valley Base Station
+                      Janglan Valley Base Station
                     </h4>
                     <span className="text-[10px] sm:text-xs font-semibold text-secondary">Elev: 1,520m</span>
                   </div>

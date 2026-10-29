@@ -4,7 +4,7 @@ import React from "react";
 
 export function MissionVisionSection() {
   return (
-    <section className="py-16 md:py-20 bg-stone-white border-b border-stone-border">
+    <section className="py-16 md:py-20 border-b border-stone-border relative bg-surface">
       <div className="max-w-7xl mx-auto px-margin-sm md:px-margin">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>

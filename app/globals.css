@@ -15,6 +15,31 @@
   --font-body-sm: var(--font-inter), "Inter", sans-serif;
   --font-label-md: var(--font-inter), "Inter", sans-serif;
   --font-label-uppercase: var(--font-inter), "Inter", sans-serif;
+
+  --text-body-md: 15px;
+  --text-body-md--line-height: 24px;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 20px;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-label-md: 14px;
+  --text-label-md--line-height: 20px;
+  --text-label-uppercase: 11px;
+  --text-label-uppercase--line-height: 16px;
+  --text-headline-sm: 18px;
+  --text-headline-sm--line-height: 26px;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-lg: 36px;
+  --text-headline-lg--line-height: 44px;
+  --text-headline-lg-mobile: 26px;
+  --text-headline-lg-mobile--line-height: 34px;
+  --text-headline-xl: 48px;
+  --text-headline-xl--line-height: 56px;
+  --text-headline-xl-mobile: 32px;
+  --text-headline-xl-mobile--line-height: 40px;
+  --text-stat-display: 40px;
+  --text-stat-display--line-height: 44px;
 }
 
 /* ==============================================================================
@@ -101,6 +126,29 @@
   font-weight: 700;
 }
 
+@media (min-width: 640px) {
+  .sm\:text-body-md {
+    font-size: 15px !important;
+    line-height: 24px !important;
+  }
+  .sm\:text-body-sm {
+    font-size: 13px !important;
+    line-height: 20px !important;
+  }
+  .sm\:text-body-lg {
+    font-size: 18px !important;
+    line-height: 28px !important;
+  }
+  .sm\:text-label-md {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+  .sm\:text-label-uppercase {
+    font-size: 11px !important;
+    line-height: 16px !important;
+  }
+}
+
 @media (min-width: 768px) {
   .md\:text-headline-xl {
     font-size: 48px !important;
@@ -119,6 +167,33 @@
     line-height: 32px !important;
     letter-spacing: -0.01em !important;
     font-weight: 700 !important;
+  }
+  .md\:text-body-md {
+    font-size: 15px !important;
+    line-height: 24px !important;
+  }
+  .md\:text-body-sm {
+    font-size: 13px !important;
+    line-height: 20px !important;
+  }
+  .md\:text-body-lg {
+    font-size: 18px !important;
+    line-height: 28px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:text-body-md {
+    font-size: 15px !important;
+    line-height: 24px !important;
+  }
+  .lg\:text-body-sm {
+    font-size: 13px !important;
+    line-height: 20px !important;
+  }
+  .lg\:text-body-lg {
+    font-size: 18px !important;
+    line-height: 28px !important;
   }
 }
 
@@ -151,8 +226,8 @@
 }
 
 .text-body-lg {
-  font-size: 18px;
-  line-height: 28px;
+  font-size: 18px !important;
+  line-height: 28px !important;
   font-weight: 400;
 }
 
@@ -162,8 +237,8 @@
 }
 
 .text-body-md {
-  font-size: 15px;
-  line-height: 24px;
+  font-size: 15px !important;
+  line-height: 24px !important;
   font-weight: 400;
 }
 
@@ -173,8 +248,8 @@
 }
 
 .text-body-sm {
-  font-size: 13px;
-  line-height: 20px;
+  font-size: 13px !important;
+  line-height: 20px !important;
   font-weight: 400;
 }
 
@@ -184,8 +259,8 @@
 }
 
 .text-label-uppercase {
-  font-size: 11px;
-  line-height: 16px;
+  font-size: 11px !important;
+  line-height: 16px !important;
   letter-spacing: 0.08em;
   font-weight: 700;
   text-transform: uppercase;
@@ -197,8 +272,8 @@
 }
 
 .text-label-md {
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 14px !important;
+  line-height: 20px !important;
   font-weight: 600;
 }
 
@@ -391,4 +466,60 @@ body.custom-pattern-bg {
   will-change: transform;
 }
 
+.animate-marquee-metrics {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+  will-change: transform;
+}
 
+.animate-marquee-metrics:hover {
+  animation-play-state: paused;
+}
+
+/* Explicit parity for about.html section padding reductions */
+.about-page-wrapper section {
+  padding-top: calc(var(--section-pt, revert) - 10px) !important;
+  padding-bottom: calc(var(--section-pb, revert) - 10px) !important;
+}
+
+.about-page-wrapper section.py-12,
+.about-page-wrapper section.py-14,
+.about-page-wrapper section.py-16 {
+  padding-top: calc(3rem - 10px) !important;
+  padding-bottom: calc(3rem - 10px) !important;
+}
+
+@media (min-width: 768px) {
+  .about-page-wrapper section.md\:py-18,
+  .about-page-wrapper section.md\:py-20 {
+    padding-top: calc(5rem - 10px) !important;
+    padding-bottom: calc(5rem - 10px) !important;
+  }
+  .about-page-wrapper section.md\:py-24 {
+    padding-top: calc(6rem - 10px) !important;
+    padding-bottom: calc(6rem - 10px) !important;
+  }
+}
+
+.about-page-wrapper section.pt-16 {
+  padding-top: calc(4rem - 10px) !important;
+}
+
+
+
+
+/* 3D Card Flip Utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}

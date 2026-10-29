@@ -119,11 +119,46 @@
       }
     }
   </script>
+  <style>
+    /* Reduce 10px (5px + additional 5px) padding from all sides for all sections in about.html */
+    main > section,
+    section {
+      padding-top: calc(var(--section-pt, revert) - 10px) !important;
+      padding-bottom: calc(var(--section-pb, revert) - 10px) !important;
+      padding-left: calc(var(--section-pl, 0px) - 10px);
+      padding-right: calc(var(--section-pr, 0px) - 10px);
+    }
+    main > section {
+      box-sizing: border-box;
+    }
+    main > section > .max-w-7xl {
+      padding-left: max(0.25rem, calc(var(--tw-space, 2rem) - 10px));
+      padding-right: max(0.25rem, calc(var(--tw-space, 2rem) - 10px));
+    }
+    /* Explicit reduction on top/bottom padding classes */
+    main section.py-12, main section.py-14, main section.py-16 {
+      padding-top: calc(3rem - 10px) !important;
+      padding-bottom: calc(3rem - 10px) !important;
+    }
+    @media (min-width: 768px) {
+      main section.md\:py-18, main section.md\:py-20 {
+        padding-top: calc(5rem - 10px) !important;
+        padding-bottom: calc(5rem - 10px) !important;
+      }
+      main section.md\:py-24 {
+        padding-top: calc(6rem - 10px) !important;
+        padding-bottom: calc(6rem - 10px) !important;
+      }
+    }
+    main section.pt-16 {
+      padding-top: calc(4rem - 10px) !important;
+    }
+  </style>
 </head>
 <body class="bg-stone-white text-on-surface font-body-md antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed">
 <!-- TOP EMERGENCY & OPERATIONAL UTILITY RIBBON -->
 <!-- DOCKED PRIMARY TOP NAVIGATION BAR (FROM SHARED COMPONENT SPEC) -->
-<header class="sticky top-0 z-50 bg-surface-container-lowest border-b border-stone-border shadow-sm">
+<header class="relative z-50 bg-surface-container-lowest border-b border-stone-border shadow-sm">
 <!-- TOP EMERGENCY & OPERATIONAL UTILITY RIBBON -->
 <div class="bg-navy-deep text-surface text-body-sm py-2 px-margin-sm md:px-margin border-b border-primary-container">
 <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
@@ -239,7 +274,7 @@
                 ABOUT JUNGLAN COMMUNITY DEVELOPMENT FOUNDATION
               </span>
 </div>
-<h1 class="font-headline-xl text-headline-xl-mobile md:text-headline-xl text-primary mb-6 tracking-tight font-semibold">
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-6 tracking-tight font-semibold">
               Working Together for Stronger Communities
             </h1>
 <p class="font-body-lg text-body-lg text-on-surface-variant mb-8 leading-relaxed">
@@ -272,15 +307,15 @@
 </div>
 </div>
 <!-- Visual Right Column -->
-<div class="lg:col-span-5 relative">
-<div class="relative rounded-xl overflow-hidden border border-stone-border bg-surface-container shadow-md">
-<img alt="High-altitude mountain valley terrain and forested hills in District Mansehra, KP, Pakistan" class="w-full h-80 md:h-[420px] object-cover" data-alt="A dignified, documentary photograph of the high mountain terrain in Junglan Valley, Khyber Pakhtunkhwa, Pakistan. Lush pine terraced mountain slopes meet early morning natural alpine mist under clear daylight. A patient transit road winds securely through remote villages, conveying institutional reliability and ecological mountain stewardship with muted deep navy and forest green undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpPxGP3Zx33RQ7YxHrDp_lnqzGB7EoFqbj-_eqEueYGOmy2ZxYbzo1h48XQ9ocwq2r6F5x7jGyTYVrja3CWWNSbpqaLqqlHAVn3T28U-xg6pURrnSE7k_E4vOGDNv77WHwsTwuJjg4Dvc1JNYdpgTjzXiXsWYicb9Y7lH2-MomT_BWRGI4ZSun4WDRkpvBnmt76mHfMr1USXKE09icz5U_St7jkGMc4-nt8JEduTFDRqB-RqaUHqvdAPPKuMavugKQGg">
-<div class="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-navy-deep/90 via-navy-deep/40 to-transparent text-surface">
-<div class="flex items-center gap-2 mb-1">
-<span class="w-2 h-2 rounded-full bg-secondary-fixed"></span>
+<div class="lg:col-span-5 relative flex justify-center lg:justify-end">
+<div class="relative w-full max-w-sm sm:max-w-md lg:max-w-none rounded-2xl overflow-hidden border border-stone-border bg-navy-deep shadow-lg h-[340px] sm:h-[380px] md:h-[410px]">
+<img alt="High-altitude mountain valley terrain and forested hills in District Mansehra, KP, Pakistan" class="absolute inset-0 w-full h-full object-cover object-center scale-110 sm:scale-115 transition-transform duration-500 hover:scale-120" data-alt="A dignified, documentary photograph of the high mountain terrain in Junglan Valley, Khyber Pakhtunkhwa, Pakistan. Lush pine terraced mountain slopes meet early morning natural alpine mist under clear daylight. A patient transit road winds securely through remote villages, conveying institutional reliability and ecological mountain stewardship with muted deep navy and forest green undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpPxGP3Zx33RQ7YxHrDp_lnqzGB7EoFqbj-_eqEueYGOmy2ZxYbzo1h48XQ9ocwq2r6F5x7jGyTYVrja3CWWNSbpqaLqqlHAVn3T28U-xg6pURrnSE7k_E4vOGDNv77WHwsTwuJjg4Dvc1JNYdpgTjzXiXsWYicb9Y7lH2-MomT_BWRGI4ZSun4WDRkpvBnmt76mHfMr1USXKE09icz5U_St7jkGMc4-nt8JEduTFDRqB-RqaUHqvdAPPKuMavugKQGg">
+<div class="absolute bottom-0 inset-x-0 p-5 bg-gradient-to-t from-navy-deep/95 via-navy-deep/60 to-transparent text-surface z-10">
+<div class="flex items-center gap-2 mb-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
 <span class="font-label-uppercase text-label-uppercase text-secondary-fixed tracking-wider">GEOGRAPHIC BASE</span>
 </div>
-<p class="font-body-sm text-body-sm text-inverse-on-surface">
+<p class="font-body-sm text-body-sm text-inverse-on-surface font-medium leading-snug">
                   Remote Mountain Hamlets • District Mansehra, KP, Pakistan
                 </p>
 </div>
@@ -360,17 +395,25 @@ We recognize that remote and rural communities often face unique difficulties in
 </div>
 </section>
 <!-- SECTION 3: WHY WE WORK (OUR PURPOSE) -->
-<section class="relative border-b border-stone-border pt-16 md:pt-20 pb-44 sm:pb-52 md:pb-60 bg-stone-white overflow-hidden" id="why-we-work" style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuABBJaec2OfxSzwp3Uu9SAsUhXYxU0uA-vdOhVv_KVv_XxilA7LqUliqC5lApMxLHjrxotUBh80_n10NWsPIUYgg939B7H2EpgdsAzMTV5mcjvJ1hpZ-x9Ljl4VdWgDrp-nRo2Td4TFxZ76v82_o2CsTpajoqKoZqYgJWlxS9QTpCivX8UjgW6erm7H4RMrLhbqDmMghb8Z1t8lUkSj-0jimZ3AhHqnKjZyoE0ukcXjKvXUAjxxD4ISTRVRAqZDoGyTwA&quot;); background-size: cover; background-position: center bottom; background-repeat: no-repeat;">
-<div class="max-w-4xl mx-auto px-margin-sm md:px-margin relative z-10">
-<div class="text-center">
-<span class="font-label-uppercase text-label-uppercase text-secondary tracking-widest block mb-2 font-bold">OUR DRIVING PURPOSE</span>
-<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary font-bold mb-6">Why We Work</h2>
-<div class="font-body-lg text-body-lg text-primary leading-relaxed space-y-4 text-left md:text-center max-w-3xl mx-auto">
-<p class="font-medium leading-relaxed">Rural and mountain valleys possess tremendous resilience, proud cultural traditions, and hardworking people. However, rugged geography, steep mountain tracks, and distance from major urban centers frequently create critical bottlenecks in accessing timely emergency medical transport and realizing the full potential of local land stewardship.</p>
-<p class="font-body-md text-body-md text-on-surface-variant font-medium leading-relaxed">We work because every family in our valley deserves safe, dignity-preserving transit in times of acute medical distress, sustainable agricultural avenues that bring long-term income, and well-planned community development that respects local autonomy.</p>
-</div>
-</div>
-</div>
+<section class="relative border-b border-stone-border py-20 md:py-32 min-h-[580px] md:min-h-[640px] flex items-center justify-center bg-stone-white overflow-hidden" id="why-we-work" style="background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuABBJaec2OfxSzwp3Uu9SAsUhXYxU0uA-vdOhVv_KVv_XxilA7LqUliqC5lApMxLHjrxotUBh80_n10NWsPIUYgg939B7H2EpgdsAzMTV5mcjvJ1hpZ-x9Ljl4VdWgDrp-nRo2Td4TFxZ76v82_o2CsTpajoqKoZqYgJWlxS9QTpCivX8UjgW6erm7H4RMrLhbqDmMghb8Z1t8lUkSj-0jimZ3AhHqnKjZyoE0ukcXjKvXUAjxxD4ISTRVRAqZDoGyTwA&quot;); background-size: cover; background-position: center; background-repeat: no-repeat;">
+  <div class="max-w-4xl mx-auto px-margin-sm md:px-margin relative z-10 w-full">
+    <div class="text-center bg-transparent p-4 sm:p-6">
+      <span class="font-label-uppercase text-label-uppercase text-secondary tracking-widest block mb-2.5 font-bold drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
+        OUR DRIVING PURPOSE
+      </span>
+      <h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary font-bold mb-6 tracking-tight drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]">
+        Why We Work
+      </h2>
+      <div class="font-body-lg text-body-lg text-primary leading-relaxed space-y-5 text-center max-w-3xl mx-auto">
+        <p class="font-semibold text-slate-900 leading-relaxed text-base sm:text-lg drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)]">
+          Rural and mountain valleys possess tremendous resilience, proud cultural traditions, and hardworking people. However, rugged geography, steep mountain tracks, and distance from major urban centers frequently create critical bottlenecks in accessing timely emergency medical transport and realizing the full potential of local land stewardship.
+        </p>
+        <p class="font-body-md text-body-md text-slate-800 font-medium leading-relaxed text-sm sm:text-base drop-shadow-[0_1px_2px_rgba(255,255,255,0.7)]">
+          We work because every family in our valley deserves safe, dignity-preserving transit in times of acute medical distress, sustainable agricultural avenues that bring long-term income, and well-planned community development that respects local autonomy.
+        </p>
+      </div>
+    </div>
+  </div>
 </section>
 <!-- SECTION 4: MISSION & VISION -->
 <section class="py-16 md:py-20 border-b border-stone-border relative bg-surface">
@@ -785,7 +828,7 @@ We recognize that remote and rural communities often face unique difficulties in
 <span class="inline-block px-3 py-1 rounded-full bg-primary-container text-secondary-fixed font-label-uppercase text-label-uppercase tracking-wider mb-4 border border-outline/30">
           PARTNER WITH US
         </span>
-<h2 class="font-headline-xl text-headline-xl-mobile md:text-headline-xl font-extrabold mb-6 tracking-tight">
+<h2 class="text-2xl sm:text-3xl md:text-4xl font-medium text-surface mb-6 tracking-tight">
           Be Part of Community Development
         </h2>
 <p class="font-body-lg text-body-lg text-primary-fixed max-w-2xl mx-auto mb-10 leading-relaxed">

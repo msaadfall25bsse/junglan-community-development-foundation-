@@ -642,6 +642,15 @@
   ],
   "auditLogs": [
     {
+      "id": "aud-1793209495562",
+      "userId": "usr-data_entry-1789080313173",
+      "action": "LOGIN",
+      "module": "AUTH",
+      "recordId": "usr-data_entry-1789080313173",
+      "timestamp": "2026-10-28T17:44:55.562Z",
+      "metadataJson": "{\"result\":\"SUCCESS\",\"ip\":\"::1\"}"
+    },
+    {
       "id": "aud-1792647647010",
       "userId": "usr-data_entry-1789080313173",
       "action": "LOGIN",
@@ -1454,7 +1463,7 @@
       "isActive": true,
       "createdAt": "2026-09-10T22:45:13.173Z",
       "updatedAt": "2026-09-10T22:45:13.173Z",
-      "lastLoginAt": "2026-10-22T05:40:46.971Z"
+      "lastLoginAt": "2026-10-28T17:44:55.553Z"
     }
   ]
 }

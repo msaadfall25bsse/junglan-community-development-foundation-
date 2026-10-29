@@ -26,7 +26,7 @@ export function HeroSection() {
             <span className="text-[#00162d]">Empowering </span>
             <span style={{ color: "rgb(30, 86, 49)" }}>Mountain Communities</span>{" "}
             <span className="text-[#00162d]">Through </span>
-            <span style={{ color: "rgb(229, 37, 42)" }}>Resilient Healthcare</span>
+            <span style={{ color: "rgb(229, 37, 42)" }}>Ambulance Service</span>
             <span className="text-[#00162d]">, </span>
             <span style={{ color: "rgb(30, 86, 49)" }}>Sustainable Agriculture</span>{" "}
             <span className="text-[#00162d]">&amp; </span>

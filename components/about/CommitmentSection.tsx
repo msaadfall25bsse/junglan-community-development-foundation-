@@ -17,7 +17,7 @@ export function CommitmentSection() {
             A Commitment to Practical Community Support
           </h2>
           <p className="font-body-lg text-body-lg text-on-surface-variant max-w-3xl mx-auto mb-6 leading-relaxed">
-            Junglan Community Development Foundation is grounded in genuine stewardship. We commit to transparent communication, responsible management of every rupee entrusted to our care, and steadfast adherence to SECP non-profit standards.
+            Janglan Community Development Foundation is grounded in genuine stewardship. We commit to transparent communication, responsible management of every rupee entrusted to our care, and steadfast adherence to SECP non-profit standards.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-6 text-body-sm text-on-surface-variant font-medium">
             <span className="flex items-center gap-1.5">

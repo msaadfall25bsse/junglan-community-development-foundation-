@@ -9,7 +9,7 @@ export function AboutCtaSection() {
         <span className="inline-block px-3 py-1 rounded-full bg-primary-container text-secondary-fixed font-label-uppercase text-label-uppercase tracking-wider mb-4 border border-outline/30">
           PARTNER WITH US
         </span>
-        <h2 className="font-headline-xl text-headline-xl-mobile md:text-headline-xl font-extrabold mb-6 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-medium text-surface mb-6 tracking-tight">
           Be Part of Community Development
         </h2>
         <p className="font-body-lg text-body-lg text-primary-fixed max-w-2xl mx-auto mb-10 leading-relaxed">

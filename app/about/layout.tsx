@@ -8,10 +8,10 @@ export default function AboutLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-white text-on-surface font-body-md antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+    <div className="min-h-screen flex flex-col bg-stone-white text-on-surface font-body-md antialiased selection:bg-secondary-fixed selection:text-on-secondary-fixed">
       {/* Universal Header (from components/layout/Navbar) */}
       <Header />
-      <main className="flex-1 flex flex-col">{children}</main>
+      <main className="flex-1 flex flex-col about-page-wrapper">{children}</main>
       {/* Universal Footer (from components/layout/Footer) */}
       <Footer />
     </div>

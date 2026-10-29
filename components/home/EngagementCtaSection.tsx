@@ -20,7 +20,7 @@ export function EngagementCtaSection() {
             <div className="p-3.5 sm:p-4 rounded-lg bg-primary-container/60 border border-stone-border/20 backdrop-blur-sm">
               <div className="text-[10px] sm:text-xs text-secondary-fixed uppercase font-label-uppercase mb-1">Ambulance Operations &amp; Inquiries</div>
               <div className="font-bold text-surface text-sm sm:text-base">+92 301 6541825&nbsp;</div>
-              <div className="text-[11px] sm:text-xs text-on-primary-container mt-1">Direct Field Desk • Junglan Base</div>
+              <div className="text-[11px] sm:text-xs text-on-primary-container mt-1">Direct Field Desk • Janglan Base</div>
             </div>
             <div className="p-3.5 sm:p-4 rounded-lg bg-primary-container/60 border border-stone-border/20 backdrop-blur-sm">
               <div className="text-[10px] sm:text-xs text-secondary-fixed uppercase font-label-uppercase mb-1">International Donor Desk (WhatsApp)</div>

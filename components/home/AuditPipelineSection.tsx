@@ -73,7 +73,7 @@ export function AuditPipelineSection() {
               </div>
               <h4 className="text-base sm:text-headline-sm font-headline-sm text-primary mb-1">Field Execution</h4>
               <p className="text-xs sm:text-body-sm font-body-sm text-on-surface-variant leading-relaxed">
-                Disbursements purchase medical oxygen, vehicle maintenance, and certified saplings in Junglan.
+                Disbursements purchase medical oxygen, vehicle maintenance, and certified saplings in Janglan.
               </p>
             </div>
           </div>
@@ -106,7 +106,7 @@ export function AuditPipelineSection() {
                 Closing the Single-Vehicle Mountain Risk
               </h4>
               <p className="text-xs sm:text-body-sm font-body-sm text-on-surface-variant max-w-3xl mt-1 leading-relaxed">
-                Currently, AMB-01 serves as the sole dedicated life-support unit for multiple isolated hamlets. When AMB-01 is en route to Abbottabad (a 3.5-hour round trip), a simultaneous medical emergency in Junglan must wait. Your donor partnership directly funds operational reserves to ensure uninterrupted field readiness.
+                Currently, AMB-01 serves as the sole dedicated life-support unit for multiple isolated hamlets. When AMB-01 is en route to Abbottabad (a 3.5-hour round trip), a simultaneous medical emergency in Janglan must wait. Your donor partnership directly funds operational reserves to ensure uninterrupted field readiness.
               </p>
             </div>
             <a

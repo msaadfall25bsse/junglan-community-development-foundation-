@@ -3,8 +3,8 @@ import React from "react";
 export function AgroforestrySection() {
   return (
     <section className="py-12 sm:py-16 bg-surface-container-lowest border-b border-stone-border" id="agriculture-section">
-      <div className="max-w-7xl mx-auto px-[10px]">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 xl:gap-24 items-center">
           {/* Left Visual Card with Background Image and Glassmorphism Metric Badges (100% exact from index.html) */}
           <div className="lg:col-span-5 order-2 lg:order-1">
             <div className="relative rounded-2xl overflow-hidden border border-stone-border shadow-lg min-h-[460px] sm:min-h-[500px] md:min-h-[520px] flex flex-col justify-end p-4 sm:p-6 group">

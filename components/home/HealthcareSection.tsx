@@ -3,18 +3,18 @@ import React from "react";
 export function HealthcareSection() {
   return (
     <section className="py-12 sm:py-16 bg-surface border-b border-stone-border" id="healthcare-section">
-      <div className="max-w-7xl mx-auto px-[10px]">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 xl:gap-24 items-center">
           {/* Left Narrative Column */}
           <div className="lg:col-span-7 space-y-5">
             <span className="text-label-uppercase font-label-uppercase text-error uppercase tracking-wider font-bold text-xs">
-              Healthcare &amp; Emergency Service
+              Ambulance Service &amp; Emergency Transit
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight leading-tight">
               High-Altitude Relief: Free 24/7 Mountain Patient Transit
             </h2>
             <p className="text-sm sm:text-body-md font-body-md text-on-surface-variant leading-relaxed">
-              In the steep terrain of Junglan and surrounding valleys, delays in reaching secondary and tertiary healthcare facilities can be fatal. Our emergency ambulance operates 24 hours a day to evacuate critical patients to Ayub Teaching Hospital Abbottabad and DHQ Hospital Mansehra.
+              In the steep terrain of Janglan and surrounding valleys, delays in reaching secondary and tertiary healthcare facilities can be fatal. Our emergency ambulance operates 24 hours a day to evacuate critical patients to Ayub Teaching Hospital Abbottabad and DHQ Hospital Mansehra.
             </p>
 
             {/* 4 Feature Cards Grid */}
@@ -87,7 +87,7 @@ export function HealthcareSection() {
                   <span>AMB-01 Active Service</span>
                 </div>
                 <div className="absolute top-2.5 right-2.5 px-2 py-1 rounded bg-white/90 backdrop-blur-sm text-primary text-[10px] font-mono font-bold border border-stone-border shadow-sm">
-                  Junglan Corridor
+                  Janglan Corridor
                 </div>
                 <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-navy-deep/90 backdrop-blur-sm text-surface p-2.5 sm:p-3 rounded-lg flex items-center justify-between border border-white/10 shadow-sm">
                   <div>
@@ -96,7 +96,7 @@ export function HealthcareSection() {
                     </div>
                     <div className="text-xs sm:text-sm font-bold text-surface flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-xs text-secondary-fixed">pin_drop</span>
-                      <span>Junglan Base Camp</span>
+                      <span>Janglan Base Camp</span>
                     </div>
                   </div>
                   <div className="text-right">
