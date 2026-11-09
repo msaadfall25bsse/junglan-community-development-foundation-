@@ -560,7 +560,7 @@ export default function AdminReportsPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-slate-900">
+                <h3 className="text-base font-semibold text-slate-900">
                   Annual Comparative Performance Matrix
                 </h3>
                 <p className="text-xs text-slate-500">

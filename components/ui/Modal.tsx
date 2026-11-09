@@ -84,7 +84,7 @@ export function Modal({
           <div>
             <h3
               id="modal-title"
-              className="text-base sm:text-lg font-bold text-slate-900 leading-snug"
+              className="text-base sm:text-lg font-semibold text-slate-900 leading-snug"
             >
               {title}
             </h3>

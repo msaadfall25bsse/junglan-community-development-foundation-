@@ -30,7 +30,7 @@ export default function UnauthorizedPage() {
         <p className="text-6xl font-black text-red-400 mb-2 tracking-tight">403</p>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-white mb-3">
+        <h1 className="text-2xl font-semibold text-white mb-3">
           Access Denied
         </h1>
 

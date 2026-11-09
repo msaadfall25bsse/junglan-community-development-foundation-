@@ -1,0 +1,267 @@
+/* ==============================================================================
+   JCDF DESIGN SYSTEM: 10 MODULAR UI/UX ENHANCEMENT APPROACHES
+   Each approach is strictly modular, self-contained, and easily removable.
+   Zero dependencies on external packages. 100% responsive, accessible & lightweight.
+   ============================================================================== */
+
+/* ------------------------------------------------------------------------------
+   1. SKEUOMORPHISM (.ui-skeuomorphic)
+   Subtle real-world visual depth, tactile bevels, physical inset highlights.
+------------------------------------------------------------------------------ */
+.ui-skeuomorphic {
+  background: linear-gradient(180deg, #ffffff 0%, #f6f8fa 100%);
+  box-shadow: 
+    0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+    0 -1px 0 0 rgba(0, 0, 0, 0.04) inset,
+    0 2px 4px -1px rgba(15, 23, 42, 0.08),
+    0 4px 12px -2px rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.ui-skeuomorphic:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 0 rgba(0, 0, 0, 0.06) inset,
+    0 4px 8px -1px rgba(15, 23, 42, 0.12),
+    0 10px 20px -3px rgba(15, 23, 42, 0.08);
+}
+
+.ui-skeuomorphic-badge {
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  box-shadow: 
+    0 1px 0 0 rgba(255, 255, 255, 0.8) inset,
+    0 -1px 1px 0 rgba(0, 0, 0, 0.06) inset,
+    0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+/* ------------------------------------------------------------------------------
+   2. NEUMORPHISM (.ui-neumorphic)
+   Soft dual shadows (inner light highlight + outer soft dark shadow), subtle depth.
+------------------------------------------------------------------------------ */
+.ui-neumorphic {
+  background: #f8fafc;
+  box-shadow: 
+    6px 6px 14px rgba(148, 163, 184, 0.25),
+    -6px -6px 14px rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+}
+
+.ui-neumorphic:hover {
+  box-shadow: 
+    8px 8px 18px rgba(148, 163, 184, 0.3),
+    -8px -8px 18px rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+}
+
+.ui-neumorphic-inset {
+  background: #f1f5f9;
+  box-shadow: 
+    inset 3px 3px 6px rgba(148, 163, 184, 0.22),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* ------------------------------------------------------------------------------
+   3. GLASSMORPHISM (.ui-glassmorphic)
+   Frosted glass backdrop-blur, semi-transparent base, crystalline border highlight.
+------------------------------------------------------------------------------ */
+.ui-glassmorphic {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.ui-glassmorphic-dark {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.ui-glassmorphic-pill {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ------------------------------------------------------------------------------
+   4. CLAYMORPHISM (.ui-claymorphic)
+   Soft rounded geometry, gentle tactile shadows, inner highlight bevel.
+------------------------------------------------------------------------------ */
+.ui-claymorphic {
+  background: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow: 
+    0 12px 24px -6px rgba(148, 163, 184, 0.22),
+    inset 0 3px 6px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -3px 6px 0 rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ui-claymorphic:hover {
+  transform: translateY(-3px) scale(1.008);
+  box-shadow: 
+    0 16px 30px -6px rgba(148, 163, 184, 0.28),
+    inset 0 4px 8px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -4px 8px 0 rgba(148, 163, 184, 0.18);
+}
+
+/* ------------------------------------------------------------------------------
+   5. MINIMALISM (.ui-minimalist)
+   Ultra-clean editorial aesthetic, generous breathing room, refined hairline borders.
+------------------------------------------------------------------------------ */
+.ui-minimalist {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ui-minimalist:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* ------------------------------------------------------------------------------
+   6. MAXIMALISM (.ui-maximalist)
+   Controlled expressive richness, deep multi-layered shadows, energetic vibrant accents.
+------------------------------------------------------------------------------ */
+.ui-maximalist {
+  position: relative;
+  background: linear-gradient(135deg, #091e36 0%, #00162d 50%, #032b43 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 
+    0 10px 30px -5px rgba(2, 132, 199, 0.25),
+    0 20px 40px -10px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.ui-maximalist::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+}
+
+/* ------------------------------------------------------------------------------
+   7. BRUTALISM (.ui-brutalist)
+   Bold high-contrast borders, solid offset drop-shadows, confident geometric framing.
+------------------------------------------------------------------------------ */
+.ui-brutalist {
+  background: #ffffff;
+  border: 2px solid #0f172a;
+  box-shadow: 4px 4px 0px 0px #0f172a;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ui-brutalist:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #0f172a;
+}
+
+.ui-brutalist-accent {
+  background: #f8fafc;
+  border: 2px solid #1e5631;
+  box-shadow: 4px 4px 0px 0px #1e5631;
+}
+
+/* ------------------------------------------------------------------------------
+   8. LIQUID GLASS (.ui-liquid-glass)
+   Fluid specular reflections, smooth organic refraction curves, living gradients.
+------------------------------------------------------------------------------ */
+.ui-liquid-glass {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.15) 45%,
+    rgba(255, 255, 255, 0.25) 100%
+  );
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 
+    0 8px 32px 0 rgba(31, 38, 135, 0.1),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+
+.ui-liquid-glass::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  transition: left 0.75s ease;
+}
+
+.ui-liquid-glass:hover::after {
+  left: 200%;
+}
+
+/* ------------------------------------------------------------------------------
+   9. BENTO GRID (.ui-bento-grid)
+   Asymmetric modular hierarchy, clean card separation, unified rhythmic gaps.
+------------------------------------------------------------------------------ */
+.ui-bento-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 16px -4px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ui-bento-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(148, 163, 184, 0.6);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 12px 24px -4px rgba(0, 0, 0, 0.06);
+}
+
+/* ------------------------------------------------------------------------------
+   10. SPATIAL UI (.ui-spatial)
+   Perspective depth, floating stacked planes, subtle multi-level elevation.
+------------------------------------------------------------------------------ */
+.ui-spatial-container {
+  perspective: 1200px;
+}
+
+.ui-spatial-card {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+  box-shadow: 
+    0 10px 25px -5px rgba(15, 23, 42, 0.1),
+    0 8px 10px -6px rgba(15, 23, 42, 0.06);
+}
+
+.ui-spatial-card:hover {
+  transform: translateY(-4px) translateZ(10px) rotateX(1deg);
+  box-shadow: 
+    0 20px 35px -5px rgba(15, 23, 42, 0.15),
+    0 12px 16px -6px rgba(15, 23, 42, 0.08);
+}
+
+

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { ScrollReveal } from "@/components/home/ScrollReveal";
 
 export function AboutOriginSection() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -11,8 +12,8 @@ export function AboutOriginSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Increased gap between images and text by 40px to 50px (gap-12 lg:gap-20 xl:gap-24) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 xl:gap-24 items-center">
-          {/* 3-Image Mosaic Column (Left) */}
-          <div className="lg:col-span-5 space-y-3 sm:space-y-4">
+          {/* 3-Image Mosaic Column (Left) - Stable Images/Cards drop down from top */}
+          <ScrollReveal variant="card" delay={150} className="lg:col-span-5 space-y-3 sm:space-y-4">
             {/* Main Community Card */}
             <div className="relative rounded-2xl overflow-hidden border border-stone-border shadow-md bg-[#0b1b3d] group">
               <div className="relative aspect-[595/418] overflow-hidden">
@@ -66,20 +67,22 @@ export function AboutOriginSection() {
                 </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Right Narrative Content Column */}
           <div className="lg:col-span-7 flex flex-col space-y-4 sm:space-y-5">
-            <span className="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs font-bold">
-              Foundation Introduction &amp; Origin
-            </span>
+            <ScrollReveal variant="heading" delay={100}>
+              <span className="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs font-bold block mb-1">
+                Foundation Introduction &amp; Origin
+              </span>
 
-            <h2 className="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight leading-tight font-bold">
-              Rooted in Community, Dedicated to Mountain Life
-            </h2>
+              <h2 className="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight leading-tight font-semibold">
+                Rooted in Community, Dedicated to Mountain Life
+              </h2>
+            </ScrollReveal>
 
             {/* Shortened, Concise Core Content */}
-            <div className="space-y-3 text-on-surface-variant text-sm sm:text-body-md font-body-md leading-relaxed">
+            <ScrollReveal variant="text" delay={200} className="space-y-3 text-on-surface-variant text-sm sm:text-body-md font-body-md leading-relaxed">
               <p>
                 Janglan Community Development Foundation delivers free emergency medical transit and sustainable development to remote mountain villages across Hazara Division, KP.
               </p>
@@ -103,10 +106,10 @@ export function AboutOriginSection() {
                   </p>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
 
             {/* Animated Read More Action Button & Full Story Link */}
-            <div className="flex flex-wrap items-center gap-3 pt-1">
+            <ScrollReveal variant="text" delay={300} className="flex flex-wrap items-center gap-3 pt-1">
               {/* Interactive Read More Toggle Button with Ripple & Icon Animation */}
               <button
                 type="button"
@@ -139,10 +142,10 @@ export function AboutOriginSection() {
                   arrow_forward
                 </span>
               </Link>
-            </div>
+            </ScrollReveal>
 
-            {/* Institutional Values Grid - Beautiful Professional Cards with Relevant Background Images */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 pt-3 border-t border-stone-border">
+            {/* Institutional Values Grid - Beautiful Professional Cards dropping in from top */}
+            <ScrollReveal variant="card" delay={400} className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 pt-3 border-t border-stone-border">
               {/* Card 1: Direct Grassroots Service */}
               <div className="relative group rounded-xl overflow-hidden border border-white/20 shadow-md hover:shadow-xl transition-all duration-300 p-4 flex items-start gap-3.5 select-none min-h-[92px]">
                 {/* Background Image: Grassroots community gathering & village jirga in mountain terrain */}
@@ -160,7 +163,7 @@ export function AboutOriginSection() {
                     <span className="material-symbols-outlined text-2xl">account_balance</span>
                   </div>
                   <div>
-                    <h4 className="text-sm sm:text-base font-bold text-white tracking-tight drop-shadow-sm">
+                    <h4 className="text-sm sm:text-base font-semibold text-white tracking-tight drop-shadow-sm">
                       Direct Grassroots Service
                     </h4>
                     <p className="text-xs sm:text-[13px] text-slate-200 mt-0.5 leading-snug drop-shadow-sm font-medium">
@@ -187,7 +190,7 @@ export function AboutOriginSection() {
                     <span className="material-symbols-outlined text-2xl">gavel</span>
                   </div>
                   <div>
-                    <h4 className="text-sm sm:text-base font-bold text-white tracking-tight drop-shadow-sm">
+                    <h4 className="text-sm sm:text-base font-semibold text-white tracking-tight drop-shadow-sm">
                       Audited Governance
                     </h4>
                     <p className="text-xs sm:text-[13px] text-slate-200 mt-0.5 leading-snug drop-shadow-sm font-medium">
@@ -196,7 +199,7 @@ export function AboutOriginSection() {
                   </div>
                 </div>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
       </div>

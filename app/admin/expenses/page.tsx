@@ -839,7 +839,7 @@ export default function AdminExpensesPage() {
         <div className="space-y-4">
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Diesel & Fuel Vouchers Breakdown</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Diesel & Fuel Vouchers Breakdown</h3>
               <p className="text-xs text-slate-500">Fuel disbursements linked to mountain transit units.</p>
             </div>
             <div className="font-mono text-sm font-bold text-amber-700">
@@ -907,7 +907,7 @@ export default function AdminExpensesPage() {
         <div className="space-y-4">
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Workshop Repairs & Routine Servicing</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Workshop Repairs & Routine Servicing</h3>
               <p className="text-xs text-slate-500">Periodic oil changes, brake pads, tire replacements, and mountain overhauls.</p>
             </div>
             <div className="font-mono text-sm font-bold text-indigo-700">

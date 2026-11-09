@@ -155,7 +155,7 @@ export default function AdminOverviewPage() {
 
       {/* Website Control Hub Grid */}
       <div className="mb-8">
-        <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <h2 className="text-base font-semibold text-slate-900 mb-3 flex items-center gap-2">
           <span>Website Management & Content Desks</span>
           <span className="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
             Direct Public Control
@@ -232,7 +232,7 @@ export default function AdminOverviewPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Recent Ambulance Dispatches</h3>
+            <h3 className="text-base font-semibold text-slate-900">Recent Ambulance Dispatches</h3>
             <p className="text-xs text-slate-500">Live operational mountain transfers</p>
           </div>
           <Link href="/admin/trips">

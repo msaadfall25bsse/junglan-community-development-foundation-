@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { ScrollReveal } from "@/components/home/ScrollReveal";
+import { FlipButton } from "@/components/common/FlipButton";
 
 export function WorkPillarsSection() {
   const [flippedCards, setFlippedCards] = useState<{ [key: number]: boolean }>({});
@@ -17,15 +19,19 @@ export function WorkPillarsSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-          <span className="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs font-bold">
-            Strategic Domains
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight mt-1 font-bold">
-            Our Three Pillars of Mountain Transformation
-          </h2>
-          <p className="text-sm sm:text-body-md font-body-md text-on-surface-variant mt-2 sm:mt-3">
-            Our initiatives balance high-priority life-saving interventions today with generational agrarian self-reliance and civic infrastructure for tomorrow.
-          </p>
+          <ScrollReveal variant="heading" delay={100}>
+            <span className="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-xs font-bold block mb-1">
+              Strategic Domains
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-headline-lg font-headline-lg text-primary tracking-tight font-semibold">
+              Our Three Pillars of Mountain Transformation
+            </h2>
+          </ScrollReveal>
+          <ScrollReveal variant="text" delay={200}>
+            <p className="text-sm sm:text-body-md font-body-md text-on-surface-variant mt-2 sm:mt-3">
+              Our initiatives balance high-priority life-saving interventions today with generational agrarian self-reliance and civic infrastructure for tomorrow.
+            </p>
+          </ScrollReveal>
         </div>
 
         {/* 3 Pillars Grid with Interactive 3D Card Flip (Desktop Hover + Mobile Tap) */}
@@ -140,14 +146,16 @@ export function WorkPillarsSection() {
                   </div>
 
                   <div className="pt-4 border-t border-white/20 flex items-center justify-between">
-                    <a
-                      href="#healthcare-section"
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#e5252a] text-white font-semibold text-xs hover:bg-red-700 transition-colors shadow-sm"
-                    >
-                      <span>Explore Healthcare Operations</span>
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </a>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <FlipButton
+                        href="#healthcare-section"
+                        variant="red"
+                        frontText="Explore Healthcare Operations"
+                        backText="Opening Healthcare..."
+                        icon="arrow_forward"
+                        className="w-auto"
+                      />
+                    </div>
                   </div>
                 </div>
               </article>
@@ -264,14 +272,16 @@ export function WorkPillarsSection() {
                   </div>
 
                   <div className="pt-4 border-t border-white/20 flex items-center justify-between">
-                    <a
-                      href="#agriculture-section"
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1e5631] text-white font-semibold text-xs hover:bg-emerald-800 transition-colors shadow-sm"
-                    >
-                      <span>View Agriculture Program</span>
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </a>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <FlipButton
+                        href="#agriculture-section"
+                        variant="primary"
+                        frontText="View Agriculture Program"
+                        backText="Opening Agriculture..."
+                        icon="arrow_forward"
+                        className="w-auto"
+                      />
+                    </div>
                   </div>
                 </div>
               </article>
@@ -389,14 +399,16 @@ export function WorkPillarsSection() {
                   </div>
 
                   <div className="pt-4 border-t border-white/20 flex items-center justify-between">
-                    <a
-                      href="#support-section"
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0b4f8c] text-white font-semibold text-xs hover:bg-blue-800 transition-colors shadow-sm"
-                    >
-                      <span>View Project Roadmap</span>
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </a>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <FlipButton
+                        href="#support-section"
+                        variant="secondary"
+                        frontText="View Project Roadmap"
+                        backText="Opening Roadmap..."
+                        icon="arrow_forward"
+                        className="w-auto"
+                      />
+                    </div>
                   </div>
                 </div>
               </article>

@@ -35,7 +35,7 @@ export function SectionHeader({
           </Badge>
         </div>
       )}
-      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
+      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-900 leading-tight">
         {title}
       </h2>
       {subtitle && (

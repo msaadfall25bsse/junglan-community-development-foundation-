@@ -27,7 +27,7 @@ export default function GlobalError({
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
               An Unexpected System Issue Occurred
             </h1>
             <p className="text-xs text-slate-600 leading-relaxed">

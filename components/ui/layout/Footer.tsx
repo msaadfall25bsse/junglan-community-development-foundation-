@@ -49,48 +49,48 @@ export function Footer() {
             </div>
             <ul className="space-y-2 text-xs sm:text-body-sm text-slate-300 font-medium">
               <li>
-                <a
+                <Link
                   className="hover:text-white transition-colors flex items-center gap-2 py-0.5"
-                  href="#healthcare-section"
+                  href="/ambulance-service"
                 >
                   <span className="material-symbols-outlined text-xs text-secondary-fixed">
                     arrow_forward
                   </span>{" "}
-                  Emergency Dispatch
-                </a>
+                  Ambulance Service
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-white transition-colors flex items-center gap-2 py-0.5"
-                  href="#healthcare-section"
+                  href="/agriculture"
                 >
                   <span className="material-symbols-outlined text-xs text-secondary-fixed">
                     arrow_forward
                   </span>{" "}
-                  Healthcare &amp; Ambulance
-                </a>
+                  Agriculture &amp; Rural Development
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-white transition-colors flex items-center gap-2 py-0.5"
-                  href="#agriculture-section"
+                  href="/our-work"
                 >
                   <span className="material-symbols-outlined text-xs text-secondary-fixed">
                     arrow_forward
                   </span>{" "}
-                  Olive Agroforestry
-                </a>
+                  Our Work &amp; Focus Areas
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-white transition-colors flex items-center gap-2 py-0.5"
-                  href="#work-pillars"
+                  href="/impact"
                 >
                   <span className="material-symbols-outlined text-xs text-secondary-fixed">
                     arrow_forward
                   </span>{" "}
-                  Planned Infrastructure
-                </a>
+                  Impact, Audits &amp; Transparency
+                </Link>
               </li>
             </ul>
           </div>
@@ -102,37 +102,37 @@ export function Footer() {
             </div>
             <ul className="space-y-2 text-xs sm:text-body-sm text-slate-300">
               <li>
-                <a
+                <Link
                   className="hover:text-white transition-colors flex items-center gap-2 text-xs py-0.5"
-                  href="#audit-pipeline"
+                  href="/impact#at-a-glance"
                 >
                   <span className="material-symbols-outlined text-xs text-secondary-fixed">
                     description
                   </span>{" "}
                   Audit Pipeline &amp; Field Records
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-white transition-colors flex items-center gap-2 text-xs py-0.5"
-                  href="#about-origin"
+                  href="/about"
                 >
                   <span className="material-symbols-outlined text-xs text-secondary-fixed">
                     gavel
                   </span>{" "}
                   SECP Governance Framework
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-white transition-colors flex items-center gap-2 text-xs py-0.5"
-                  href="#audit-pipeline"
+                  href="/impact#transparency"
                 >
                   <span className="material-symbols-outlined text-xs text-secondary-fixed">
                     verified_user
                   </span>{" "}
                   Financial Transparency Pledge
-                </a>
+                </Link>
               </li>
               <li className="pt-2 border-t border-white/10 text-xs text-slate-300 leading-relaxed">
                 <span className="block text-slate-400 font-label-uppercase uppercase text-[10px] tracking-wider mb-0.5">
@@ -156,15 +156,15 @@ export function Footer() {
               © 2026 Junglan Community Development Foundation (JCDF). All rights reserved. Registered under SECP CUIN 0348227.
             </div>
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[11px] sm:text-xs">
-              <Link className="hover:text-white transition-colors" href="/about">
+              <Link className="hover:text-white transition-colors" href="/privacy-policy">
                 Privacy Policy
               </Link>
               <span>•</span>
-              <Link className="hover:text-white transition-colors" href="/about">
+              <Link className="hover:text-white transition-colors" href="/terms-of-operations">
                 Terms of Operations
               </Link>
               <span>•</span>
-              <Link className="hover:text-white transition-colors" href="/about">
+              <Link className="hover:text-white transition-colors" href="/secp-filings">
                 SECP Filings
               </Link>
             </div>

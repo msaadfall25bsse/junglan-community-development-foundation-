@@ -1,8 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { ScrollReveal } from "@/components/home/ScrollReveal";
 
 export function ApproachSection() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <section
       className="py-16 md:py-20 border-b border-stone-border relative"
@@ -17,95 +20,132 @@ export function ApproachSection() {
     >
       <div className="max-w-7xl mx-auto px-margin-sm md:px-margin">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          <div>
-            <span className="font-label-uppercase text-label-uppercase text-secondary tracking-widest block mb-1">
+          <ScrollReveal variant="heading" delay={100}>
+            <span className="font-label-uppercase text-label-uppercase text-secondary tracking-widest block mb-1 font-bold">
               OPERATIONAL METHODOLOGY
             </span>
-            <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary font-bold">
+            <h2 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary font-semibold">
               Our Approach to Community Development
             </h2>
-          </div>
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/40 backdrop-blur-sm border border-white/40 text-on-surface-variant font-body-sm text-body-sm italic">
-            Suggested consultative approach.
-          </span>
+          </ScrollReveal>
+          <ScrollReveal variant="text" delay={200}>
+            <div className="flex flex-col items-start md:items-end">
+              <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/70 backdrop-blur-sm border border-white/60 text-on-surface-variant font-body-sm text-body-sm font-semibold">
+                Suggested consultative approach.
+              </span>
+              {/* Expandable note */}
+              <div
+                className={`grid transition-all duration-500 ease-in-out ${
+                  isExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden pt-2 max-w-sm text-right text-xs text-slate-700 bg-white/80 p-2 rounded-lg mt-1 border border-white/80 backdrop-blur-sm">
+                  We maintain strict accountability with itemized accounting, field verification, and open stakeholder communication.
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-secondary transition-colors pt-1 cursor-pointer focus:outline-none"
+              >
+                <span>{isExpanded ? "Show Less" : "See Details"}</span>
+                <span
+                  className={`material-symbols-outlined text-[16px] transition-transform duration-300 ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                >
+                  expand_more
+                </span>
+              </button>
+            </div>
+          </ScrollReveal>
         </div>
+
         {/* 4-Step Horizontal Process Pipeline */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
           {/* Step 01 */}
-          <div className="relative backdrop-blur-md bg-white/70 hover:bg-white/80 transition-all p-6 rounded-xl border border-white/60 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-stat-display text-2xl text-secondary font-bold">01</span>
-                <span className="material-symbols-outlined text-outline text-[20px]">hearing</span>
+          <ScrollReveal variant="card" delay={150}>
+            <div className="ui-glassmorphic p-6 rounded-xl flex flex-col justify-between h-full transition-all duration-300 hover:scale-[1.02]">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-stat-display text-2xl text-secondary font-bold">01</span>
+                  <span className="material-symbols-outlined text-outline text-[20px]">hearing</span>
+                </div>
+                <h3 className="font-headline-sm text-[16px] text-primary font-semibold mb-2">
+                  Understand Needs
+                </h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
+                  Engage directly with village elders, families, and workers to listen and map genuine ground challenges.
+                </p>
               </div>
-              <h3 className="font-headline-sm text-[16px] text-primary font-bold mb-2">
-                Understand Community Needs
-              </h3>
-              <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
-                Engage directly with village elders, families, and workers to listen and map genuine ground challenges.
-              </p>
+              <div className="mt-4 pt-3 border-t border-stone-border/60 text-[11px] font-label-uppercase text-outline font-semibold">
+                Stage: Field Listening
+              </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-stone-border/60 text-[11px] font-label-uppercase text-outline font-semibold">
-              Stage: Field Listening
-            </div>
-          </div>
+          </ScrollReveal>
 
           {/* Step 02 */}
-          <div className="relative backdrop-blur-md bg-white/70 hover:bg-white/80 transition-all p-6 rounded-xl border border-white/60 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-stat-display text-2xl text-secondary font-bold">02</span>
-                <span className="material-symbols-outlined text-outline text-[20px]">filter_alt</span>
+          <ScrollReveal variant="card" delay={250}>
+            <div className="ui-glassmorphic p-6 rounded-xl flex flex-col justify-between h-full transition-all duration-300 hover:scale-[1.02]">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-stat-display text-2xl text-secondary font-bold">02</span>
+                  <span className="material-symbols-outlined text-outline text-[20px]">filter_alt</span>
+                </div>
+                <h3 className="font-headline-sm text-[16px] text-primary font-semibold mb-2">
+                  Target Priority Issues
+                </h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
+                  Concentrate resources on specific high-impact needs: emergency patient transit and agroforestry.
+                </p>
               </div>
-              <h3 className="font-headline-sm text-[16px] text-primary font-bold mb-2">
-                Identify Practical Priorities
-              </h3>
-              <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
-                Filter prospective initiatives to ensure they are actionable, immediately needed, and locally sustainable.
-              </p>
+              <div className="mt-4 pt-3 border-t border-stone-border/60 text-[11px] font-label-uppercase text-outline font-semibold">
+                Stage: Focus Definition
+              </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-stone-border/60 text-[11px] font-label-uppercase text-outline font-semibold">
-              Stage: Feasibility Assessment
-            </div>
-          </div>
+          </ScrollReveal>
 
           {/* Step 03 */}
-          <div className="relative backdrop-blur-md bg-white/70 hover:bg-white/80 transition-all p-6 rounded-xl border border-white/60 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-stat-display text-2xl text-secondary font-bold">03</span>
-                <span className="material-symbols-outlined text-outline text-[20px]">engineering</span>
+          <ScrollReveal variant="card" delay={350}>
+            <div className="ui-glassmorphic p-6 rounded-xl flex flex-col justify-between h-full transition-all duration-300 hover:scale-[1.02]">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-stat-display text-2xl text-secondary font-bold">03</span>
+                  <span className="material-symbols-outlined text-outline text-[20px]">handshake</span>
+                </div>
+                <h3 className="font-headline-sm text-[16px] text-primary font-semibold mb-2">
+                  Implement Cooperatively
+                </h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
+                  Deploy frontline assistance from ambulance transport to agricultural planting days and irrigation care.
+                </p>
               </div>
-              <h3 className="font-headline-sm text-[16px] text-primary font-bold mb-2">
-                Support Relevant Activities
-              </h3>
-              <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
-                Deploy tangible assistance—from frontline ambulance transport to agricultural planting days and irrigation care.
-              </p>
+              <div className="mt-4 pt-3 border-t border-stone-border/60 text-[11px] font-label-uppercase text-outline font-semibold">
+                Stage: Field Action
+              </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-stone-border/60 text-[11px] font-label-uppercase text-outline font-semibold">
-              Stage: Direct Execution
-            </div>
-          </div>
+          </ScrollReveal>
 
           {/* Step 04 */}
-          <div className="relative backdrop-blur-md bg-white/70 hover:bg-white/80 transition-all p-6 rounded-xl border border-white/60 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="font-stat-display text-2xl text-secondary font-bold">04</span>
-                <span className="material-symbols-outlined text-outline text-[20px]">published_with_changes</span>
+          <ScrollReveal variant="card" delay={450}>
+            <div className="ui-glassmorphic p-6 rounded-xl flex flex-col justify-between h-full transition-all duration-300 hover:scale-[1.02]">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-stat-display text-2xl text-secondary font-bold">04</span>
+                  <span className="material-symbols-outlined text-outline text-[20px]">sync</span>
+                </div>
+                <h3 className="font-headline-sm text-[16px] text-primary font-semibold mb-2">
+                  Review &amp; Refine
+                </h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
+                  Regularly assess service delivery, solicit community feedback, and optimize operations transparently.
+                </p>
               </div>
-              <h3 className="font-headline-sm text-[16px] text-primary font-bold mb-2">
-                Review and Improve
-              </h3>
-              <p className="font-body-sm text-body-sm text-on-surface-variant font-medium">
-                Continuously collect user feedback, publish transparent audit records, and calibrate work for greater impact.
-              </p>
+              <div className="mt-4 pt-3 border-t border-stone-border/60 text-[11px] font-label-uppercase text-outline font-semibold">
+                Stage: Stewardship
+              </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-stone-border/60 text-[11px] font-label-uppercase text-outline font-semibold">
-              Stage: Iterative Audit
-            </div>
-          </div>
+          </ScrollReveal>
         </div>
       </div>
     </section>

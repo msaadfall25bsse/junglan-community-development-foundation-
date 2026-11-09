@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { ScrollReveal } from "@/components/home/ScrollReveal";
 
 interface MetricCardData {
   category: string;
@@ -30,8 +31,8 @@ const METRICS_DATA: MetricCardData[] = [
     badgeBgColor: "bg-red-500/15",
     badgeTextColor: "text-red-400",
     bgImageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAmr4hKb_HMqDutGRELVHRK7j89DaIvsEthZp5-fJdMBVwROwIgOuZYA5WEHlG41SF7mGafYqqzWDp4K0A7ktcaEA1nh_U8oMJ6Q26FRclxNUsW8wdq_zsHyI5XN-lTLKmqS7KuO4CBp_FuehuiRsRSOPVHsTfVrMKoWTck0cpCSJHGzdwAbOkoDrPtjpA5RYnerz704865uev-63yuMjC-1QmEVk9w1BmKvkgxzI896HR74RG34VKYhjGrP0YmboPDWQ",
-    bgImageAlt: "JCDF 4x4 Mountain Ambulance navigating mountain pass",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDw4BkN-FvKCwKlRRua2XMaGjBOw_zYQAHyN7RuJDALBbE3l97_h3vp7dtUnlDA375DQ0pyn-rbofYsFX5s80SCxOhRgRsoyUmPsoQpc5d9Ut-RI1H7l3-4nKafOUhNOUWX399iQyJ0lUjSJPQhI8iOl4SZSS82Ckhr_Gx7FlWdA9KMwAKBMQMvprcp7N-yh5VLrnZLBlK2RQ0siAFNzf7fCV289n1oeoG6Qn050VS5ojSIjSJfoRzlad-GvrHhyZ4j1w",
+    bgImageAlt: "24/7 Emergency Hospital and Ambulance Transit",
   },
   {
     category: "Core Settlements",
@@ -44,8 +45,7 @@ const METRICS_DATA: MetricCardData[] = [
     badgeBorderColor: "border-emerald-500/30",
     badgeBgColor: "bg-emerald-500/15",
     badgeTextColor: "text-emerald-400",
-    bgImageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAG0wu9KK8XmJMR4Gn1QDN3fNhDdt4lr_7BOrMThRMNU92Gbqvv0dd4pBKVwF7Vxg2C-4yJu62XkRQ_Nb8Bv-L2HNDnbWtpb93Fkd75T-jYLNbXhFbCGY9skgJ5eL7gjCQLiKnoew1PjE3sYHCI2Lbw0tsAJRCJ67HW-pJB8P01cpBGf6KluxfNp4TgLYEKxp50g_8OxPNqMmz-zrEP0tbbU6Yhr7azVj1YTiaVYLAnhT8DP6IE25t6x8K37X02OhSDcg",
+    bgImageUrl: "/metric-settlements.jpg",
     bgImageAlt: "High-altitude mountain settlement terraced terrain in Janglan",
   },
   {
@@ -59,8 +59,7 @@ const METRICS_DATA: MetricCardData[] = [
     badgeBorderColor: "border-sky-500/30",
     badgeBgColor: "bg-sky-500/15",
     badgeTextColor: "text-sky-400",
-    bgImageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDw4BkN-FvKCwKlRRua2XMaGjBOw_zYQAHyN7RuJDALBbE3l97_h3vp7dtUnlDA375DQ0pyn-rbofYsFX5s80SCxOhRgRsoyUmPsoQpc5d9Ut-RI1H7l3-4nKafOUhNOUWX399iQyJ0lUjSJPQhI8iOl4SZSS82Ckhr_Gx7FlWdA9KMwAKBMQMvprcp7N-yh5VLrnZLBlK2RQ0siAFNzf7fCV289n1oeoG6Qn050VS5ojSIjSJfoRzlad-GvrHhyZ4j1w",
+    bgImageUrl: "/metric-ambulance.jpg",
     bgImageAlt: "24/7 Emergency response and mountain patient transit",
   },
   {
@@ -74,15 +73,14 @@ const METRICS_DATA: MetricCardData[] = [
     badgeBorderColor: "border-lime-500/30",
     badgeBgColor: "bg-lime-500/15",
     badgeTextColor: "text-lime-400",
-    bgImageUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuASbl218rw6F8qnPCszluLItlrNKEIWTmj2M-Y_eKx8iZVN7HTc8-6DcBuYIj15lsGneZt_7hPO4D88oVA8fRa9P_Al--M4z7OLTcuZqlow1TF4lBc8e1HkqTrcrtKYkbRLGiHkDOgavj0uMUrTXXA5aapBvez83nbh0RlqcYKbiLB45CqdkTRcQGkdqD9m_MOwCEi5trIhkXMhPeNTTxTazUmyuJ23CpEiQrtx10QbawvzOmqjrJkxx3ly1cMWRKAjQw",
+    bgImageUrl: "/metric-fiduciary.jpg",
     bgImageAlt: "Field audits and institutional transparency ledgers",
   },
 ];
 
 function MetricCardItem({ metric }: { metric: MetricCardData }) {
   return (
-    <div className="relative group w-[280px] xs:w-[300px] sm:w-[320px] md:w-[340px] shrink-0 h-[260px] sm:h-[280px] rounded-2xl overflow-hidden border border-white/20 shadow-lg hover:shadow-2xl transition-all duration-300 select-none">
+    <div className="relative group w-[280px] xs:w-[300px] sm:w-[320px] md:w-[340px] shrink-0 h-[260px] sm:h-[280px] rounded-2xl overflow-hidden ui-maximalist select-none transition-all duration-300">
       {/* Background Image Layer:
           - Uses object-cover with object-center to anchor from center
           - Enhanced zoom (scale-125 sm:scale-135) to physically expand image to reach the extreme bottom of the card
@@ -161,17 +159,19 @@ export function MetricsSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
-          <div className="space-y-1">
+          <ScrollReveal variant="heading" delay={100} className="space-y-1">
             <span className="text-label-uppercase font-label-uppercase text-secondary uppercase tracking-wider text-[10px] sm:text-[11px] font-bold">
               Field Operational Verification
             </span>
-            <h2 className="text-lg xs:text-xl sm:text-2xl md:text-headline-md font-headline-md text-primary font-bold tracking-tight">
+            <h2 className="text-lg xs:text-xl sm:text-2xl md:text-headline-md font-headline-md text-primary font-semibold tracking-tight">
               Measurable Progress Across Janglan Valley
             </h2>
-          </div>
-          <div className="text-body-sm font-body-sm text-on-surface-variant max-w-md text-xs sm:text-sm leading-relaxed">
-            Field data updated on monthly accounting cycle • 100% verified against bank receipts and emergency dispatch trip logs.
-          </div>
+          </ScrollReveal>
+          <ScrollReveal variant="text" delay={200}>
+            <div className="text-body-sm font-body-sm text-on-surface-variant max-w-md text-xs sm:text-sm leading-relaxed">
+              Field data updated on monthly accounting cycle • 100% verified against bank receipts and emergency dispatch trip logs.
+            </div>
+          </ScrollReveal>
         </div>
       </div>
 

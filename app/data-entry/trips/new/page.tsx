@@ -179,7 +179,7 @@ export default function NewTripPage() {
             <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-8 h-8" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="text-xl font-semibold text-slate-900">
               Trip Dispatch Logged Successfully!
             </h2>
             <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
@@ -227,7 +227,7 @@ export default function NewTripPage() {
 
             {/* Section 1: Dispatch Core Info */}
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
                 1. Case Identification
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -259,7 +259,7 @@ export default function NewTripPage() {
 
             {/* Section 2: Route & Destination */}
             <div className="pt-4 border-t border-slate-100">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
                 2. Route & Transit Details
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -301,7 +301,7 @@ export default function NewTripPage() {
 
             {/* Section 3: Vehicle & Mileage */}
             <div className="pt-4 border-t border-slate-100">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
                 3. Vehicle Deployment & Mileage
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">

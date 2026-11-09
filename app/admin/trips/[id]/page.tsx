@@ -338,7 +338,7 @@ export default function TripDetailPage({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-slate-900 font-mono">
+              <h2 className="text-xl font-semibold text-slate-900 font-mono">
                 {trip.tripIdentifier}
               </h2>
               <Badge
@@ -402,7 +402,7 @@ export default function TripDetailPage({
           {/* Patient Card */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <User className="w-4 h-4 text-emerald-600" />
                 Patient Dossier
               </h3>
@@ -449,7 +449,7 @@ export default function TripDetailPage({
 
           {/* Clinical & Transit Notes */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3 pb-3 border-b border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3 pb-3 border-b border-slate-100">
               <FileText className="w-4 h-4 text-emerald-600" />
               Transit & Clinical Notes
             </h3>
@@ -462,7 +462,7 @@ export default function TripDetailPage({
         {/* Middle Column: Route & Hospital Handover */}
         <div className="space-y-6">
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
               <MapPin className="w-4 h-4 text-rose-500" />
               Route Logistics & Timing
             </h3>
@@ -521,7 +521,7 @@ export default function TripDetailPage({
 
           {/* Crew Information */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3 pb-3 border-b border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2 mb-3 pb-3 border-b border-slate-100">
               <User className="w-4 h-4 text-emerald-600" />
               Emergency Response Crew
             </h3>
@@ -544,7 +544,7 @@ export default function TripDetailPage({
         <div className="space-y-6">
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <Truck className="w-4 h-4 text-emerald-600" />
                 Vehicle & Telemetry
               </h3>
@@ -599,7 +599,7 @@ export default function TripDetailPage({
 
           {/* Audit & Archival Metadata */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-xs text-slate-500 space-y-2">
-            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            <h3 className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
               System Audit Trail
             </h3>
             <div><strong>Record ID:</strong> <span className="font-mono">{trip.id}</span></div>

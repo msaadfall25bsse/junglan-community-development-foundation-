@@ -32,7 +32,7 @@ export function EmptyState({
       <div className="p-3.5 rounded-2xl bg-white text-sky-600 shadow-2xs border border-slate-100 mb-4">
         {icon || <Inbox className="w-8 h-8 text-slate-400" />}
       </div>
-      <h3 className="text-base font-bold text-slate-900 mb-1.5">{title}</h3>
+      <h3 className="text-base font-semibold text-slate-900 mb-1.5">{title}</h3>
       <p className="text-xs sm:text-sm text-slate-500 max-w-sm mb-6 leading-relaxed">
         {description}
       </p>

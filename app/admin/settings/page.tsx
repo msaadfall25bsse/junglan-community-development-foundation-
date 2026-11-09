@@ -601,7 +601,7 @@ export default function AdminSettingsPage() {
                   </div>
 
                   <div className="pt-2">
-                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                    <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-wider mb-2">
                       Database Backup & Restoration Tools
                     </h4>
                     <div className="flex flex-wrap gap-3">

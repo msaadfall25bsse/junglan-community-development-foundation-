@@ -265,7 +265,7 @@ export default function AdminPatientsPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
                 Patient Master Registry
               </h1>
               <Badge variant="success">Operational Year 2026</Badge>

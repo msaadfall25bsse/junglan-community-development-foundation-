@@ -175,7 +175,7 @@ export default function PatientDetailPage({
           <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Patient Record Not Found</h2>
+          <h2 className="text-xl font-semibold text-slate-900">Patient Record Not Found</h2>
           <p className="text-sm text-slate-500 mt-1 mb-6">
             The requested patient identifier does not exist or may have been removed.
           </p>
@@ -233,7 +233,7 @@ export default function PatientDetailPage({
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                  <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
                     {patient.fullName}
                   </h1>
                   <Badge variant="success" className="font-mono text-xs">
@@ -271,7 +271,7 @@ export default function PatientDetailPage({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
             {/* Contact & Identification */}
             <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Contact & Identification
               </h3>
               <div className="bg-slate-50 rounded-xl p-4 space-y-3 text-sm">
@@ -307,7 +307,7 @@ export default function PatientDetailPage({
 
             {/* Medical Assessment */}
             <div className="space-y-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                 Medical Condition Summary
               </h3>
               <div className="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100 text-sm">
@@ -331,7 +331,7 @@ export default function PatientDetailPage({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Truck className="w-5 h-5 text-emerald-600" />
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-base font-semibold text-slate-900">
                 Emergency Ambulance Transit History
               </h2>
             </div>

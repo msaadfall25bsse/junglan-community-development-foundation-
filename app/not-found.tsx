@@ -19,7 +19,7 @@ export default function NotFound() {
               <span className="text-xs font-bold uppercase tracking-wider text-sky-700">
                 404 — Page Not Located
               </span>
-              <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-4xl font-semibold text-slate-900 tracking-tight">
                 The Requested Page Could Not Be Found
               </h1>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-md mx-auto">

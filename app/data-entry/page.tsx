@@ -815,7 +815,7 @@ export default function DataEntryDeskPage() {
                   <ShieldCheck className="w-3.5 h-3.5" /> Google Sheet Sync
                 </span>
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-1.5">
+              <h3 className="text-base font-semibold text-slate-900 mb-1.5">
                 New Patient & Ambulance Trip Entry
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed mb-4">
@@ -848,7 +848,7 @@ export default function DataEntryDeskPage() {
                   <Calendar className="w-3.5 h-3.5" /> Chronological Sort
                 </span>
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-1.5">
+              <h3 className="text-base font-semibold text-slate-900 mb-1.5">
                 Record Expense / Documentary Voucher
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed mb-4">
@@ -875,7 +875,7 @@ export default function DataEntryDeskPage() {
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
                 <Search className="w-4 h-4 text-sky-600" />
                 Patient Record Verification & Live Lookup
               </h2>
@@ -1108,7 +1108,7 @@ export default function DataEntryDeskPage() {
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h2 className="text-sm font-bold text-slate-900">
+                <h2 className="text-sm font-semibold text-slate-900">
                   Ambulance Service Patient Record (Tab 1: gid=0)
                 </h2>
                 <p className="text-xs text-slate-500">
@@ -1221,7 +1221,7 @@ export default function DataEntryDeskPage() {
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-bold text-slate-900">
+                <h2 className="text-sm font-semibold text-slate-900">
                   Financial Accounting General Ledger (Tab 2: Expanses - gid=223912461)
                 </h2>
                 <p className="text-xs text-slate-500">
@@ -1501,7 +1501,7 @@ export default function DataEntryDeskPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm font-bold text-slate-900">
+                <h2 className="text-sm font-semibold text-slate-900">
                   Full-Year Analytics & Service Intelligence (Tab 3: Analysis)
                 </h2>
                 <p className="text-xs text-slate-500">
@@ -1513,7 +1513,7 @@ export default function DataEntryDeskPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {/* Pickup Leaderboard */}
               <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-slate-900 mb-1 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-emerald-600" />
                   Top Pickup Locations (Origins)
                 </h3>
@@ -1537,7 +1537,7 @@ export default function DataEntryDeskPage() {
 
               {/* Drop Leaderboard */}
               <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-slate-900 mb-1 flex items-center gap-2">
                   <ArrowRight className="w-4 h-4 text-sky-600" />
                   Top Drop Destinations (Hospitals)
                 </h3>
@@ -1561,7 +1561,7 @@ export default function DataEntryDeskPage() {
 
               {/* Financial Ledger Breakdown */}
               <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-slate-900 mb-1 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-amber-600" />
                   Financial Accounting Breakdown
                 </h3>
@@ -1609,7 +1609,7 @@ export default function DataEntryDeskPage() {
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Trip Registered Successfully!</h3>
+              <h3 className="text-base font-semibold text-slate-900">Trip Registered Successfully!</h3>
               <p className="text-xs text-slate-600 max-w-md mx-auto">{modalSuccess}</p>
             </div>
           ) : (
@@ -1848,7 +1848,7 @@ export default function DataEntryDeskPage() {
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Voucher Logged Successfully!</h3>
+              <h3 className="text-base font-semibold text-slate-900">Voucher Logged Successfully!</h3>
               <p className="text-xs text-slate-600 max-w-md mx-auto">{modalSuccess}</p>
             </div>
           ) : (
@@ -2048,7 +2048,7 @@ export default function DataEntryDeskPage() {
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Trip Updated!</h3>
+              <h3 className="text-base font-semibold text-slate-900">Trip Updated!</h3>
               <p className="text-xs text-slate-600 max-w-md mx-auto">{modalSuccess}</p>
             </div>
           ) : (
@@ -2237,7 +2237,7 @@ export default function DataEntryDeskPage() {
               <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-bold text-slate-900">Voucher Updated!</h3>
+              <h3 className="text-base font-semibold text-slate-900">Voucher Updated!</h3>
               <p className="text-xs text-slate-600 max-w-md mx-auto">{modalSuccess}</p>
             </div>
           ) : (
@@ -2459,7 +2459,7 @@ export default function DataEntryDeskPage() {
             </div>
 
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-slate-700">
-              <h4 className="font-bold text-slate-900 flex items-center gap-1.5">
+              <h4 className="font-semibold text-slate-900 flex items-center gap-1.5">
                 <Globe className="w-4 h-4 text-sky-600" />
                 Quick 1-Minute Setup Guide:
               </h4>
